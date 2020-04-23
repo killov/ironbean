@@ -1,4 +1,4 @@
-import {Container, getBaseContainer} from "./container";
+import {Container, destroyBaseContainer, getBaseContainer} from "./container";
 import {ComponentType} from "./enums";
 import {autowired, component} from "./decorators";
 
@@ -31,5 +31,9 @@ export class ApplicationContext {
 export function getBaseApplicationContext(): ApplicationContext {
     const container = getBaseContainer();
     return container.getDependency(ApplicationContext);
+}
+
+export function destroyBaseApplicationContext(): void {
+    destroyBaseContainer();
 }
 

@@ -8,7 +8,5 @@ export const constants = {
 
 export enum ComponentType {
     Singleton,
-    Prototype,
-    Scope,
-    ScopeSingleton
+    Prototype
 }

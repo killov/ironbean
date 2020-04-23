@@ -21,21 +21,16 @@ export function component(ClassOrType: any): any {
     return decorator;
 }
 
-export function scope(target: any): any {
-        if (target.prototype) {
-            Reflect.defineMetadata(constants.scope, true, target);
-        }
-
-        return target;
-    }
-
 export function autowired<T extends any>(target: T, propertyName: string) {
-    var _value: any;
+    let _value: any;
     const set = () => {};
     const get = () => {
-        const type = Reflect.getMetadata("design:type", target, propertyName);
         if (_value) {
             return _value;
+        }
+        const type = Reflect.getMetadata("design:type", target, propertyName);
+        if (!type) {
+            throw new Error("type not found");
         }
         const container = getBaseContainer();
         _value = container.getDependency(type);

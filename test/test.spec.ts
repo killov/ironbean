@@ -1,6 +1,10 @@
-import { autowired, component, getBaseApplicationContext, postConstruct} from "../src";
+import {autowired, component, destroyBaseApplicationContext, getBaseApplicationContext, postConstruct} from "../src";
 
 describe("test", () => {
+    afterEach(() => {
+        destroyBaseApplicationContext();
+    });
+
     it("test 1", () => {
         @component
         class a {
@@ -9,7 +13,7 @@ describe("test", () => {
 
         @component
         class b {
-            @autowired a: a;
+            @autowired a!: a;
         }
 
         const applicationContext = getBaseApplicationContext();

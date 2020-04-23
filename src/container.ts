@@ -53,12 +53,16 @@ export class Container {
     }
 }
 
-let container: Container;
-export function getBaseContainer() {
+let container: Container | null;
+export function getBaseContainer(): Container {
     if (!container) {
         container = new Container();
         container.init();
     }
 
     return container;
+}
+
+export function destroyBaseContainer(): void {
+    container = null;
 }
