@@ -3,7 +3,7 @@ export const constants = {
     postConstruct: "_ioc_postConstruct",
     componentType: "_ioc_componentType",
     container: "_ioc_container",
-    scope: "_ioc_scope"
+    autowiredCache: "_ioc_autowiredCache"
 };
 
 export enum ComponentType {

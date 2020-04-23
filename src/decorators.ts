@@ -22,19 +22,21 @@ export function component(ClassOrType: any): any {
 }
 
 export function autowired<T extends any>(target: T, propertyName: string) {
-    let _value: any;
     const set = () => {};
-    const get = () => {
-        if (_value) {
-            return _value;
+    const get = function(this: any) {
+        const target = this;
+        const valueFromCache = Reflect.getMetadata(constants.autowiredCache, this, propertyName)
+        if (valueFromCache) {
+            return valueFromCache;
         }
         const type = Reflect.getMetadata("design:type", target, propertyName);
         if (!type) {
             throw new Error("type not found");
         }
         const container = getBaseContainer();
-        _value = container.getDependency(type);
-        return _value;
+        const value = container.getDependency(type);
+        Reflect.defineMetadata(constants.autowiredCache, value, this, propertyName)
+        return value;
     };
 
     if (delete target[propertyName]) {
