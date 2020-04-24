@@ -24,13 +24,21 @@ import {autowired, component} from "./decorators";
 export class ApplicationContext {
     @autowired private container!: Container;
     public getBean<T>(Class: new (...any: any[]) => T): T {
-        return this.container.getDependency(Class);
+        return this.container.getClassInstance(Class);
+    }
+
+    public addDependenceFactory(key: object, factory: Function) {
+        this.container.addDependenceFactory(key, factory);
+    }
+
+    public getDependence(key: object) {
+        return this.container.getByKey(key);
     }
 }
 
 export function getBaseApplicationContext(): ApplicationContext {
     const container = getBaseContainer();
-    return container.getDependency(ApplicationContext);
+    return container.getClassInstance(ApplicationContext);
 }
 
 export function destroyBaseApplicationContext(): void {

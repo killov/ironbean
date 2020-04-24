@@ -4,50 +4,81 @@ import {ComponentType, constants} from "./enums";
 @component(ComponentType.Singleton)
 export class Container {
     dependencies: Object[] = [];
+    factories: Function[] = [];
 
     init() {
         const id = (Object as any).id(Container);
         this.dependencies[id] = this;
     }
 
-    getDependency<T>(Class: new () => T): T {
+    addDependenceFactory(key: Object, factory: Function) {
+        const id = (Object as any).id(key);
+        this.factories[id] = factory;
+    }
+
+    public getClassInstance<T>(Class: new () => T): T {
         const id = (Object as any).id(Class);
 
         if (!this.dependencies[id]) {
-            const type = this.getType(Class);
+            const type = this.getComponentType(Class);
             const instance = this.buildNewInstance(Class);
             if (type === ComponentType.Singleton) {
                 this.dependencies[id] = instance;
             }
-            this.runPostConstruct(instance);
+            this.runPostConstruct(instance, Class);
             return instance;
         }
 
         return this.dependencies[id] as T;
     }
 
-    getDependencyList(Classes?: (new () => Object)[]) {
+    public getByKey(objectKey: Object): any {
+        const id = (Object as any).id(objectKey);
+
+        if (!this.dependencies[id]) {
+            const factory = this.factories[id];
+            if (!factory) {
+                throw new Error("Factory for " + objectKey + "not found.");
+            }
+            this.dependencies[id] = factory();
+        }
+
+        return this.dependencies[id];
+    }
+
+    protected getDependencyList(Classes: (new () => Object)[]|undefined, objectKeys: any[]) {
         if (!Classes) {
             return [];
         }
 
-        return Classes.map(Class => this.getDependency(Class));
+        const map = Classes.map(Class => this.getClassInstance(Class as any));
+        if (objectKeys) {
+            objectKeys.forEach((obj, index) => {
+                if (obj) {
+                    map[index] = this.getByKey(obj);
+                }
+            })
+        }
+
+        return map;
     }
 
-    private getType(Class: new () => any): ComponentType | undefined {
+    private getComponentType(Class: new () => any): ComponentType | undefined {
         return Reflect.getMetadata(constants.componentType, Class);
     }
 
     private buildNewInstance<T>(Class: new () => T): T {
         const Classes = Reflect.getMetadata("design:paramtypes", Class);
-        return new (Class as any)(...this.getDependencyList(Classes));
+        const objectKeys = Reflect.getMetadata(constants.keys, Class);
+        return new (Class as any)(...this.getDependencyList(Classes, objectKeys));
     }
 
-    private runPostConstruct(instance: any) {
-        for (let key in instance) {
+    private runPostConstruct(instance: any, Class: any) {
+        for (let key in Class.prototype) {
             if (Reflect.getMetadata(constants.postConstruct, instance, key)) {
-                const Classes = Reflect.getMetadata("design:paramtypes", instance, key);
-                (instance[key] as Function).apply(instance, this.getDependencyList(Classes));
+                const Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, key);
+                const objectKeys = Reflect.getOwnMetadata(constants.keys, Class.prototype, key);
+                (instance[key] as Function).apply(instance, this.getDependencyList(Classes, objectKeys));
             }
         }
     }

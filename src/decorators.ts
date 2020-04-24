@@ -29,12 +29,18 @@ export function autowired<T extends any>(target: T, propertyName: string) {
         if (valueFromCache) {
             return valueFromCache;
         }
+        const container = getBaseContainer();
+        const key = Reflect.getMetadata(constants.keys, target, propertyName);
+        if (key) {
+            const value = container.getByKey(key);
+            Reflect.defineMetadata(constants.autowiredCache, value, this, propertyName)
+            return value;
+        }
         const type = Reflect.getMetadata("design:type", target, propertyName);
         if (!type) {
-            throw new Error("type not found");
+            throw new Error("type on property " + propertyName + " not found");
         }
-        const container = getBaseContainer();
-        const value = container.getDependency(type);
+        const value = container.getClassInstance(type);
         Reflect.defineMetadata(constants.autowiredCache, value, this, propertyName)
         return value;
     };
@@ -46,6 +52,18 @@ export function autowired<T extends any>(target: T, propertyName: string) {
             enumerable: true,
             configurable: true
         });
+    }
+}
+
+export function dependenceKey(key: Object) {
+    return function(target: any, propertyName: string | symbol, parameterIndex?: number) {
+        if (parameterIndex === undefined) {
+            Reflect.defineMetadata(constants.keys, key, target, propertyName);
+        } else {
+            const methodParameters: Object[] = Reflect.getOwnMetadata(constants.keys, target, propertyName) || [];
+            methodParameters[parameterIndex] = key;
+            Reflect.defineMetadata(constants.keys, methodParameters, target, propertyName);
+        }
     }
 }
 
