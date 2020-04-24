@@ -46,12 +46,12 @@ export class Container {
         return this.dependencies[id];
     }
 
-    protected getDependencyList(Classes: (new () => Object)[]|undefined, objectKeys: any[]) {
+    protected getDependencyList(Classes: (new () => Object)[]|undefined, objectKeys: any[] = []) {
         if (!Classes) {
             return [];
         }
 
-        const map = Classes.map(Class => this.getClassInstance(Class as any));
+        const map = Classes.map((Class, i) => !objectKeys[i] && this.getClassInstance(Class as any));
         if (objectKeys) {
             objectKeys.forEach((obj, index) => {
                 if (obj) {

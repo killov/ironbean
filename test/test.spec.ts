@@ -84,9 +84,11 @@ describe("test", () => {
     it("inject by key", () => {
         const key = {};
         const key2 = {};
+        const key3 = {};
 
         applicationContext.addDependenceFactory(key, () => "datata");
         applicationContext.addDependenceFactory(key2, () => "datata22");
+        applicationContext.addDependenceFactory(key3, () => new b());
 
         @component
         class a {
@@ -98,8 +100,8 @@ describe("test", () => {
             }
 
             @postConstruct
-            post(@dependence(key) data: string) {
-                expect(data).toBe("datata");
+            post(@dependence(key3) data: b) {
+                expect(data instanceof  b).toBe(true);
             }
         }
 
