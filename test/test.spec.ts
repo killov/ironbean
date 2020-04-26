@@ -1,7 +1,7 @@
 import {
     autowired,
     component,
-    destroyBaseApplicationContext,
+    destroyContext,
     getBaseApplicationContext,
     dependence,
     postConstruct,
@@ -18,7 +18,7 @@ describe("test", () => {
     })
 
     afterEach(() => {
-        destroyBaseApplicationContext();
+        destroyContext();
     });
 
     function expectDependenciesCount(dependenciesCount: number) {

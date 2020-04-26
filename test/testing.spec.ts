@@ -1,17 +1,23 @@
-import {autowired, component, dependence, destroyBaseApplicationContext, postConstruct, TestingContext, getBaseTestingContext} from "../src";
+import {
+    autowired,
+    component,
+    dependence,
+    destroyContext,
+    postConstruct,
+    JasmineTestingContext, getBaseJasmineTestingContext
+} from "../src";
 import {Container} from "../src/container";
 
 describe("testing", () => {
-    let testingContext: TestingContext;
+    let testingContext: JasmineTestingContext;
 
     beforeEach(() => {
-        testingContext = getBaseTestingContext();
-        testingContext.useJasmineTestProvider();
+        testingContext = getBaseJasmineTestingContext();
         expectDependenciesCount(2);
     })
 
     afterEach(() => {
-        destroyBaseApplicationContext();
+        destroyContext();
     });
 
     function expectDependenciesCount(dependenciesCount: number) {
@@ -44,6 +50,10 @@ describe("testing", () => {
             f() {
 
             }
+
+            getText() {
+                return "ahoj1";
+            }
         }
 
         @component
@@ -75,12 +85,15 @@ describe("testing", () => {
         expect(testingContext.getDependence(key)).toBe("datata");
         expect(testingContext.getDependence(key2)).toBe("datata22");
 
+        testingContext.getMock(a).getText.and.returnValue("ahoja");
+
         @component
         class c {
             constructor(a: a) {
                 expect(a).toBe(ia1);
                 expect(a.f).not.toHaveBeenCalled();
                 a.f();
+                expect(a.getText()).toBe("ahoja");
                 expect(a.f).toHaveBeenCalled();
             }
 

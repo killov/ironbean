@@ -136,13 +136,13 @@ export function getBaseContainer(): Container {
     return container;
 }
 
-export function getTestContainer(): Container {
+export function getTestContainer(): TestContainer {
     if (!container) {
         container = new TestContainer();
         container.init();
     }
 
-    return container;
+    return container as TestContainer;
 }
 
 export function destroyContainer(): void {
