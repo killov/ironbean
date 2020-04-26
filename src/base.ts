@@ -1,6 +1,7 @@
-import {Container, destroyBaseContainer, getBaseContainer} from "./container";
+import {Container, destroyContainer, getBaseContainer, getTestContainer, TestContainer} from "./container";
 import {ComponentType} from "./enums";
-import {autowired, component} from "./decorators";
+import {component} from "./decorators";
+import {JasmineTestProvider, TestProvider} from "./testProvider";
 
 (function() {
     if (typeof (Object as any).id === "undefined") {
@@ -22,7 +23,12 @@ import {autowired, component} from "./decorators";
 
 @component(ComponentType.Singleton)
 export class ApplicationContext {
-    @autowired private container!: Container;
+    private container: Container;
+
+    constructor(container: Container) {
+        this.container = container;
+    }
+
     public getBean<T>(Class: new (...any: any[]) => T): T {
         return this.container.getClassInstance(Class);
     }
@@ -36,12 +42,39 @@ export class ApplicationContext {
     }
 }
 
+@component(ComponentType.Singleton)
+export class TestingContext extends ApplicationContext {
+    private testContainer: TestContainer;
+
+    constructor(container: TestContainer) {
+        super(container);
+        this.testContainer = container;
+    }
+
+    public getBeanWithMocks<T>(Class: new (...any: any[]) => T): T {
+        return this.testContainer.getClassInstanceWithMocks(Class);
+    }
+
+    public setTestProvider(testProvider: TestProvider): void {
+        return this.testContainer.setTestProvider(testProvider)
+    }
+
+    public useJasmineTestProvider(): void {
+        return this.setTestProvider(new JasmineTestProvider());
+    }
+}
+
 export function getBaseApplicationContext(): ApplicationContext {
     const container = getBaseContainer();
     return container.getClassInstance(ApplicationContext);
 }
 
+export function getBaseTestingContext(): TestingContext {
+    const container = getTestContainer();
+    return container.getClassInstance(TestingContext);
+}
+
 export function destroyBaseApplicationContext(): void {
-    destroyBaseContainer();
+    destroyContainer();
 }
 

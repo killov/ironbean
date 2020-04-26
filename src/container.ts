@@ -1,5 +1,7 @@
 import {component} from "./decorators";
 import {ComponentType, constants} from "./enums";
+import {TestProvider} from "./testProvider";
+import {ApplicationContext, TestingContext} from "./base";
 
 @component(ComponentType.Singleton)
 export class Container {
@@ -16,7 +18,7 @@ export class Container {
         this.factories[id] = factory;
     }
 
-    public getClassInstance<T>(Class: new () => T): T {
+    public getClassInstance<T>(Class: new (...any: any[]) => T): T {
         const id = (Object as any).id(Class);
 
         if (!this.dependencies[id]) {
@@ -63,17 +65,17 @@ export class Container {
         return map;
     }
 
-    private getComponentType(Class: new () => any): ComponentType | undefined {
+    protected getComponentType(Class: new () => any): ComponentType | undefined {
         return Reflect.getMetadata(constants.componentType, Class);
     }
 
-    private buildNewInstance<T>(Class: new () => T): T {
+    protected buildNewInstance<T>(Class: new () => T): T {
         const Classes = Reflect.getMetadata("design:paramtypes", Class);
         const objectKeys = Reflect.getMetadata(constants.keys, Class);
         return new (Class as any)(...this.getDependencyList(Classes, objectKeys));
     }
 
-    private runPostConstruct(instance: any, Class: any) {
+    protected runPostConstruct(instance: any, Class: any) {
         for (let key in Class.prototype) {
             if (Reflect.getMetadata(constants.postConstruct, instance, key)) {
                 const Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, key);
@@ -81,6 +83,46 @@ export class Container {
                 (instance[key] as Function).apply(instance, this.getDependencyList(Classes, objectKeys));
             }
         }
+    }
+}
+
+@component(ComponentType.Singleton)
+export class TestContainer extends Container {
+    private testProvider!: TestProvider;
+
+    public init() {
+        const id = (Object as any).id(TestContainer);
+        this.dependencies[id] = this;
+    }
+
+    public getClassInstance<T>(Class: new () => T): T {
+        if (<any>Class === ApplicationContext || <any>Class === TestingContext) {
+            return super.getClassInstance(TestingContext as any);
+        }
+        if (<any>Class === Container || <any>Class === TestContainer) {
+            return super.getClassInstance(TestContainer as any);
+        }
+
+        const id = (Object as any).id(Class);
+
+        if (!this.dependencies[id]) {
+            const type = this.getComponentType(Class);
+            const instance = this.testProvider.mockClass(Class);
+            if (type === ComponentType.Singleton) {
+                this.dependencies[id] = instance;
+            }
+            return instance;
+        }
+
+        return this.dependencies[id] as T;
+    }
+
+    public getClassInstanceWithMocks<T>(Class: new () => T): T {
+        return super.getClassInstance(Class);
+    }
+
+    public setTestProvider(testProvider: TestProvider) {
+        this.testProvider = testProvider;
     }
 }
 
@@ -94,6 +136,15 @@ export function getBaseContainer(): Container {
     return container;
 }
 
-export function destroyBaseContainer(): void {
+export function getTestContainer(): Container {
+    if (!container) {
+        container = new TestContainer();
+        container.init();
+    }
+
+    return container;
+}
+
+export function destroyContainer(): void {
     container = null;
 }
