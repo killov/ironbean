@@ -4,10 +4,10 @@ import {
     destroyBaseApplicationContext,
     getBaseApplicationContext,
     dependence,
-    postConstruct
+    postConstruct,
+    ApplicationContext
 } from "../src";
 import {Container} from "../src/container";
-import {ApplicationContext} from "../src/base";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;

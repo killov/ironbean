@@ -1,6 +1,5 @@
-import {autowired, component, dependence, destroyBaseApplicationContext, postConstruct} from "../src";
+import {autowired, component, dependence, destroyBaseApplicationContext, postConstruct, TestingContext, getBaseTestingContext} from "../src";
 import {Container} from "../src/container";
-import {getBaseTestingContext, TestingContext} from "../src/base";
 
 describe("testing", () => {
     let testingContext: TestingContext;
