@@ -72,7 +72,6 @@ export function getBaseApplicationContext(): ApplicationContext {
 }
 
 export function getBaseTestingContext(): TestingContext {
-    debugger;
     const container = getTestContainer();
     container.setTestProvider(new TestProvider());
     return container.getClassInstance(TestingContext);
