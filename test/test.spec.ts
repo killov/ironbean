@@ -22,7 +22,7 @@ describe("test", () => {
     });
 
     function expectDependenciesCount(dependenciesCount: number) {
-        expect(Object.keys(applicationContext.getBean(Container).dependencies).length).toBe(dependenciesCount);
+        expect(applicationContext.getBean(Container).countOfDependencies()).toBe(dependenciesCount)
     }
 
     it("test 1", () => {

@@ -2,50 +2,54 @@ import {component} from "./decorators";
 import {ComponentType, constants} from "./enums";
 import {TestProvider} from "./testProvider";
 import {ApplicationContext, TestingContext} from "./base";
+import {DependencyStorage} from "./dependencyStorage";
 
 @component(ComponentType.Singleton)
 export class Container {
-    dependencies: Object[] = [];
-    factories: Function[] = [];
+   protected storage: DependencyStorage = new DependencyStorage();
 
     init() {
-        const id = (Object as any).id(Container);
-        this.dependencies[id] = this;
+        this.storage.saveInstance(Container, this);
     }
 
     addDependenceFactory(key: Object, factory: Function) {
-        const id = (Object as any).id(key);
-        this.factories[id] = factory;
+        this.storage.saveFactory(key, factory);
     }
 
     public getClassInstance<T>(Class: new (...any: any[]) => T): T {
-        const id = (Object as any).id(Class);
+        const instance = this.storage.getInstance(Class);
 
-        if (!this.dependencies[id]) {
+        if (!instance) {
             const type = this.getComponentType(Class);
             const instance = this.buildNewInstance(Class);
             if (type === ComponentType.Singleton) {
-                this.dependencies[id] = instance;
+                this.storage.saveInstance(Class, instance);
             }
             this.runPostConstruct(instance, Class);
             return instance;
         }
 
-        return this.dependencies[id] as T;
+        return instance as T;
+    }
+
+    public setCustomFactoryForClassInstance<T>(Class: new (...any: any[]) => T, factory: () => T) {
+        this.storage.saveFactory(Class, factory);
     }
 
     public getByKey(objectKey: Object): any {
-        const id = (Object as any).id(objectKey);
+        const instance = this.storage.getInstance(objectKey);
 
-        if (!this.dependencies[id]) {
-            const factory = this.factories[id];
+        if (!instance) {
+            const factory = this.storage.getFactory(objectKey);
             if (!factory) {
                 throw new Error("Factory for " + objectKey + "not found.");
             }
-            this.dependencies[id] = factory();
+            const instance = factory();
+            this.storage.saveInstance(objectKey, instance);
+            return instance;
         }
 
-        return this.dependencies[id];
+        return instance;
     }
 
     protected getDependencyList(Classes: (new () => Object)[]|undefined, objectKeys: any[] = []) {
@@ -84,6 +88,10 @@ export class Container {
             }
         }
     }
+
+    public countOfDependencies(): number {
+        return this.storage.countOfDependencies();
+    }
 }
 
 @component(ComponentType.Singleton)
@@ -91,8 +99,7 @@ export class TestContainer extends Container {
     private testProvider!: TestProvider;
 
     public init() {
-        const id = (Object as any).id(TestContainer);
-        this.dependencies[id] = this;
+        this.storage.saveInstance(TestContainer, this);
     }
 
     public getClassInstance<T>(Class: new () => T): T {
@@ -103,18 +110,18 @@ export class TestContainer extends Container {
             return super.getClassInstance(TestContainer as any);
         }
 
-        const id = (Object as any).id(Class);
+        const instance = this.storage.getInstance(Class);
 
-        if (!this.dependencies[id]) {
+        if (!instance) {
             const type = this.getComponentType(Class);
             const instance = this.testProvider.mockClass(Class);
             if (type === ComponentType.Singleton) {
-                this.dependencies[id] = instance;
+                this.storage.saveInstance(Class, instance)
             }
             return instance;
         }
 
-        return this.dependencies[id] as T;
+        return instance as T;
     }
 
     public getClassInstanceWithMocks<T>(Class: new () => T): T {
