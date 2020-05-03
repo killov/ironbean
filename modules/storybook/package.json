@@ -1,6 +1,6 @@
 {
     "name": "fire-dic-storybook",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "",
     "main": "dist/index.js",
     "files": [
@@ -17,7 +17,7 @@
     "dependencies": {
         "@storybook/addons": "^5.0.0",
         "@storybook/react": "^5.0.0",
-        "fire-dic": "^1.0.8"
+        "fire-dic": "^1.0.9"
     },
     "devDependencies": {
         "jasmine-core": "^3.5.0",
