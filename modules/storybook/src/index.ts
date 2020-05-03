@@ -1,12 +1,17 @@
-import {getBaseTestingContext, TestingContext} from "fire-dic";
+import {destroyContext, getBaseTestingContext, TestingContext} from "fire-dic";
+import {addDecorator} from "@storybook/react";
 
 type TOnInit = (context: TestingContext) => void;
 
 export let onI: TOnInit | undefined;
 
 export function onInitStory(onInit: TOnInit) {
-    onI = onInit;
-    start();
+    addDecorator((fn, c) => {
+        destroyContext();
+        onI = onInit;
+        start();
+        return fn(c);
+    })
 }
 
 export function start() {
