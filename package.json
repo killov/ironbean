@@ -1,6 +1,6 @@
 {
     "name": "fire-dic",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "description": "",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -12,10 +12,10 @@
     "author": "Zdeněk Mazurák",
     "license": "ISC",
     "dependencies": {
-        "reflect-metadata": "^0.1.13",
-        "@types/jasmine": "^3.5.0"
+        "reflect-metadata": "^0.1.13"
     },
     "devDependencies": {
+        "@types/jasmine": "^3.5.0",
         "jasmine-core": "^3.5.0",
         "karma": "^4.4.1",
         "karma-chrome-launcher": "^3.1.0",

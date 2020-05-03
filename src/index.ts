@@ -8,9 +8,10 @@ export const autowired = decorators.autowired;
 export const dependence = decorators.dependenceKey;
 export const postConstruct = decorators.postConstruct;
 export const getBaseApplicationContext = base.getBaseApplicationContext;
+export const getBaseTestingContext = base.getBaseTestingContext;
 export const getBaseJasmineTestingContext = base.getBaseJasmineTestingContext;
 export const destroyContext = base.destroyContext;
 
-export {ApplicationContext, JasmineTestingContext } from "./base";
+export {ApplicationContext, JasmineTestingContext, TestingContext } from "./base";
 
 

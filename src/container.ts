@@ -32,10 +32,6 @@ export class Container {
         return instance as T;
     }
 
-    public setCustomFactoryForClassInstance<T>(Class: new (...any: any[]) => T, factory: () => T) {
-        this.storage.saveFactory(Class, factory);
-    }
-
     public getByKey(objectKey: Object): any {
         const instance = this.storage.getInstance(objectKey);
 
@@ -102,7 +98,7 @@ export class TestContainer extends Container {
         this.storage.saveInstance(TestContainer, this);
     }
 
-    public getClassInstance<T>(Class: new () => T): T {
+    public getClassInstance<T>(Class: new (...any: any[]) => T): T {
         if (<any>Class === ApplicationContext || <any>Class === TestingContext) {
             return super.getClassInstance(TestingContext as any);
         }

@@ -124,6 +124,7 @@ describe("test", () => {
         const ia4 = applicationContext.getBean(a);
 
         expect(ib1.a === ia1).toBe(true);
+        expect(ib1.a === ia1).toBe(true);
         expect(ib1.data).toBe("datata");
         expect(ib1).toBe(ib2);
         expect(ib1).toBe(ib3);

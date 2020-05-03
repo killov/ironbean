@@ -1,6 +1,14 @@
-export abstract class TestProvider {
+export class TestProvider {
 
-    public abstract mockClass<T>(Class: new () => T): T;
+    public mockClass<T>(Class: { new(): T }): T {
+        const obj: any = {};
+        for (const key in Class.prototype) {
+            obj[key] = function () {
+
+            }
+        }
+        return obj as T;
+    }
 
 }
 
