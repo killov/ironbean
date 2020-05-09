@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import {ComponentType, constants} from "./enums";
-import {getBaseContainer} from "./container";
+import {currentContainer, getBaseContainer} from "./container";
+import {Scope} from "./scope";
 
 
 export function component(ClassOrType: any): any {
@@ -21,6 +22,16 @@ export function component(ClassOrType: any): any {
     return decorator;
 }
 
+export function scope(scope: Scope): any {
+    function decorator(Class: any): any {
+        Reflect.defineMetadata(constants.scope, scope, Class);
+
+        return Class;
+    }
+
+    return decorator;
+}
+
 export function autowired<T extends any>(target: T, propertyName: string) {
     const set = () => {};
     const get = function(this: any) {
@@ -29,7 +40,7 @@ export function autowired<T extends any>(target: T, propertyName: string) {
         if (valueFromCache) {
             return valueFromCache;
         }
-        const container = getBaseContainer();
+        const container = Reflect.getMetadata(constants.container, this) || currentContainer || getBaseContainer();
         const key = Reflect.getMetadata(constants.keys, target, propertyName);
         if (key) {
             const value = container.getByKey(key);

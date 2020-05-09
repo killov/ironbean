@@ -1,12 +1,21 @@
 import {component} from "./decorators";
-import {ComponentType, constants} from "./enums";
+import {ComponentType, constants, ScopeType} from "./enums";
 import {TestProvider} from "./testProvider";
 import {ApplicationContext, TestingContext} from "./base";
 import {DependencyStorage} from "./dependencyStorage";
+import {getDefaultScope, ScopeImpl} from "./scope";
 
 @component(ComponentType.Singleton)
 export class Container {
-   protected storage: DependencyStorage = new DependencyStorage();
+    protected readonly storage: DependencyStorage = new DependencyStorage();
+    protected readonly parent: Container|null;
+    protected readonly scope: ScopeImpl;
+    protected readonly children: Container[] = [];
+
+    constructor(parent: Container|null = null, scope: ScopeImpl|null = null) {
+        this.parent = parent;
+        this.scope = scope ? scope : getDefaultScope() as ScopeImpl;
+    }
 
     init() {
         this.storage.saveInstance(Container, this);
@@ -16,20 +25,67 @@ export class Container {
         this.storage.saveFactory(key, factory);
     }
 
+    private isApplicationContext(Class: any): boolean {
+        return Class === ApplicationContext || Class === TestingContext || Class === Container;
+    }
+
     public getClassInstance<T>(Class: new (...any: any[]) => T): T {
         const instance = this.storage.getInstance(Class);
 
         if (!instance) {
-            const type = this.getComponentType(Class);
-            const instance = this.buildNewInstance(Class);
-            if (type === ComponentType.Singleton) {
-                this.storage.saveInstance(Class, instance);
+            if (this.getComponentScope(Class) === this.getScope() || this.isApplicationContext(Class)) {
+                const type = this.getComponentType(Class);
+                const instance = this.buildNewInstance(Class);
+                if (type === ComponentType.Singleton) {
+                    this.storage.saveInstance(Class, instance);
+                }
+                this.runPostConstruct(instance, Class);
+                return instance;
+            } else {
+                return this.getContainerForClass(Class).getClassInstance(Class);
             }
-            this.runPostConstruct(instance, Class);
-            return instance;
         }
 
         return instance as T;
+    }
+
+    protected getContainerForClass<T>(Class: new (...any: any[]) => T): Container {
+        const scope = this.getComponentScope(Class);
+        const commonScope = ScopeImpl.getCommonParent(scope, this.getScope());
+        const commonContainer = this.getParentContainerByScope(commonScope);
+
+        return commonContainer.getContainerForClassInternal(scope);
+    }
+
+    protected getParentContainerByScope(scope: ScopeImpl): Container {
+        if (this.getScope() === scope) {
+            return this;
+        }
+        const parent = this.parent;
+
+        if (parent === null) {
+            throw new Error();
+        }
+
+        return parent.getParentContainerByScope(scope);
+    }
+
+    private getContainerForClassInternal(scope: ScopeImpl): Container {
+        if (scope === this.getScope()) {
+            return this;
+        }
+        const childScope = this.getScope().getChildScopeDirectionTo(scope);
+        const scopeId = childScope.getId();
+        let container = this.children[scopeId];
+        if (container) {
+            return container
+        }
+        container = new Container(this, childScope);
+        if (childScope.getType() === ScopeType.Singleton) {
+            this.children[scopeId] = container;
+        }
+        container.init();
+        return container.getContainerForClassInternal(scope);
     }
 
     public getByKey(objectKey: Object): any {
@@ -69,10 +125,20 @@ export class Container {
         return Reflect.getMetadata(constants.componentType, Class);
     }
 
+    protected getComponentScope(Class: new () => any): ScopeImpl {
+        return Reflect.getMetadata(constants.scope, Class) || getDefaultScope();
+    }
+
     protected buildNewInstance<T>(Class: new () => T): T {
         const Classes = Reflect.getMetadata("design:paramtypes", Class);
         const objectKeys = Reflect.getMetadata(constants.keys, Class);
-        return new (Class as any)(...this.getDependencyList(Classes, objectKeys));
+        const oldContainer = currentContainer;
+        currentContainer = this;
+        const instance = new (Class as any)(...this.getDependencyList(Classes, objectKeys));
+        currentContainer = oldContainer;
+        Reflect.defineMetadata(constants.container, this, instance);
+
+        return instance;
     }
 
     protected runPostConstruct(instance: any, Class: any) {
@@ -83,6 +149,10 @@ export class Container {
                 (instance[key] as Function).apply(instance, this.getDependencyList(Classes, objectKeys));
             }
         }
+    }
+
+    protected getScope(): ScopeImpl {
+        return this.scope;
     }
 
     public countOfDependencies(): number {
@@ -151,3 +221,5 @@ export function getTestContainer(): TestContainer {
 export function destroyContainer(): void {
     container = null;
 }
+
+export let currentContainer: Container | undefined;
