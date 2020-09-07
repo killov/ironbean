@@ -1,13 +1,12 @@
-import {useState} from "react";
+import {useRef} from "react";
 import {getBaseApplicationContext} from "fire-dic";
 
 export function useBean<T>(Class: new (...any: any[]) => T): T {
-    let [bean, setBean] = useState<T|null>(null)
+    const beanRef = useRef<T>();
 
-    if (bean === null) {
-        bean = getBaseApplicationContext().getBean(Class);
-        setBean(bean);
+    if (beanRef.current === undefined) {
+        beanRef.current = getBaseApplicationContext().getBean(Class);
     }
 
-    return bean;
+    return beanRef.current;
 }
