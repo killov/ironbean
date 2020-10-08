@@ -11,7 +11,15 @@ module.exports = function (config) {
         reporters: ["progress", "karma-typescript"],
         browsers: ["Chrome"],
         karmaTypescriptConfig: {
-            emitDecoratorMetadata: true
+            compilerOptions: {
+                emitDecoratorMetadata: true,
+                experimentalDecorators: true,
+                jsx: "react",
+                module: "commonjs",
+                sourceMap: true,
+                target: "ES5",
+                lib: ["es2015", "dom" ]
+            }
         }
     });
 };

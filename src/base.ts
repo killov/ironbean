@@ -1,7 +1,7 @@
 import {Container, destroyContainer, getBaseContainer, getTestContainer, TestContainer} from "./container";
 import {ComponentType} from "./enums";
 import {component} from "./decorators";
-import {JasmineTestProvider, TestProvider} from "./testProvider";
+import {TestProvider} from "./testProvider";
 
 (function() {
     if (typeof (Object as any).id === "undefined") {
@@ -60,12 +60,6 @@ export class TestingContext extends ApplicationContext {
     }
 }
 
-export class JasmineTestingContext extends TestingContext {
-    public getMock<T>(Class: new (...any: any[]) => T): jasmine.SpyObj<T> {
-        return super.getMock(Class) as jasmine.SpyObj<T>;
-    }
-}
-
 export function getBaseApplicationContext(): ApplicationContext {
     const container = getBaseContainer();
     return container.getClassInstance(ApplicationContext);
@@ -75,12 +69,6 @@ export function getBaseTestingContext(): TestingContext {
     const container = getTestContainer();
     container.setTestProvider(new TestProvider());
     return container.getClassInstance(TestingContext);
-}
-
-export function getBaseJasmineTestingContext(): JasmineTestingContext {
-    const container = getTestContainer();
-    container.setTestProvider(new JasmineTestProvider());
-    return container.getClassInstance(TestingContext as any) as JasmineTestingContext;
 }
 
 export function destroyContext(): void {

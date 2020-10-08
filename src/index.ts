@@ -12,11 +12,10 @@ export const postConstruct = decorators.postConstruct;
 export const scope = decorators.scope;
 export const getBaseApplicationContext = base.getBaseApplicationContext;
 export const getBaseTestingContext = base.getBaseTestingContext;
-export const getBaseJasmineTestingContext = base.getBaseJasmineTestingContext;
 export const destroyContext = base.destroyContext;
 
 export const getDefaultScope = scopeM.getDefaultScope;
 
-export {ApplicationContext, JasmineTestingContext, TestingContext } from "./base";
+export {ApplicationContext, TestingContext } from "./base";
 
 

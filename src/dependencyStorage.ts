@@ -5,26 +5,22 @@ interface IDependence {
 }
 
 export class DependencyStorage {
-    dependencies: IDependence[] = [];
+    dependencies: Map<object, IDependence> = new Map<object, IDependence>();
 
     saveFactory(key: Object, factory: Function) {
-        const id = (Object as any).id(key);
-        this.dependencies[id] = this.createDependenceFactory(key, factory);
+        this.dependencies.set(key, this.createDependenceFactory(key, factory));
     }
 
     saveInstance(key: Object, instance: Object) {
-        const id = (Object as any).id(key);
-        this.dependencies[id] = this.createDependenceItem(key, instance);
+        this.dependencies.set(key, this.createDependenceItem(key, instance));
     }
 
     getFactory(key: Object) {
-        const id = (Object as any).id(key);
-        return this.dependencies[id]?.factory;
+        return this.dependencies.get(key)?.factory;
     }
 
     getInstance(key: Object) {
-        const id = (Object as any).id(key);
-        return this.dependencies[id]?.data;
+        return this.dependencies.get(key)?.data;
     }
 
     protected createDependenceItem(key: Object, data: any): IDependence {
@@ -42,6 +38,6 @@ export class DependencyStorage {
     }
 
     countOfDependencies(): number {
-        return Object.keys(this.dependencies).length;
+        return this.dependencies.size;
     }
 }
