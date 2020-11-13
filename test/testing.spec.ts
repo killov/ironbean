@@ -4,7 +4,7 @@ import {
     dependence,
     destroyContext,
     postConstruct,
-    getBaseTestingContext, TestingContext
+    getBaseTestingContext, TestingContext, getBaseApplicationContext
 } from "../src";
 import {Container} from "../src/container";
 
@@ -111,4 +111,12 @@ describe("testing", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
 
     });
+
+    it("get test container because another container already exists", () => {
+        destroyContext();
+        getBaseApplicationContext();
+        expect(() => {
+            getBaseTestingContext();
+        }).toThrow(new Error("You can't get test container because another container already exists."));
+    })
 });

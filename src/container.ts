@@ -215,7 +215,11 @@ export function getTestContainer(): TestContainer {
         container.init();
     }
 
-    return container as TestContainer;
+    if (!(container instanceof TestContainer)) {
+        throw new Error("You can't get test container because another container already exists.");
+    }
+
+    return container;
 }
 
 export function destroyContainer(): void {
