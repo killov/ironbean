@@ -55,6 +55,10 @@ export class TestingContext extends ApplicationContext {
         return this.testContainer.getClassInstanceWithMocks(Class);
     }
 
+    public disableMock<T>(Class: new (...any: any[]) => T) {
+        return this.testContainer.disableMock(Class);
+    }
+
     public getMock<T>(Class: new (...any: any[]) => T): T {
         return this.getBean(Class);
     }

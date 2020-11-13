@@ -119,4 +119,21 @@ describe("testing", () => {
             getBaseTestingContext();
         }).toThrow(new Error("You can't get test container because another container already exists."));
     })
+
+    it("disable Mock", () => {
+        class A {
+            a: string = "a";
+
+            getA() {
+                return "a";
+            }
+        }
+
+        expect(testingContext.getBean(A).getA()).toBe(undefined);
+
+        destroyContext();
+        testingContext = getBaseTestingContext();
+        testingContext.disableMock(A);
+        expect(testingContext.getBean(A).getA()).toBe("a");
+    })
 });

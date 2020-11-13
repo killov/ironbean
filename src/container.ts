@@ -163,6 +163,7 @@ export class Container {
 @component(ComponentType.Singleton)
 export class TestContainer extends Container {
     private testProvider!: TestProvider;
+    private disabledMocks: (new(...any: any[]) => any)[] = [];
 
     public init() {
         this.storage.saveInstance(TestContainer, this);
@@ -174,6 +175,9 @@ export class TestContainer extends Container {
         }
         if (<any>Class === Container || <any>Class === TestContainer) {
             return super.getClassInstance(TestContainer as any);
+        }
+        if (this.disabledMocks.indexOf(Class) !== -1) {
+            return super.getClassInstance(Class);
         }
 
         const instance = this.storage.getInstance(Class);
@@ -192,6 +196,10 @@ export class TestContainer extends Container {
 
     public getClassInstanceWithMocks<T>(Class: new () => T): T {
         return super.getClassInstance(Class);
+    }
+
+    public disableMock<T>(Class: new () => T) {
+        this.disabledMocks.push(Class);
     }
 
     public setTestProvider(testProvider: TestProvider) {
