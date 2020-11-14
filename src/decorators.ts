@@ -34,7 +34,7 @@ export function scope(scope: Scope): any {
 
 export function autowired<T extends any>(target: T, propertyName: string) {
     const set = () => {};
-    const get = function(this: any) {
+    const get = function(this: T) {
         const target = this;
         const valueFromCache = Reflect.getMetadata(constants.autowiredCache, this, propertyName)
         if (valueFromCache) {

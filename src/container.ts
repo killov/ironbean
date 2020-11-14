@@ -4,6 +4,7 @@ import {TestProvider} from "./testProvider";
 import {ApplicationContext, TestingContext} from "./base";
 import {DependencyStorage} from "./dependencyStorage";
 import {getDefaultScope, ScopeImpl} from "./scope";
+import {DependencyKey} from "./dependencyKey";
 
 @component(ComponentType.Singleton)
 export class Container {
@@ -21,7 +22,7 @@ export class Container {
         this.storage.saveInstance(Container, this);
     }
 
-    addDependenceFactory(key: Object, factory: Function) {
+    addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
         this.storage.saveFactory(key, factory);
     }
 

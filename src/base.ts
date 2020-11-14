@@ -2,6 +2,7 @@ import {Container, destroyContainer, getBaseContainer, getTestContainer, TestCon
 import {ComponentType} from "./enums";
 import {component} from "./decorators";
 import {TestProvider} from "./testProvider";
+import {DependencyKey} from "./dependencyKey";
 
 (function() {
     if (typeof (Object as any).id === "undefined") {
@@ -33,7 +34,7 @@ export class ApplicationContext {
         return this.container.getClassInstance(Class);
     }
 
-    public addDependenceFactory(key: object, factory: Function) {
+    public addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
         this.container.addDependenceFactory(key, factory);
     }
 

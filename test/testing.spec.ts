@@ -4,7 +4,7 @@ import {
     dependence,
     destroyContext,
     postConstruct,
-    getBaseTestingContext, TestingContext, getBaseApplicationContext
+    getBaseTestingContext, TestingContext, getBaseApplicationContext, DependencyKey
 } from "../src";
 import {Container} from "../src/container";
 
@@ -25,9 +25,9 @@ describe("testing", () => {
     }
 
     it("inject by key", () => {
-        const key = {};
-        const key2 = {};
-        const key3 = {};
+        const key = DependencyKey.create<string>();
+        const key2 = DependencyKey.create<string>();
+        const key3 = DependencyKey.create<b>();
 
         testingContext.addDependenceFactory(key, () => "datata");
         testingContext.addDependenceFactory(key2, () => "datata22");
@@ -129,7 +129,7 @@ describe("testing", () => {
             }
         }
 
-        expect(testingContext.getBean(A).getA()).toBe(undefined);
+        expect(testingContext.getBean(A).getA()).toBe(undefined as any);
 
         destroyContext();
         testingContext = getBaseTestingContext();

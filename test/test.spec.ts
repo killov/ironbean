@@ -2,7 +2,7 @@ import {
     ApplicationContext,
     autowired,
     component,
-    dependence,
+    dependence, DependencyKey,
     destroyContext,
     getBaseApplicationContext,
     getDefaultScope,
@@ -84,9 +84,9 @@ describe("test", () => {
     });
 
     it("inject by key", () => {
-        const key = {};
-        const key2 = {};
-        const key3 = {};
+        const key = DependencyKey.create<string>();
+        const key2 = DependencyKey.create<string>();
+        const key3 = DependencyKey.create<b>();
 
         applicationContext.addDependenceFactory(key, () => "datata");
         applicationContext.addDependenceFactory(key2, () => "datata22");
