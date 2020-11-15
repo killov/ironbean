@@ -5,10 +5,15 @@ import {TestProvider} from "fire-dic/dist/testProvider";
 class JasmineTestProvider extends TestProvider {
     public mockClass<T>(Class: { new(): T }): T {
         const methods = [];
+        const properties = [];
         for (const key in Class.prototype) {
-            methods.push(key);
+            if (typeof Object.getOwnPropertyDescriptor(Class.prototype, name)?.get === "function") {
+                properties.push(key);
+            } else {
+                methods.push(key);
+            }
         }
-        return jasmine.createSpyObj(methods);
+        return jasmine.createSpyObj(methods, properties);
     }
 }
 
