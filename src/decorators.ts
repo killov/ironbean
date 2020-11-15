@@ -2,9 +2,12 @@ import "reflect-metadata";
 import {ComponentType, constants} from "./enums";
 import {currentContainer, getBaseContainer} from "./container";
 import {Scope} from "./scope";
+import {DependencyKey} from "./dependencyKey";
 
-
-export function component(ClassOrType: any): any {
+export type Class = new (...args: any[]) => any;
+export function component(componentType: ComponentType): any;
+export function component(Class: Class): any;
+export function component(ClassOrType: Class | ComponentType): any {
     let componentType = ComponentType.Singleton;
     function decorator(Class: any): any {
         Reflect.defineMetadata(constants.component, true, Class);
@@ -13,16 +16,18 @@ export function component(ClassOrType: any): any {
         return Class;
     }
 
+    // @ts-ignore
     if (ClassOrType.prototype) {
         return decorator(ClassOrType);
     }
 
+    // @ts-ignore
     componentType = ClassOrType;
 
     return decorator;
 }
 
-export function scope(scope: Scope): any {
+export function scope(scope: Scope): (Class: Class) => any {
     function decorator(Class: any): any {
         Reflect.defineMetadata(constants.scope, scope, Class);
 
@@ -66,7 +71,7 @@ export function autowired<T extends any>(target: T, propertyName: string) {
     }
 }
 
-export function dependenceKey(key: Object) {
+export function dependenceKey<T>(key: DependencyKey<T>) {
     return function(target: any, propertyName: string | symbol, parameterIndex?: number) {
         if (parameterIndex === undefined) {
             Reflect.defineMetadata(constants.keys, key, target, propertyName);
