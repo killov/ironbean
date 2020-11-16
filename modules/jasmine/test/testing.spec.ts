@@ -1,5 +1,5 @@
 import {
-    getBaseJasmineTestingContext, JasmineTestingContext
+    getBaseJasmineTestingContext, getPropertyDescriptor, JasmineTestingContext
 } from "../src";
 import {autowired, component, dependence, destroyContext, postConstruct} from "fire-dic";
 import {Container} from "fire-dic/dist/container";
@@ -137,6 +137,10 @@ describe("jasmine testing", () => {
         class a {
             test = "sa";
 
+            get property(): string {
+                return "str";
+            }
+
             constructor(@dependence(key) data: string, @dependence(key2) data2: string) {
                 expect(data).toBe("datata");
                 expect(data2).toBe("datata22");
@@ -185,7 +189,14 @@ describe("jasmine testing", () => {
         expect(testingContext.getDependence(key)).toBe("datata");
         expect(testingContext.getDependence(key2)).toBe("datata22");
 
-        testingContext.getMock(a).getText.and.returnValue("ahoja");
+        const m = testingContext.getMock(a)
+        m.getText.and.returnValue("ahoja");
+
+        expect(testingContext.getBean(a).property).toBe(undefined as any);
+
+        getPropertyDescriptor(m, "property").get.and.returnValue("ahoja");
+
+        expect(testingContext.getBean(a).property).toBe("ahoja");
 
         @component
         class c {
