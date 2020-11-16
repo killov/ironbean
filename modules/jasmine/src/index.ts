@@ -8,7 +8,7 @@ class JasmineTestProvider extends TestProvider {
     public mockClass<T>(Class: { new(): T }): T {
         const methods = [];
         const properties = [];
-        for (const key in getAllPropertyNames(Class.prototype)) {
+        for (const key of getAllPropertyNames(Class.prototype)) {
             if (typeof Object.getOwnPropertyDescriptor(Class.prototype, key)?.get === "function") {
                 properties.push(key);
             } else {
@@ -20,12 +20,12 @@ class JasmineTestProvider extends TestProvider {
 }
 
 function getAllPropertyNames(obj: object) {
-    let result = new Set();
+    let result: string[] = [];
     while (obj) {
-        Object.getOwnPropertyNames(obj).forEach(p => result.add(p));
+        Object.getOwnPropertyNames(obj).forEach(p => result.push(p));
         obj = Object.getPrototypeOf(obj);
     }
-    return [...result];
+    return result;
 }
 
 export class JasmineTestingContext extends TestingContext {
