@@ -18,7 +18,8 @@ module.exports = function (config) {
                 module: "commonjs",
                 sourceMap: true,
                 target: "ES5",
-                lib: ["es2015", "dom" ]
+                lib: ["es2015", "dom" ],
+                useDefineForClassFields: true
             }
         }
     });

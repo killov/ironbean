@@ -37,19 +37,19 @@ export function scope(scope: Scope): (Class: Class) => any {
     return decorator;
 }
 
-export function autowired<T extends any>(target: T, propertyName: string) {
+export function autowired(target: any, propertyName: string) {
     const set = () => {};
-    const get = function(this: T) {
+    const get = function(this: any) {
         const target = this;
-        const valueFromCache = Reflect.getMetadata(constants.autowiredCache, this, propertyName)
+        const valueFromCache = Reflect.getMetadata(constants.autowiredCache, target, propertyName)
         if (valueFromCache) {
             return valueFromCache;
         }
-        const container = Reflect.getMetadata(constants.container, this) || currentContainer || getBaseContainer();
+        const container = Reflect.getMetadata(constants.container, target) || currentContainer || getBaseContainer();
         const key = Reflect.getMetadata(constants.keys, target, propertyName);
         if (key) {
             const value = container.getByKey(key);
-            Reflect.defineMetadata(constants.autowiredCache, value, this, propertyName)
+            Reflect.defineMetadata(constants.autowiredCache, value, target, propertyName)
             return value;
         }
         const type = Reflect.getMetadata("design:type", target, propertyName);
@@ -57,7 +57,7 @@ export function autowired<T extends any>(target: T, propertyName: string) {
             throw new Error("type on property " + propertyName + " not found");
         }
         const value = container.getClassInstance(type);
-        Reflect.defineMetadata(constants.autowiredCache, value, this, propertyName)
+        Reflect.defineMetadata(constants.autowiredCache, value, target, propertyName)
         return value;
     };
 
@@ -68,6 +68,7 @@ export function autowired<T extends any>(target: T, propertyName: string) {
             enumerable: true,
             configurable: true
         });
+        Reflect.defineMetadata(constants.autowired, true, target, propertyName);
     }
 }
 

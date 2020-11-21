@@ -1,8 +1,10 @@
+import {getAllPropertyNames} from "./utils";
+
 export class TestProvider {
 
     public mockClass<T>(Class: { new(): T }): T {
         const obj: any = {};
-        for (const key in Class.prototype) {
+        for (const key of getAllPropertyNames(Class.prototype)) {
             obj[key] = function () {
 
             }

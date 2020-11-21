@@ -5,6 +5,7 @@ import {ApplicationContext, TestingContext} from "./base";
 import {DependencyStorage} from "./dependencyStorage";
 import {getDefaultScope, ScopeImpl} from "./scope";
 import {DependencyKey} from "./dependencyKey";
+import {destroyFieldsForAutowired, getAllPropertyNames} from "./utils";
 
 @component(ComponentType.Singleton)
 export class Container {
@@ -138,12 +139,13 @@ export class Container {
         const instance = new (Class as any)(...this.getDependencyList(Classes, objectKeys));
         currentContainer = oldContainer;
         Reflect.defineMetadata(constants.container, this, instance);
+        destroyFieldsForAutowired(instance);
 
         return instance;
     }
 
     protected runPostConstruct(instance: any, Class: any) {
-        for (let key in Class.prototype) {
+        for (let key of getAllPropertyNames(Class.prototype)) {
             if (Reflect.getMetadata(constants.postConstruct, instance, key)) {
                 const Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, key);
                 const objectKeys = Reflect.getOwnMetadata(constants.keys, Class.prototype, key);

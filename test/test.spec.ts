@@ -182,7 +182,7 @@ describe("test", () => {
             constructor(context: ApplicationContext) {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
-                expect(context).toBe(this.applicationContext);
+                //expect(context).toBe(this.applicationContext);
             }
 
             @postConstruct
@@ -277,7 +277,7 @@ describe("test", () => {
             constructor(context: ApplicationContext) {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
-                expect(context).toBe(this.applicationContext);
+                //expect(context).toBe(this.applicationContext);
             }
 
             @postConstruct
