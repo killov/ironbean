@@ -38,7 +38,7 @@ export class ApplicationContext {
         this.container.addDependenceFactory(key, factory);
     }
 
-    public getDependence(key: object) {
+    public getDependence<TDependency>(key: DependencyKey<TDependency>): TDependency {
         return this.container.getByKey(key);
     }
 }

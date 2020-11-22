@@ -83,6 +83,15 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
+    it("inject by key null return of factory", () => {
+        const key = DependencyKey.create<string|null>();
+
+        applicationContext.addDependenceFactory(key, () => null);
+
+        expect(applicationContext.getDependence(key)).toBe(null);
+        expect(applicationContext.getDependence(key)).toBe(null);
+    });
+
     it("inject by key", () => {
         const key = DependencyKey.create<string>();
         const key2 = DependencyKey.create<string>();

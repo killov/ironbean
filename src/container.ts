@@ -90,15 +90,15 @@ export class Container {
         return container.getContainerForClassInternal(scope);
     }
 
-    public getByKey(objectKey: Object): any {
-        const instance = this.storage.getInstance(objectKey);
+    public getByKey<TDependency>(objectKey: DependencyKey<TDependency>): TDependency {
+        const instance = this.storage.getInstance(objectKey) as TDependency;
 
-        if (!instance) {
+        if (instance === undefined) {
             const factory = this.storage.getFactory(objectKey);
             if (!factory) {
                 throw new Error("Factory for " + objectKey + "not found.");
             }
-            const instance = factory();
+            const instance = factory() as TDependency;
             this.storage.saveInstance(objectKey, instance);
             return instance;
         }
