@@ -2,14 +2,17 @@ import {
     ApplicationContext,
     autowired,
     component,
-    dependence, DependencyKey,
+    dependence,
+    DependencyKey,
     destroyContext,
     getBaseApplicationContext,
     getDefaultScope,
     postConstruct,
-    scope, ScopeType
+    scope,
+    ScopeType
 } from "../src";
 import {Container} from "../src/container";
+import {ComponentType} from "../src/enums";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -90,6 +93,28 @@ describe("test", () => {
 
         expect(applicationContext.getDependence(key)).toBe(null);
         expect(applicationContext.getDependence(key)).toBe(null);
+    });
+
+    it("inject by key singleton return of factory", () => {
+        const key = DependencyKey.create<number>();
+        let i = 0;
+
+        applicationContext.addDependenceFactory(key, () => i++);
+
+        expect(applicationContext.getDependence(key)).toBe(0);
+        expect(applicationContext.getDependence(key)).toBe(0);
+        expect(applicationContext.getDependence(key)).toBe(0);
+    });
+
+    it("inject by key prototype return of factory", () => {
+        const key = DependencyKey.create<number>({componentType: ComponentType.Prototype});
+        let i = 0;
+
+        applicationContext.addDependenceFactory(key, () => i++);
+
+        expect(applicationContext.getDependence(key)).toBe(0);
+        expect(applicationContext.getDependence(key)).toBe(1);
+        expect(applicationContext.getDependence(key)).toBe(2);
     });
 
     it("inject by key", () => {

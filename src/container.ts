@@ -99,7 +99,9 @@ export class Container {
                 throw new Error("Factory for " + objectKey + "not found.");
             }
             const instance = factory() as TDependency;
-            this.storage.saveInstance(objectKey, instance);
+            if (objectKey.componentType === ComponentType.Singleton) {
+                this.storage.saveInstance(objectKey, instance);
+            }
             return instance;
         }
 
