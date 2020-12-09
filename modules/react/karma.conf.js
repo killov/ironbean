@@ -3,15 +3,21 @@ module.exports = function (config) {
         frameworks: ["jasmine", "karma-typescript"],
         files: [
             "./src/*.ts", // *.tsx for React Jsx
-            "./test/*.ts" // *.tsx for React Jsx
+            "./test/*.tsx" // *.tsx for React Jsx
         ],
         preprocessors: {
-            "*/*.ts": ["karma-typescript"]
+            "*/*.ts": ["karma-typescript"],
+            "*/*.tsx": ["karma-typescript"]
         },
         reporters: ["progress", "karma-typescript"],
         browsers: ["Chrome"],
         karmaTypescriptConfig: {
-            emitDecoratorMetadata: true
+            compilerOptions: {
+                emitDecoratorMetadata: true,
+                esModuleInterop: true,
+                target: "ES5",
+                lib: ["es2015", "dom"]
+            }
         }
     });
 };
