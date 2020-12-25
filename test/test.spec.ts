@@ -117,6 +117,14 @@ describe("test", () => {
         expect(applicationContext.getDependence(key)).toBe(2);
     });
 
+    it("inject by key without factory", () => {
+        const key = DependencyKey.create<number>({componentType: ComponentType.Prototype});
+
+        expect(() => {
+            applicationContext.getDependence(key);
+        }).toThrow();
+    });
+
     it("inject by key", () => {
         const key = DependencyKey.create<string>();
         const key2 = DependencyKey.create<string>();

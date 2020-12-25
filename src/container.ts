@@ -1,11 +1,12 @@
-import {component} from "./decorators";
+import {autowired, component} from "./decorators";
 import {ComponentType, constants, ScopeType} from "./enums";
 import {TestProvider} from "./testProvider";
 import {ApplicationContext, TestingContext} from "./base";
 import {DependencyStorage} from "./dependencyStorage";
 import {getDefaultScope, ScopeImpl} from "./scope";
 import {DependencyKey} from "./dependencyKey";
-import {destroyFieldsForAutowired, getAllPropertyNames} from "./utils";
+import {ClassComponent, Component, DependencyComponent} from "./component";
+import {FactoryStorage} from "./factoryStorage";
 
 @component(ComponentType.Singleton)
 export class Container {
@@ -14,45 +15,52 @@ export class Container {
     protected readonly scope: ScopeImpl;
     protected readonly children: Container[] = [];
 
+    @autowired
+    protected factoryStorage!: FactoryStorage;
+
     constructor(parent: Container|null = null, scope: ScopeImpl|null = null) {
         this.parent = parent;
         this.scope = scope ? scope : getDefaultScope() as ScopeImpl;
     }
 
     init() {
-        this.storage.saveInstance(Container, this);
+        this.storage.saveInstance(ClassComponent.create(Container), this);
     }
 
     addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
-        this.storage.saveFactory(key, factory);
+        this.factoryStorage.saveFactory(key, factory);
     }
 
-    private isApplicationContext(Class: any): boolean {
-        return Class === ApplicationContext || Class === TestingContext || Class === Container;
+    getDependenceFactory<TDependency>(key: DependencyKey<TDependency>): Function|undefined {
+        return this.factoryStorage.getFactory(key);
     }
 
     public getClassInstance<T>(Class: new (...any: any[]) => T): T {
-        const instance = this.storage.getInstance(Class);
+        return this.getComponentInstance(ClassComponent.create(Class));
+    }
 
-        if (!instance) {
-            if (this.getComponentScope(Class) === this.getScope() || this.isApplicationContext(Class)) {
-                const type = this.getComponentType(Class);
-                const instance = this.buildNewInstance(Class);
+    public getComponentInstance<T>(component: Component): T {
+        const instance = this.storage.getInstance(component);
+
+        if (instance === undefined) {
+            if (component.getScope() === this.getScope() || component.isApplicationContext()) {
+                const type = component.getType();
+                const instance = this.buildNewInstance(component);
                 if (type === ComponentType.Singleton) {
-                    this.storage.saveInstance(Class, instance);
+                    this.storage.saveInstance(component, instance);
                 }
-                this.runPostConstruct(instance, Class);
+                this.runPostConstruct(instance, component);
                 return instance;
             } else {
-                return this.getContainerForClass(Class).getClassInstance(Class);
+                return this.getContainerForClass(component).getComponentInstance(component);
             }
         }
 
         return instance as T;
     }
 
-    protected getContainerForClass<T>(Class: new (...any: any[]) => T): Container {
-        const scope = this.getComponentScope(Class);
+    protected getContainerForClass(component: Component): Container {
+        const scope = component.getScope();
         const commonScope = ScopeImpl.getCommonParent(scope, this.getScope());
         const commonContainer = this.getParentContainerByScope(commonScope);
 
@@ -91,69 +99,28 @@ export class Container {
     }
 
     public getByKey<TDependency>(objectKey: DependencyKey<TDependency>): TDependency {
-        const instance = this.storage.getInstance(objectKey) as TDependency;
-
-        if (instance === undefined) {
-            const factory = this.storage.getFactory(objectKey);
-            if (!factory) {
-                throw new Error("Factory for " + objectKey + "not found.");
-            }
-            const instance = factory() as TDependency;
-            if (objectKey.componentType === ComponentType.Singleton) {
-                this.storage.saveInstance(objectKey, instance);
-            }
-            return instance;
-        }
-
-        return instance;
+        return this.getComponentInstance<TDependency>(DependencyComponent.create(objectKey));
     }
 
-    protected getDependencyList(Classes: (new () => Object)[]|undefined, objectKeys: any[] = []) {
-        if (!Classes) {
-            return [];
-        }
-
-        const map = Classes.map((Class, i) => !objectKeys[i] && this.getClassInstance(Class as any));
-        if (objectKeys) {
-            objectKeys.forEach((obj, index) => {
-                if (obj) {
-                    map[index] = this.getByKey(obj);
-                }
-            })
-        }
-
-        return map;
+    public getDependencyList(components: Component[]) {
+        return components.map((component) => this.getComponentInstance(component))
     }
 
-    protected getComponentType(Class: new () => any): ComponentType | undefined {
-        return Reflect.getMetadata(constants.componentType, Class);
-    }
-
-    protected getComponentScope(Class: new () => any): ScopeImpl {
-        return Reflect.getMetadata(constants.scope, Class) || getDefaultScope();
-    }
-
-    protected buildNewInstance<T>(Class: new () => T): T {
-        const Classes = Reflect.getMetadata("design:paramtypes", Class);
-        const objectKeys = Reflect.getMetadata(constants.keys, Class);
+    protected buildNewInstance<T>(component: Component<T>): T {
+        const Classes = component.getConstructDependencyList();
         const oldContainer = currentContainer;
         currentContainer = this;
-        const instance = new (Class as any)(...this.getDependencyList(Classes, objectKeys));
+        const instance = component.construct(this, ...this.getDependencyList(Classes));
         currentContainer = oldContainer;
-        Reflect.defineMetadata(constants.container, this, instance);
-        destroyFieldsForAutowired(instance);
+        if (component instanceof ClassComponent) {
+            Reflect.defineMetadata(constants.container, this, instance);
+        }
 
         return instance;
     }
 
-    protected runPostConstruct(instance: any, Class: any) {
-        for (let key of getAllPropertyNames(Class.prototype)) {
-            if (Reflect.getMetadata(constants.postConstruct, instance, key)) {
-                const Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, key);
-                const objectKeys = Reflect.getOwnMetadata(constants.keys, Class.prototype, key);
-                (instance[key] as Function).apply(instance, this.getDependencyList(Classes, objectKeys));
-            }
-        }
+    protected runPostConstruct(instance: any, component: Component) {
+        component.postConstruct(this, instance);
     }
 
     protected getScope(): ScopeImpl {
@@ -168,43 +135,46 @@ export class Container {
 @component(ComponentType.Singleton)
 export class TestContainer extends Container {
     private testProvider!: TestProvider;
-    private disabledMocks: (new(...any: any[]) => any)[] = [];
+    private disabledMocks: Component[] = [];
 
     public init() {
-        this.storage.saveInstance(TestContainer, this);
+        this.storage.saveInstance(ClassComponent.create(TestContainer), this);
+        this.disableMock(FactoryStorage);
     }
 
-    public getClassInstance<T>(Class: new (...any: any[]) => T): T {
-        if (<any>Class === ApplicationContext || <any>Class === TestingContext) {
-            return super.getClassInstance(TestingContext as any);
+    getComponentInstance<T>(component: Component): T {
+        if (<any>component === ClassComponent.create(ApplicationContext) || <any>component === ClassComponent.create(TestingContext)) {
+            return super.getComponentInstance(ClassComponent.create(TestingContext));
         }
-        if (<any>Class === Container || <any>Class === TestContainer) {
-            return super.getClassInstance(TestContainer as any);
-        }
-        if (this.disabledMocks.indexOf(Class) !== -1) {
-            return super.getClassInstance(Class);
+        if (<any>component === ClassComponent.create(Container) || <any>component === ClassComponent.create(TestContainer)) {
+            return super.getComponentInstance(ClassComponent.create(TestContainer));
         }
 
-        const instance = this.storage.getInstance(Class);
+        return super.getComponentInstance(component);
+    }
 
-        if (!instance) {
-            const type = this.getComponentType(Class);
-            const instance = this.testProvider.mockClass(Class);
-            if (type === ComponentType.Singleton) {
-                this.storage.saveInstance(Class, instance)
-            }
-            return instance;
+    protected buildNewInstance<T>(component: Component<T>): T {
+        if (<any>component === ClassComponent.create(TestingContext) || <any>component === ClassComponent.create(TestContainer)) {
+            return super.buildNewInstance(component);
+        }
+        if (this.disabledMocks.indexOf(component) !== -1) {
+            return super.buildNewInstance(component);
         }
 
-        return instance as T;
+        if (component instanceof ClassComponent) {
+            return this.testProvider.mockClass(component.Class);
+        }
+
+        return super.buildNewInstance(component);
     }
 
     public getClassInstanceWithMocks<T>(Class: new () => T): T {
+        this.disableMock(Class);
         return super.getClassInstance(Class);
     }
 
     public disableMock<T>(Class: new () => T) {
-        this.disabledMocks.push(Class);
+        this.disabledMocks.push(ClassComponent.create(Class));
     }
 
     public setTestProvider(testProvider: TestProvider) {
