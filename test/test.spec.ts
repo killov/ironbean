@@ -27,7 +27,7 @@ describe("test", () => {
     });
 
     function expectDependenciesCount(dependenciesCount: number) {
-        expect(applicationContext.getBean(Container).countOfDependencies()).toBe(dependenciesCount)
+        expect(applicationContext.getBean(Container).countOfDependencies()).toBe(dependenciesCount);
     }
 
     it("test 1", () => {
@@ -308,6 +308,12 @@ describe("test", () => {
         const ticket = getDefaultScope().createScope("ticket", ScopeType.Singleton);
 
 
+        const key = DependencyKey.create<Object>({
+            scope: ticket
+        });
+
+        applicationContext.addDependenceFactory(key, () => new Object());
+
         @component
         @scope(ticket)
         class Ticket {
@@ -316,9 +322,13 @@ describe("test", () => {
             @autowired
             applicationContext!: ApplicationContext;
 
+            @autowired
+            a!: a;
+
             constructor(context: ApplicationContext) {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
+                expect(context.getDependence(key)).toBe(context.getDependence(key));
                 //expect(context).toBe(this.applicationContext);
             }
 
@@ -326,7 +336,9 @@ describe("test", () => {
             post(context: ApplicationContext) {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
+                expect(context.getDependence(key)).toBe(context.getDependence(key));
                 expect(context).toBe(this.applicationContext);
+                expect(applicationContext.getBean(a)).toBe(this.a);
             }
         }
 
@@ -336,27 +348,27 @@ describe("test", () => {
             name: string = "name";
         }
 
-        expectDependenciesCount(2);
+        expectDependenciesCount(3);
         const ib1 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib2 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib3 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib4 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ia1 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia2 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia3 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia4 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ticket1 = applicationContext.getBean(Ticket);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ticket2 = applicationContext.getBean(Ticket);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
 
         expect(ib1.a).toBe(ia1);
         expect(ib1).toBe(ib2);

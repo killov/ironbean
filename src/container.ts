@@ -1,4 +1,4 @@
-import {autowired, component} from "./decorators";
+import {component} from "./decorators";
 import {ComponentType, constants, ScopeType} from "./enums";
 import {TestProvider} from "./testProvider";
 import {ApplicationContext, TestingContext} from "./base";
@@ -15,9 +15,6 @@ export class Container {
     protected readonly scope: ScopeImpl;
     protected readonly children: Container[] = [];
 
-    @autowired
-    protected factoryStorage!: FactoryStorage;
-
     constructor(parent: Container|null = null, scope: ScopeImpl|null = null) {
         this.parent = parent;
         this.scope = scope ? scope : getDefaultScope() as ScopeImpl;
@@ -28,11 +25,11 @@ export class Container {
     }
 
     addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
-        this.factoryStorage.saveFactory(key, factory);
+        this.getClassInstance(FactoryStorage).saveFactory(key, factory);
     }
 
     getDependenceFactory<TDependency>(key: DependencyKey<TDependency>): Function|undefined {
-        return this.factoryStorage.getFactory(key);
+        return this.getClassInstance(FactoryStorage).getFactory(key);
     }
 
     public getClassInstance<T>(Class: new (...any: any[]) => T): T {

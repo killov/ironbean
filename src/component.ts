@@ -129,7 +129,7 @@ export class DependencyComponent<T> extends Component<T> {
     }
 
     public getScope(): ScopeImpl {
-        return getDefaultScope() as ScopeImpl;
+        return this.key.scope as ScopeImpl;
     }
 
     public getType(): ComponentType {
