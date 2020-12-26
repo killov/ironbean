@@ -19,7 +19,7 @@ describe("test", () => {
 
     beforeEach(() => {
         applicationContext = getBaseApplicationContext();
-        expectDependenciesCount(2);
+        expectDependenciesCount(3);
     })
 
     afterEach(() => {
@@ -41,23 +41,23 @@ describe("test", () => {
             @autowired a!: a;
         }
 
-        expectDependenciesCount(2);
+        expectDependenciesCount(3);
         const ib1 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib2 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib3 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib4 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ia1 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia2 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia3 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia4 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
 
         expect(ib1.a).toBe(ia1);
         expect(ib1).toBe(ib2);
@@ -241,27 +241,27 @@ describe("test", () => {
             name: string = "name";
         }
 
-        expectDependenciesCount(2);
+        expectDependenciesCount(3);
         const ib1 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib2 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib3 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ib4 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
+        expectDependenciesCount(4);
         const ia1 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia2 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia3 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ia4 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ticket1 = applicationContext.getBean(Ticket);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
         const ticket2 = applicationContext.getBean(Ticket);
-        expectDependenciesCount(4);
+        expectDependenciesCount(5);
 
         expect(ib1.a).toBe(ia1);
         expect(ib1).toBe(ib2);
@@ -399,5 +399,40 @@ describe("test", () => {
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
+    });
+
+    describe("autowired tests", () => {
+        @component
+        class B {
+
+        }
+
+        @component(ComponentType.Prototype)
+        class C {
+
+        }
+
+        @component
+        class A {
+            @autowired b!: B;
+            @autowired c!: C;
+        }
+
+        it("test1", () => {
+            let context = getBaseApplicationContext();
+            const oldB = context.getBean(A).b;
+            const oldC = context.getBean(A).c;
+            expect(context.getBean(A).b).toBe(oldB);
+            expect(context.getBean(B)).toBe(oldB);
+            expect(context.getBean(A).c).toBe(oldC);
+            expect(context.getBean(C)).not.toBe(oldC);
+
+            destroyContext();
+            context = getBaseApplicationContext();
+            expect(context.getBean(A).b).not.toBe(oldB);
+            expect(context.getBean(B)).not.toBe(oldB);
+            expect(context.getBean(A).c).not.toBe(oldC);
+            expect(context.getBean(C)).not.toBe(oldC);
+        });
     });
 });

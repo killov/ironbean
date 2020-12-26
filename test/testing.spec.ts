@@ -13,7 +13,7 @@ describe("testing", () => {
 
     beforeEach(() => {
         testingContext = getBaseTestingContext();
-        expectDependenciesCount(2);
+        expectDependenciesCount(3);
     })
 
     afterEach(() => {

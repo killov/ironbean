@@ -14,6 +14,7 @@ export class Container {
     protected readonly parent: Container|null;
     protected readonly scope: ScopeImpl;
     protected readonly children: Container[] = [];
+    protected factoryStorage!: FactoryStorage;
 
     constructor(parent: Container|null = null, scope: ScopeImpl|null = null) {
         this.parent = parent;
@@ -22,14 +23,15 @@ export class Container {
 
     init() {
         this.storage.saveInstance(ClassComponent.create(Container), this);
+        this.factoryStorage = this.getClassInstance(FactoryStorage);
     }
 
     addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
-        this.getClassInstance(FactoryStorage).saveFactory(key, factory);
+        this.factoryStorage.saveFactory(key, factory);
     }
 
     getDependenceFactory<TDependency>(key: DependencyKey<TDependency>): Function|undefined {
-        return this.getClassInstance(FactoryStorage).getFactory(key);
+        return this.factoryStorage.getFactory(key);
     }
 
     public getClassInstance<T>(Class: new (...any: any[]) => T): T {
@@ -137,6 +139,7 @@ export class TestContainer extends Container {
     public init() {
         this.storage.saveInstance(ClassComponent.create(TestContainer), this);
         this.disableMock(FactoryStorage);
+        this.factoryStorage = this.getClassInstance(FactoryStorage);
     }
 
     getComponentInstance<T>(component: Component): T {
