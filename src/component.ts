@@ -2,7 +2,7 @@ import {getDefaultScope, ScopeImpl} from "./scope";
 import {ComponentType, constants} from "./enums";
 import {ApplicationContext, TestingContext} from "./base";
 import {Container} from "./container";
-import {destroyFieldsForAutowired, getAllPropertyNames} from "./utils";
+import {getAllPropertyNames} from "./utils";
 import {DependencyKey} from "./dependencyKey";
 
 export abstract class Component<T = any> {
@@ -69,10 +69,7 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     public construct(_container: Container, ..._params: any[]): T {
-        const instance = new this._Class(..._params);
-        destroyFieldsForAutowired(instance as any);
-
-        return instance;
+        return new this._Class(..._params);
     }
 
     private static getComponents(types: any[], key: any[]): Component[] {

@@ -19,7 +19,7 @@ module.exports = function (config) {
                 sourceMap: true,
                 target: "ES5",
                 lib: ["es2015", "dom" ],
-                useDefineForClassFields: false
+                useDefineForClassFields: true
             }
         }
     });

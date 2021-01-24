@@ -1,16 +1,3 @@
-import {constants} from "./enums";
-
-export function destroyFieldsForAutowired(object: object) {
-    const properties = getAllPropertyNames(object);
-
-    for (const property of properties) {
-        if(Reflect.getMetadata(constants.autowired, object, property)) {
-            // @ts-ignore
-            delete object[property];
-        }
-    }
-}
-
 export function getAllPropertyNames(obj: object) {
     let result: string[] = [];
     while (obj) {

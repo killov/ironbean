@@ -3,6 +3,7 @@ import {ComponentType, constants} from "./enums";
 import {currentContainer, getBaseContainer} from "./container";
 import {Scope} from "./scope";
 import {DependencyKey} from "./dependencyKey";
+import {markAsOverridenDefineProperty} from "./useDefClassFiedsHack";
 
 export type Class = new (...args: any[]) => any;
 export function component(componentType: ComponentType): any;
@@ -68,7 +69,7 @@ export function autowired(target: any, propertyName: string) {
             enumerable: true,
             configurable: true
         });
-        Reflect.defineMetadata(constants.autowired, true, target, propertyName);
+        markAsOverridenDefineProperty(target, propertyName);
     }
 }
 
