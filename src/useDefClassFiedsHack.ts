@@ -1,7 +1,7 @@
 const propOverridesSymbol = Symbol()
 const origDefineProperty = Object.defineProperty;
 Object.defineProperty = function(o: any, p: string | number | symbol, attributes: PropertyDescriptor & ThisType<any>): any {
-    const overriden = o[propOverridesSymbol]?.has(p); // will get it from prototype if available
+    const overriden =isOverriten(o, p); // will get it from prototype if available
     if (!overriden) {
         return origDefineProperty(o, p, attributes);
     } else {
@@ -9,6 +9,14 @@ Object.defineProperty = function(o: any, p: string | number | symbol, attributes
         o[p] = attributes.value;
         return o;
     }
+}
+
+function isOverriten(o: any, p: string | number | symbol): boolean {
+    const set = o[propOverridesSymbol];
+    if (set) {
+        return set.has(p) || isOverriten(Object.getPrototypeOf(o), p)
+    }
+    return false;
 }
 
 export function markAsOverridenDefineProperty(o: any, p: string | number | symbol) {
