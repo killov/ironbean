@@ -12,7 +12,7 @@ Object.defineProperty = function(o: any, p: string | number | symbol, attributes
 }
 
 export function markAsOverridenDefineProperty(o: any, p: string | number | symbol) {
-    if (!o[propOverridesSymbol]) {
+    if (!o[propOverridesSymbol] || !o.hasOwnProperty(propOverridesSymbol)) {
         // should be a hidden prop instead in a final implementation
         o[propOverridesSymbol] = new Set();
     }
