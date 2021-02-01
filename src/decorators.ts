@@ -47,16 +47,9 @@ export function autowired(target: any, propertyName: string) {
             return valueFromCache;
         }
         const container = Reflect.getMetadata(constants.container, target) || currentContainer || getBaseContainer();
-        const key = Reflect.getMetadata(constants.keys, target, propertyName);
-        if (key) {
-            const value = container.getBean(key);
-            Reflect.defineMetadata(constants.autowiredCache, value, target, propertyName)
-            return value;
-        }
-        const type = Reflect.getMetadata("design:type", target, propertyName);
-        if (!type) {
-            throw new Error("type on property " + propertyName + " not found");
-        }
+        const type = Reflect.getMetadata(constants.types, target, propertyName)
+            || Reflect.getMetadata("design:type", target, propertyName);
+
         const value = container.getBean(type);
         Reflect.defineMetadata(constants.autowiredCache, value, target, propertyName)
         return value;
@@ -73,14 +66,14 @@ export function autowired(target: any, propertyName: string) {
     }
 }
 
-export function dependenceKey<T>(key: DependencyKey<T>) {
+export function type<T>(key: DependencyKey<T>) {
     return function(target: any, propertyName: string | symbol, parameterIndex?: number) {
         if (parameterIndex === undefined) {
-            Reflect.defineMetadata(constants.keys, key, target, propertyName);
+            Reflect.defineMetadata(constants.types, key, target, propertyName);
         } else {
-            const methodParameters: Object[] = Reflect.getOwnMetadata(constants.keys, target, propertyName) || [];
+            const methodParameters: Object[] = Reflect.getOwnMetadata(constants.types, target, propertyName) || [];
             methodParameters[parameterIndex] = key;
-            Reflect.defineMetadata(constants.keys, methodParameters, target, propertyName);
+            Reflect.defineMetadata(constants.types, methodParameters, target, propertyName);
         }
     }
 }

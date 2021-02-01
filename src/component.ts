@@ -63,7 +63,7 @@ export class ClassComponent<T> extends Component<T> {
 
     public getConstructDependencyList(): Component[] {
         const Classes = Reflect.getMetadata("design:paramtypes", this._Class) as any[] || [];
-        const objectKeys = Reflect.getMetadata(constants.keys, this._Class) as any[]
+        const objectKeys = Reflect.getMetadata(constants.types, this._Class) as any[]
 
         return ClassComponent.getComponents(Classes, objectKeys);
     }
@@ -93,7 +93,7 @@ export class ClassComponent<T> extends Component<T> {
         for (let key of getAllPropertyNames(Class.prototype)) {
             if (Reflect.getMetadata(constants.postConstruct, instance, key)) {
                 let Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, key) as any[] || [];
-                const objectKeys = Reflect.getOwnMetadata(constants.keys, Class.prototype, key);
+                const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, key);
                 Classes = ClassComponent.getComponents(Classes, objectKeys);
                 (instance[key] as Function).apply(instance, container.getDependencyList(Classes));
             }

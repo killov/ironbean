@@ -4,7 +4,7 @@ export const constants = {
     componentType: "_ioc_componentType",
     container: "_ioc_container",
     autowiredCache: "_ioc_autowiredCache",
-    keys: "_ioc_keys",
+    types: "_ioc_keys",
     scope: "_ioc_scope"
 };
 

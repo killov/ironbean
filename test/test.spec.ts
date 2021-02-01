@@ -2,7 +2,7 @@ import {
     ApplicationContext,
     autowired,
     component,
-    dependence,
+    type,
     DependencyKey,
     destroyContext,
     getBaseApplicationContext,
@@ -138,13 +138,13 @@ describe("test", () => {
         class a {
             test = "sa";
 
-            constructor(@dependence(key) data: string, @dependence(key2) data2: string) {
+            constructor(@type(key) data: string, @type(key2) data2: string) {
                 expect(data).toBe("datata");
                 expect(data2).toBe("datata22");
             }
 
             @postConstruct
-            post(@dependence(key3) data: b) {
+            post(@type(key3) data: b) {
                 expect(data instanceof  b).toBe(true);
             }
         }
@@ -153,7 +153,7 @@ describe("test", () => {
         class b {
             @autowired a!: a;
 
-            @dependence(key)
+            @type(key)
             @autowired
             data!: string;
         }
