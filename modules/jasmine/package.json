@@ -1,6 +1,6 @@
 {
     "name": "fire-dic-jasmine",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "",
     "main": "dist/index.js",
     "files": [
@@ -15,7 +15,7 @@
     "author": "Zdeněk Mazurák",
     "license": "ISC",
     "dependencies": {
-        "fire-dic": "^1.0.9"
+        "fire-dic": "^1.0.11"
     },
     "devDependencies": {
         "jasmine-core": "^3.5.0",

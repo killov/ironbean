@@ -37,7 +37,7 @@ export class JasmineTestingContext extends TestingContext {
 export function getBaseJasmineTestingContext(): JasmineTestingContext {
     const container = getTestContainer();
     container.setTestProvider(new JasmineTestProvider());
-    return container.getClassInstance(TestingContext as any) as JasmineTestingContext;
+    return container.getBean(TestingContext as any) as JasmineTestingContext;
 }
 
 type DataPropertyNames<T> = {
