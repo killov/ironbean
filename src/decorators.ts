@@ -49,7 +49,7 @@ export function autowired(target: any, propertyName: string) {
         const container = Reflect.getMetadata(constants.container, target) || currentContainer || getBaseContainer();
         const key = Reflect.getMetadata(constants.keys, target, propertyName);
         if (key) {
-            const value = container.getByKey(key);
+            const value = container.getBean(key);
             Reflect.defineMetadata(constants.autowiredCache, value, target, propertyName)
             return value;
         }
@@ -57,7 +57,7 @@ export function autowired(target: any, propertyName: string) {
         if (!type) {
             throw new Error("type on property " + propertyName + " not found");
         }
-        const value = container.getClassInstance(type);
+        const value = container.getBean(type);
         Reflect.defineMetadata(constants.autowiredCache, value, target, propertyName)
         return value;
     };

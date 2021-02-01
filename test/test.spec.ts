@@ -91,8 +91,8 @@ describe("test", () => {
 
         applicationContext.addDependenceFactory(key, () => null);
 
-        expect(applicationContext.getDependence(key)).toBe(null);
-        expect(applicationContext.getDependence(key)).toBe(null);
+        expect(applicationContext.getBean(key)).toBe(null);
+        expect(applicationContext.getBean(key)).toBe(null);
     });
 
     it("inject by key singleton return of factory", () => {
@@ -101,9 +101,9 @@ describe("test", () => {
 
         applicationContext.addDependenceFactory(key, () => i++);
 
-        expect(applicationContext.getDependence(key)).toBe(0);
-        expect(applicationContext.getDependence(key)).toBe(0);
-        expect(applicationContext.getDependence(key)).toBe(0);
+        expect(applicationContext.getBean(key)).toBe(0);
+        expect(applicationContext.getBean(key)).toBe(0);
+        expect(applicationContext.getBean(key)).toBe(0);
     });
 
     it("inject by key prototype return of factory", () => {
@@ -112,16 +112,16 @@ describe("test", () => {
 
         applicationContext.addDependenceFactory(key, () => i++);
 
-        expect(applicationContext.getDependence(key)).toBe(0);
-        expect(applicationContext.getDependence(key)).toBe(1);
-        expect(applicationContext.getDependence(key)).toBe(2);
+        expect(applicationContext.getBean(key)).toBe(0);
+        expect(applicationContext.getBean(key)).toBe(1);
+        expect(applicationContext.getBean(key)).toBe(2);
     });
 
     it("inject by key without factory", () => {
         const key = DependencyKey.create<number>({componentType: ComponentType.Prototype});
 
         expect(() => {
-            applicationContext.getDependence(key);
+            applicationContext.getBean(key);
         }).toThrow();
     });
 
@@ -177,8 +177,8 @@ describe("test", () => {
         expect(ia1).toBe(ia3);
         expect(ia1).toBe(ia4);
 
-        expect(applicationContext.getDependence(key)).toBe("datata");
-        expect(applicationContext.getDependence(key2)).toBe("datata22");
+        expect(applicationContext.getBean(key)).toBe("datata");
+        expect(applicationContext.getBean(key2)).toBe("datata22");
 
         @component
         class c {
@@ -328,7 +328,7 @@ describe("test", () => {
             constructor(context: ApplicationContext) {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
-                expect(context.getDependence(key)).toBe(context.getDependence(key));
+                expect(context.getBean(key)).toBe(context.getBean(key));
                 //expect(context).toBe(this.applicationContext);
             }
 
@@ -336,7 +336,7 @@ describe("test", () => {
             post(context: ApplicationContext) {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
-                expect(context.getDependence(key)).toBe(context.getDependence(key));
+                expect(context.getBean(key)).toBe(context.getBean(key));
                 expect(context).toBe(this.applicationContext);
                 expect(applicationContext.getBean(a)).toBe(this.a);
             }

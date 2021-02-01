@@ -23,7 +23,7 @@ export class Container {
 
     init() {
         this.storage.saveInstance(ClassComponent.create(Container), this);
-        this.factoryStorage = this.getClassInstance(FactoryStorage);
+        this.factoryStorage = this.getBean(FactoryStorage);
     }
 
     addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
@@ -34,8 +34,14 @@ export class Container {
         return this.factoryStorage.getFactory(key);
     }
 
-    public getClassInstance<T>(Class: new (...any: any[]) => T): T {
-        return this.getComponentInstance(ClassComponent.create(Class));
+    public getBean<T>(Class: new (...any: any[]) => T): T;
+    public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
+    public getBean<T>(dependencyKey: any): T {
+        if (dependencyKey.prototype) {
+            return this.getComponentInstance(ClassComponent.create(dependencyKey));
+        } else {
+            return this.getComponentInstance<T>(DependencyComponent.create(dependencyKey));
+        }
     }
 
     public getComponentInstance<T>(component: Component): T {
@@ -97,10 +103,6 @@ export class Container {
         return container.getContainerForClassInternal(scope);
     }
 
-    public getByKey<TDependency>(objectKey: DependencyKey<TDependency>): TDependency {
-        return this.getComponentInstance<TDependency>(DependencyComponent.create(objectKey));
-    }
-
     public getDependencyList(components: Component[]) {
         return components.map((component) => this.getComponentInstance(component))
     }
@@ -139,7 +141,7 @@ export class TestContainer extends Container {
     public init() {
         this.storage.saveInstance(ClassComponent.create(TestContainer), this);
         this.disableMock(FactoryStorage);
-        this.factoryStorage = this.getClassInstance(FactoryStorage);
+        this.factoryStorage = this.getBean(FactoryStorage);
     }
 
     getComponentInstance<T>(component: Component): T {
@@ -170,7 +172,7 @@ export class TestContainer extends Container {
 
     public getClassInstanceWithMocks<T>(Class: new () => T): T {
         this.disableMock(Class);
-        return super.getClassInstance(Class);
+        return super.getBean(Class);
     }
 
     public disableMock<T>(Class: new () => T) {

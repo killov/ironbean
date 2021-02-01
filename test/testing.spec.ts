@@ -82,8 +82,8 @@ describe("testing", () => {
         expect(ia1).toBe(ia3);
         expect(ia1).toBe(ia4);
 
-        expect(testingContext.getDependence(key)).toBe("datata");
-        expect(testingContext.getDependence(key2)).toBe("datata22");
+        expect(testingContext.getBean(key)).toBe("datata");
+        expect(testingContext.getBean(key2)).toBe("datata22");
 
         testingContext.getMock(a).getText = () => "ahoja";
 

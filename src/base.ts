@@ -30,16 +30,14 @@ export class ApplicationContext {
         this.container = container;
     }
 
-    public getBean<T>(Class: new (...any: any[]) => T): T {
-        return this.container.getClassInstance(Class);
+    public getBean<T>(Class: new (...any: any[]) => T): T;
+    public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
+    public getBean<T>(dependencyKey: any): T {
+        return this.container.getBean(dependencyKey);
     }
 
     public addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
         this.container.addDependenceFactory(key, factory);
-    }
-
-    public getDependence<TDependency>(key: DependencyKey<TDependency>): TDependency {
-        return this.container.getByKey(key);
     }
 }
 
@@ -67,13 +65,13 @@ export class TestingContext extends ApplicationContext {
 
 export function getBaseApplicationContext(): ApplicationContext {
     const container = getBaseContainer();
-    return container.getClassInstance(ApplicationContext);
+    return container.getBean(ApplicationContext);
 }
 
 export function getBaseTestingContext(): TestingContext {
     const container = getTestContainer();
     container.setTestProvider(new TestProvider());
-    return container.getClassInstance(TestingContext);
+    return container.getBean(TestingContext);
 }
 
 export function destroyContext(): void {
