@@ -137,14 +137,14 @@ export class DependencyComponent<T> extends Component<T> {
         return [];
     }
 
-    public construct(container: Container, ..._params: any[]): T {
-        const factory = container.getDependenceFactory(this.key);
+    public construct(_container: Container, ..._params: any[]): T {
+        const factory = this.key.getFactory();
 
         if (!factory) {
             throw new Error("Factory for " + this.key + "not found.");
         }
 
-        return factory(..._params) as T;
+        return factory();
     }
 
 

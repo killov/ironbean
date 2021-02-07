@@ -13,7 +13,7 @@ describe("testing", () => {
 
     beforeEach(() => {
         testingContext = getBaseTestingContext();
-        expectDependenciesCount(3);
+        expectDependenciesCount(2);
     })
 
     afterEach(() => {
@@ -29,9 +29,9 @@ describe("testing", () => {
         const key2 = DependencyKey.create<string>();
         const key3 = DependencyKey.create<b>();
 
-        testingContext.addDependenceFactory(key, () => "datata");
-        testingContext.addDependenceFactory(key2, () => "datata22");
-        testingContext.addDependenceFactory(key3, () => new b());
+        key.setFactory(() => "datata");
+        key2.setFactory(() => "datata22");
+        key3.setFactory(() => new b());
 
         @component
         class a {
@@ -135,5 +135,28 @@ describe("testing", () => {
         testingContext = getBaseTestingContext();
         testingContext.disableMock(A);
         expect(testingContext.getBean(A).getA()).toBe("a");
+    })
+
+    it("set Mock", () => {
+        class A {
+            a: string = "a";
+
+            getA() {
+                return "a";
+            }
+        }
+
+        class B extends A {
+
+        }
+
+        expect(testingContext.getBean(A).getA()).toBe(undefined as any);
+
+        destroyContext();
+        testingContext = getBaseTestingContext();
+        const mock = new B();
+        testingContext.setMock(A, mock);
+        expect(testingContext.getBean(A).getA()).toBe("a");
+        expect(testingContext.getBean(A)).toBe(mock);
     })
 });

@@ -35,10 +35,6 @@ export class ApplicationContext {
     public getBean<T>(dependencyKey: any): T {
         return this.container.getBean(dependencyKey);
     }
-
-    public addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
-        this.container.addDependenceFactory(key, factory);
-    }
 }
 
 @component(ComponentType.Singleton)
@@ -52,6 +48,12 @@ export class TestingContext extends ApplicationContext {
 
     public getBeanWithMocks<T>(Class: new (...any: any[]) => T): T {
         return this.testContainer.getClassInstanceWithMocks(Class);
+    }
+
+    public setMock<T>(Class: new (...any: any[]) => T, instance: T): T;
+    public setMock<TDependency>(dependencyKey: DependencyKey<TDependency>, instance: TDependency): TDependency;
+    public setMock(Class: any, instance: any) {
+        return this.testContainer.setMock(Class, instance);
     }
 
     public disableMock<T>(Class: new (...any: any[]) => T) {

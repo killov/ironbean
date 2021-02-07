@@ -6,7 +6,6 @@ import {DependencyStorage} from "./dependencyStorage";
 import {getDefaultScope, ScopeImpl} from "./scope";
 import {DependencyKey} from "./dependencyKey";
 import {ClassComponent, Component, DependencyComponent} from "./component";
-import {FactoryStorage} from "./factoryStorage";
 
 @component(ComponentType.Singleton)
 export class Container {
@@ -14,7 +13,6 @@ export class Container {
     protected readonly parent: Container|null;
     protected readonly scope: ScopeImpl;
     protected readonly children: Container[] = [];
-    protected factoryStorage!: FactoryStorage;
 
     constructor(parent: Container|null = null, scope: ScopeImpl|null = null) {
         this.parent = parent;
@@ -23,15 +21,6 @@ export class Container {
 
     init() {
         this.storage.saveInstance(ClassComponent.create(Container), this);
-        this.factoryStorage = this.getBean(FactoryStorage);
-    }
-
-    addDependenceFactory<TDependency>(key: DependencyKey<TDependency>, factory: () => TDependency) {
-        this.factoryStorage.saveFactory(key, factory);
-    }
-
-    getDependenceFactory<TDependency>(key: DependencyKey<TDependency>): Function|undefined {
-        return this.factoryStorage.getFactory(key);
     }
 
     public getBean<T>(Class: new (...any: any[]) => T): T;
@@ -140,8 +129,6 @@ export class TestContainer extends Container {
 
     public init() {
         this.storage.saveInstance(ClassComponent.create(TestContainer), this);
-        this.disableMock(FactoryStorage);
-        this.factoryStorage = this.getBean(FactoryStorage);
     }
 
     getComponentInstance<T>(component: Component): T {
@@ -153,6 +140,20 @@ export class TestContainer extends Container {
         }
 
         return super.getComponentInstance(component);
+    }
+
+    public setMock<T>(Class: new (...any: any[]) => T, o: T): T;
+    public setMock<TDependency>(objectKey: DependencyKey<TDependency>, o: TDependency): TDependency;
+    public setMock<T>(component: any, o: T) {
+        if (component.prototype) {
+            this.setComponentMock(ClassComponent.create(component), o);
+        } else {
+            this.setComponentMock(DependencyComponent.create(component), o);
+        }
+    }
+
+    private setComponentMock<T>(component: Component<T>, o: T) {
+        this.storage.saveInstance(component, o);
     }
 
     protected buildNewInstance<T>(component: Component<T>): T {
