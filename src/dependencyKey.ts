@@ -1,17 +1,20 @@
 import {ComponentType} from "./enums";
 import {getDefaultScope, Scope} from "./scope";
+import {ComponentContext} from "./base";
 
 interface ISettings {
     componentType?: ComponentType;
     scope?: Scope;
 }
 
+type ComponentFactory<TDependency> = (componentContext: ComponentContext) => TDependency
+
 export class DependencyKey<TDependency> {
     // @ts-ignore
     a: TDependency;
     private _componentType: ComponentType;
     private _scope: Scope;
-    private factory?: () => TDependency;
+    private factory?: ComponentFactory<TDependency>;
 
     private constructor(componentType: ComponentType, scope: Scope) {
         this._scope = scope;
@@ -22,11 +25,11 @@ export class DependencyKey<TDependency> {
         return new DependencyKey<TDependency>(settings.componentType || ComponentType.Singleton, settings.scope || getDefaultScope());
     }
 
-    public setFactory(factory: () => TDependency): void {
+    public setFactory(factory: ComponentFactory<TDependency>): void {
         this.factory = factory;
     }
 
-    public getFactory(): () => TDependency {
+    public getFactory(): ComponentFactory<TDependency> {
         if (!this.factory) {
             throw new Error("Factory for " + this + "not found.");
         }

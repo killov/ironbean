@@ -118,6 +118,27 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(2);
     });
 
+    it("inject by key prototype return of factory - test component context", () => {
+        const key = DependencyKey.create<number>({componentType: ComponentType.Prototype});
+        const key2 = DependencyKey.create<number>({componentType: ComponentType.Prototype});
+        let i = 0;
+
+        key.setFactory(() => i++);
+        key2.setFactory((context) => {
+            expect(context.getBean(key)).toBe(context.getBean(key));
+
+            return context.getBean(key) + context.getBean(key);
+        });
+
+        expect(applicationContext.getBean(key)).toBe(0);
+        expect(applicationContext.getBean(key)).toBe(1);
+        expect(applicationContext.getBean(key)).toBe(2);
+        expect(applicationContext.getBean(key2)).toBe(6);
+        expect(applicationContext.getBean(key2)).toBe(8);
+        expect(applicationContext.getBean(key)).toBe(5);
+        expect(applicationContext.getBean(key2)).toBe(12);
+    });
+
     it("inject by key without factory", () => {
         const key = DependencyKey.create<number>({componentType: ComponentType.Prototype});
 
@@ -324,22 +345,29 @@ describe("test", () => {
             applicationContext!: ApplicationContext;
 
             @autowired
+            componentContext!: ComponentContext
+
+            @autowired
             a!: a;
 
-            constructor(context: ApplicationContext) {
+            constructor(context: ApplicationContext, componentContext: ComponentContext) {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
                 expect(context.getBean(key)).toBe(context.getBean(key));
-                //expect(context).toBe(this.applicationContext);
+                expect(context).toBe(this.applicationContext);
+                expect(componentContext.getBean(ApplicationContext)).toBe(this.applicationContext);
+                expect(componentContext).toBe(this.componentContext);
             }
 
             @postConstruct
-            post(context: ApplicationContext) {
+            post(context: ApplicationContext, componentContext: ComponentContext) {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
                 expect(context.getBean(key)).toBe(context.getBean(key));
                 expect(context).toBe(this.applicationContext);
                 expect(applicationContext.getBean(a)).toBe(this.a);
+                expect(componentContext.getBean(ApplicationContext)).toBe(this.applicationContext);
+                expect(componentContext).toBe(this.componentContext);
             }
         }
 

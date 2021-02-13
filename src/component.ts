@@ -1,6 +1,6 @@
 import {getDefaultScope, ScopeImpl} from "./scope";
 import {ComponentType, constants} from "./enums";
-import {ApplicationContext, TestingContext} from "./base";
+import {ApplicationContext, ComponentContext, TestingContext} from "./base";
 import {ComponentContainer, Container} from "./container";
 import {getAllPropertyNames} from "./utils";
 import {DependencyKey} from "./dependencyKey";
@@ -144,7 +144,7 @@ export class DependencyComponent<T> extends Component<T> {
             throw new Error("Factory for " + this.key + "not found.");
         }
 
-        return factory();
+        return factory(_container.getBean(ComponentContext));
     }
 
 
