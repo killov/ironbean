@@ -101,7 +101,7 @@ export class Container {
         const Classes = component.getConstructDependencyList();
         const oldComponentContext = currentComponentContainer;
         currentComponentContainer = componentContainer;
-        const instance = component.construct(componentContainer, ...this.getDependencyList(Classes));
+        const instance = component.construct(componentContainer, ...componentContainer.getDependencyList(Classes));
         currentComponentContainer = oldComponentContext;
         if (component instanceof ClassComponent) {
             Reflect.defineMetadata(constants.componentContainer, componentContainer, instance);

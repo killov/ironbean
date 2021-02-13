@@ -416,22 +416,47 @@ describe("test", () => {
         class A {
             @autowired b!: B;
             @autowired c!: C;
+            @autowired c2!: C;
+        }
+
+        @component
+        class AComponent extends A {
+            c3: C;
+            c4!: C;
+
+            constructor(c3: C) {
+                super();
+                this.c3 = c3;
+            }
+
+            @postConstruct
+            post(c4: C) {
+                this.c4 = c4;
+            }
         }
 
         it("test1", () => {
             let context = getBaseApplicationContext();
-            const oldB = context.getBean(A).b;
-            const oldC = context.getBean(A).c;
-            expect(context.getBean(A).b).toBe(oldB);
+            const oldB = context.getBean(AComponent).b;
+            const oldC = context.getBean(AComponent).c;
+
+            const a = new A();
+            expect(a.c).toBe(a.c2);
+
+            expect(context.getBean(AComponent).b).toBe(oldB);
+            expect(context.getBean(AComponent).c).toBe(context.getBean(AComponent).c2);
+            expect(context.getBean(AComponent).c).toBe(context.getBean(AComponent).c3);
+            expect(context.getBean(AComponent).c).toBe(context.getBean(AComponent).c4);
+
             expect(context.getBean(B)).toBe(oldB);
-            expect(context.getBean(A).c).toBe(oldC);
+            expect(context.getBean(AComponent).c).toBe(oldC);
             expect(context.getBean(C)).not.toBe(oldC);
 
             destroyContext();
             context = getBaseApplicationContext();
-            expect(context.getBean(A).b).not.toBe(oldB);
+            expect(context.getBean(AComponent).b).not.toBe(oldB);
             expect(context.getBean(B)).not.toBe(oldB);
-            expect(context.getBean(A).c).not.toBe(oldC);
+            expect(context.getBean(AComponent).c).not.toBe(oldC);
             expect(context.getBean(C)).not.toBe(oldC);
         });
     });
