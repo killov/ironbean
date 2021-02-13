@@ -1,5 +1,6 @@
 import {
     ApplicationContext,
+    ComponentContext,
     autowired,
     component,
     type,
@@ -424,9 +425,10 @@ describe("test", () => {
             c3: C;
             c4!: C;
 
-            constructor(c3: C) {
+            constructor(c3: C, context: ComponentContext) {
                 super();
                 this.c3 = c3;
+                expect(context.getBean(C)).toBe(c3);
             }
 
             @postConstruct

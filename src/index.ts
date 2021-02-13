@@ -18,6 +18,6 @@ export const destroyContext = base.destroyContext;
 export const getDefaultScope = scopeM.getDefaultScope;
 export const DependencyKey = dependencyKey.DependencyKey;
 
-export {ApplicationContext, TestingContext } from "./base";
+export {ApplicationContext, ComponentContext, TestingContext } from "./base";
 
 

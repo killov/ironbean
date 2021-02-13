@@ -1,7 +1,7 @@
 import {component} from "./decorators";
 import {ComponentType, constants, ScopeType} from "./enums";
 import {TestProvider} from "./testProvider";
-import {ApplicationContext, TestingContext} from "./base";
+import {ApplicationContext, ComponentContext, TestingContext} from "./base";
 import {DependencyStorage} from "./dependencyStorage";
 import {getDefaultScope, ScopeImpl} from "./scope";
 import {DependencyKey} from "./dependencyKey";
@@ -225,13 +225,15 @@ export function destroyContainer(): void {
     container = null;
 }
 
-
+@component(ComponentType.Singleton)
 export class ComponentContainer {
     private container: Container;
     protected readonly storage: DependencyStorage = new DependencyStorage();
 
     constructor(container: Container) {
         this.container = container;
+        this.storage.saveInstance(ClassComponent.create(ComponentContainer), this);
+        this.storage.saveInstance(ClassComponent.create(ComponentContext), new ComponentContext(this));
     }
 
     public getDependencyList(components: Component[]) {
