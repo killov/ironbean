@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {ComponentType, constants} from "./enums";
-import {currentContainer, getBaseContainer} from "./container";
+import {ComponentContainer, currentComponentContainer, getBaseContainer} from "./container";
 import {Scope} from "./scope";
 import {DependencyKey} from "./dependencyKey";
 import {markAsOverridenDefineProperty} from "./useDefClassFiedsHack";
@@ -42,17 +42,11 @@ export function autowired(target: any, propertyName: string) {
     const set = () => {};
     const get = function(this: any) {
         const target = this;
-        const valueFromCache = Reflect.getMetadata(constants.autowiredCache, target, propertyName)
-        if (valueFromCache) {
-            return valueFromCache;
-        }
-        const container = Reflect.getMetadata(constants.container, target) || currentContainer || getBaseContainer();
+        const container = Reflect.getMetadata(constants.componentContainer, target) || currentComponentContainer || new ComponentContainer(getBaseContainer());
         const type = Reflect.getMetadata(constants.types, target, propertyName)
             || Reflect.getMetadata("design:type", target, propertyName);
 
-        const value = container.getBean(type);
-        Reflect.defineMetadata(constants.autowiredCache, value, target, propertyName)
-        return value;
+        return container.getBean(type);
     };
 
     if (delete target[propertyName]) {

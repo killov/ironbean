@@ -1,7 +1,7 @@
 import {getDefaultScope, ScopeImpl} from "./scope";
 import {ComponentType, constants} from "./enums";
 import {ApplicationContext, TestingContext} from "./base";
-import {Container} from "./container";
+import {ComponentContainer, Container} from "./container";
 import {getAllPropertyNames} from "./utils";
 import {DependencyKey} from "./dependencyKey";
 
@@ -18,11 +18,11 @@ export abstract class Component<T = any> {
         throw "not implemented";
     }
 
-    public construct(_container: Container, ..._params: any[]): T {
+    public construct(_container: ComponentContainer, ..._params: any[]): T {
         throw "not implemented";
     }
 
-    public postConstruct(_container: Container, _instance: T) {
+    public postConstruct(_container: ComponentContainer, _instance: T) {
         throw "not implemented";
     }
 
@@ -68,7 +68,7 @@ export class ClassComponent<T> extends Component<T> {
         return ClassComponent.getComponents(Classes, objectKeys);
     }
 
-    public construct(_container: Container, ..._params: any[]): T {
+    public construct(_container: ComponentContainer, ..._params: any[]): T {
         return new this._Class(..._params);
     }
 
@@ -87,7 +87,7 @@ export class ClassComponent<T> extends Component<T> {
     }
 
 
-    public postConstruct(container: Container, instance: any) {
+    public postConstruct(container: ComponentContainer, instance: any) {
         const Class = this._Class;
 
         for (let key of getAllPropertyNames(Class.prototype)) {
@@ -137,7 +137,7 @@ export class DependencyComponent<T> extends Component<T> {
         return [];
     }
 
-    public construct(_container: Container, ..._params: any[]): T {
+    public construct(_container: ComponentContainer, ..._params: any[]): T {
         const factory = this.key.getFactory();
 
         if (!factory) {
@@ -148,7 +148,7 @@ export class DependencyComponent<T> extends Component<T> {
     }
 
 
-    public postConstruct(_container: Container, _instance: any) {
+    public postConstruct(_container: ComponentContainer, _instance: any) {
 
     }
 }

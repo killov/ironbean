@@ -39,11 +39,12 @@ export class Container {
         if (instance === undefined) {
             if (component.getScope() === this.getScope() || component.isApplicationContext()) {
                 const type = component.getType();
-                const instance = this.buildNewInstance(component);
+                const componentContainer = new ComponentContainer(this);
+                const instance = this.buildNewInstance(component, componentContainer);
                 if (type === ComponentType.Singleton) {
                     this.storage.saveInstance(component, instance);
                 }
-                this.runPostConstruct(instance, component);
+                this.runPostConstruct(instance, component, componentContainer);
                 return instance;
             } else {
                 return this.getContainerForClass(component).getComponentInstance(component);
@@ -96,21 +97,21 @@ export class Container {
         return components.map((component) => this.getComponentInstance(component))
     }
 
-    protected buildNewInstance<T>(component: Component<T>): T {
+    protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): T {
         const Classes = component.getConstructDependencyList();
-        const oldContainer = currentContainer;
-        currentContainer = this;
-        const instance = component.construct(this, ...this.getDependencyList(Classes));
-        currentContainer = oldContainer;
+        const oldComponentContext = currentComponentContainer;
+        currentComponentContainer = componentContainer;
+        const instance = component.construct(componentContainer, ...this.getDependencyList(Classes));
+        currentComponentContainer = oldComponentContext;
         if (component instanceof ClassComponent) {
-            Reflect.defineMetadata(constants.container, this, instance);
+            Reflect.defineMetadata(constants.componentContainer, componentContainer, instance);
         }
 
         return instance;
     }
 
-    protected runPostConstruct(instance: any, component: Component) {
-        component.postConstruct(this, instance);
+    protected runPostConstruct(instance: any, component: Component, componentContainer: ComponentContainer) {
+        component.postConstruct(componentContainer, instance);
     }
 
     protected getScope(): ScopeImpl {
@@ -156,19 +157,31 @@ export class TestContainer extends Container {
         this.storage.saveInstance(component, o);
     }
 
-    protected buildNewInstance<T>(component: Component<T>): T {
+    private isComponentForMock(component: Component): boolean {
         if (<any>component === ClassComponent.create(TestingContext) || <any>component === ClassComponent.create(TestContainer)) {
-            return super.buildNewInstance(component);
+            return false;
         }
         if (this.disabledMocks.indexOf(component) !== -1) {
-            return super.buildNewInstance(component);
+            return false;
         }
 
-        if (component instanceof ClassComponent) {
-            return this.testProvider.mockClass(component.Class);
+        return component instanceof ClassComponent;
+    }
+
+    protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): T {
+        if (this.isComponentForMock(component)) {
+            if (component instanceof ClassComponent) {
+                return this.testProvider.mockClass(component.Class);
+            }
         }
 
-        return super.buildNewInstance(component);
+        return super.buildNewInstance(component, componentContainer);
+    }
+
+    protected runPostConstruct(instance: any, component: Component, componentContainer: ComponentContainer) {
+        if (!this.isComponentForMock(component)) {
+            super.runPostConstruct(instance, component, componentContainer)
+        }
     }
 
     public getClassInstanceWithMocks<T>(Class: new () => T): T {
@@ -212,4 +225,39 @@ export function destroyContainer(): void {
     container = null;
 }
 
-export let currentContainer: Container | undefined;
+
+export class ComponentContainer {
+    private container: Container;
+    protected readonly storage: DependencyStorage = new DependencyStorage();
+
+    constructor(container: Container) {
+        this.container = container;
+    }
+
+    public getDependencyList(components: Component[]) {
+        return components.map((component) => this.getComponentInstance(component))
+    }
+
+    public getBean<T>(Class: new (...any: any[]) => T): T;
+    public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
+    public getBean<T>(dependencyKey: any): T {
+        if (dependencyKey.prototype) {
+            return this.getComponentInstance(ClassComponent.create(dependencyKey));
+        } else {
+            return this.getComponentInstance<T>(DependencyComponent.create(dependencyKey));
+        }
+    }
+
+    public getComponentInstance<T>(component: Component): T {
+        let instance: any = this.storage.getInstance(component);
+
+        if (instance === undefined) {
+            instance = this.container.getComponentInstance(component);
+            this.storage.saveInstance(component, instance);
+        }
+
+        return instance;
+    }
+}
+
+export let currentComponentContainer: ComponentContainer | undefined;
