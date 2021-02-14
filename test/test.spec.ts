@@ -10,7 +10,7 @@ import {
     getDefaultScope,
     postConstruct,
     scope,
-    ScopeType
+    ScopeType, getComponentConfig
 } from "../src";
 import {Container} from "../src/container";
 import {ComponentType} from "../src/enums";
@@ -488,6 +488,30 @@ describe("test", () => {
             expect(context.getBean(B)).not.toBe(oldB);
             expect(context.getBean(AComponent).c).not.toBe(oldC);
             expect(context.getBean(C)).not.toBe(oldC);
+        });
+    });
+
+    describe("intrfaces tests", () => {
+        interface F {
+            x: number;
+            f: F;
+        }
+        const f = DependencyKey.create<F>();
+
+        @component
+        class A implements F {
+            x: number = 10;
+
+            @autowired
+            @type(f)
+            f!: F;
+        }
+
+        getComponentConfig(f).add(A);
+
+        it("test1", () => {
+            expect(applicationContext.getBean(f).x).toBe(10)
+            expect(applicationContext.getBean(f).f).toBe(applicationContext.getBean(f))
         });
     });
 });

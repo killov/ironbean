@@ -27,13 +27,18 @@ export class Container {
     public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
         if (dependencyKey.prototype) {
-            return this.getComponentInstance(ClassComponent.create(dependencyKey));
+            return this.getComponentInstance(ClassComponent.create(dependencyKey).getComponent());
         } else {
-            return this.getComponentInstance<T>(DependencyComponent.create(dependencyKey));
+            return this.getComponentInstance<T>(DependencyComponent.create(dependencyKey).getComponent());
         }
     }
 
+    public getComponent(component: Component): Component {
+        return component.getComponent();
+    }
+
     public getComponentInstance<T>(component: Component): T {
+        component = this.getComponent(component);
         const instance = this.storage.getInstance(component);
 
         if (instance === undefined) {
@@ -130,6 +135,10 @@ export class TestContainer extends Container {
 
     public init() {
         this.storage.saveInstance(ClassComponent.create(TestContainer), this);
+    }
+
+    public getComponent(component: Component): Component {
+        return component;
     }
 
     getComponentInstance<T>(component: Component): T {
@@ -251,6 +260,7 @@ export class ComponentContainer {
     }
 
     public getComponentInstance<T>(component: Component): T {
+        component = this.container.getComponent(component);
         let instance: any = this.storage.getInstance(component);
 
         if (instance === undefined) {

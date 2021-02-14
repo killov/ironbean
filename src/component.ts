@@ -4,8 +4,11 @@ import {ApplicationContext, ComponentContext, TestingContext} from "./base";
 import {ComponentContainer, Container} from "./container";
 import {getAllPropertyNames} from "./utils";
 import {DependencyKey} from "./dependencyKey";
+import {ComponentConfig} from "./componentConfig";
 
-export abstract class Component<T = any> {
+export abstract class Component<T = any> implements ComponentConfig<T> {
+    components: Component[] = [];
+
     public getScope(): ScopeImpl {
         throw "not implemented";
     }
@@ -28,6 +31,22 @@ export abstract class Component<T = any> {
 
     public isApplicationContext(): boolean {
         return false;
+    }
+
+    public getComponent(): Component {
+        const last = this.components[this.components.length - 1];
+        return last ? last.getComponent() : this;
+    }
+
+    add<TDependency extends T>(Class: { new(...any: any[]): TDependency }): ComponentConfig<T>;
+    add<TDependency extends T>(objectKey: DependencyKey<TDependency>): ComponentConfig<T>;
+    add(cmp: any): any {
+        if (cmp.prototype) {
+            this.components.push(ClassComponent.create(cmp));
+        } else {
+            this.components.push(DependencyComponent.create(cmp));
+        }
+        return this;
     }
 }
 

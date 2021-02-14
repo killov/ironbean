@@ -1,5 +1,6 @@
 import * as base from "./base";
 import * as decorators from "./decorators";
+import * as componentConfig from "./componentConfig";
 import * as scopeM from "./scope";
 import * as enums from "./enums";
 import * as dependencyKey from "./dependencyKey";
@@ -14,6 +15,8 @@ export const scope = decorators.scope;
 export const getBaseApplicationContext = base.getBaseApplicationContext;
 export const getBaseTestingContext = base.getBaseTestingContext;
 export const destroyContext = base.destroyContext;
+
+export const getComponentConfig = componentConfig.getComponentConfig;
 
 export const getDefaultScope = scopeM.getDefaultScope;
 export const DependencyKey = dependencyKey.DependencyKey;
