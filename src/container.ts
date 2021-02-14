@@ -138,18 +138,14 @@ export class TestContainer extends Container {
     }
 
     public getComponent(component: Component): Component {
-        return component;
-    }
-
-    getComponentInstance<T>(component: Component): T {
         if (<any>component === ClassComponent.create(ApplicationContext) || <any>component === ClassComponent.create(TestingContext)) {
-            return super.getComponentInstance(ClassComponent.create(TestingContext));
+            return ClassComponent.create(TestingContext);
         }
         if (<any>component === ClassComponent.create(Container) || <any>component === ClassComponent.create(TestContainer)) {
-            return super.getComponentInstance(ClassComponent.create(TestContainer));
+            return ClassComponent.create(TestContainer);
         }
 
-        return super.getComponentInstance(component);
+        return component;
     }
 
     public setMock<T>(Class: new (...any: any[]) => T, o: T): T;
