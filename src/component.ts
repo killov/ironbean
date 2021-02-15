@@ -9,6 +9,14 @@ import {ComponentConfig} from "./componentConfig";
 export abstract class Component<T = any> implements ComponentConfig<T> {
     components: Component[] = [];
 
+    public static create<T>(Class: any): Component<T> {
+        if (Class.prototype) {
+            return ClassComponent.create(Class);
+        } else {
+            return DependencyComponent.create(Class);
+        }
+    }
+
     public getScope(): ScopeImpl {
         throw "not implemented";
     }
@@ -41,11 +49,7 @@ export abstract class Component<T = any> implements ComponentConfig<T> {
     add<TDependency extends T>(Class: { new(...any: any[]): TDependency }): ComponentConfig<T>;
     add<TDependency extends T>(objectKey: DependencyKey<TDependency>): ComponentConfig<T>;
     add(cmp: any): any {
-        if (cmp.prototype) {
-            this.components.push(ClassComponent.create(cmp));
-        } else {
-            this.components.push(DependencyComponent.create(cmp));
-        }
+        this.components.push(Component.create(cmp));
         return this;
     }
 }
@@ -92,17 +96,17 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     private static getComponents(types: any[], key: any[]): Component[] {
-        const map: Component[] = types.map(Class => ClassComponent.create(Class));
+        const map: (Component|undefined)[] = types.map(Class => Class ? Component.create(Class) : undefined);
 
         if (key) {
             key.forEach((obj, index) => {
                 if (obj) {
-                    map[index] = DependencyComponent.create(obj)
+                    map[index] = Component.create(obj)
                 }
             })
         }
 
-        return map;
+        return map as Component[];
     }
 
 

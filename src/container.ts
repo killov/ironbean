@@ -5,7 +5,7 @@ import {ApplicationContext, ComponentContext, TestingContext} from "./base";
 import {DependencyStorage} from "./dependencyStorage";
 import {getDefaultScope, ScopeImpl} from "./scope";
 import {DependencyKey} from "./dependencyKey";
-import {ClassComponent, Component, DependencyComponent} from "./component";
+import {ClassComponent, Component} from "./component";
 
 @component(ComponentType.Singleton)
 export class Container {
@@ -20,17 +20,13 @@ export class Container {
     }
 
     init() {
-        this.storage.saveInstance(ClassComponent.create(Container), this);
+        this.storage.saveInstance(Component.create(Container), this);
     }
 
     public getBean<T>(Class: new (...any: any[]) => T): T;
     public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
-        if (dependencyKey.prototype) {
-            return this.getComponentInstance(ClassComponent.create(dependencyKey).getComponent());
-        } else {
-            return this.getComponentInstance<T>(DependencyComponent.create(dependencyKey).getComponent());
-        }
+        return this.getComponentInstance(this.getComponent(Component.create(dependencyKey)));
     }
 
     public getComponent(component: Component): Component {
@@ -98,10 +94,6 @@ export class Container {
         return container.getContainerForClassInternal(scope);
     }
 
-    public getDependencyList(components: Component[]) {
-        return components.map((component) => this.getComponentInstance(component))
-    }
-
     protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): T {
         const Classes = component.getConstructDependencyList();
         const oldComponentContext = currentComponentContainer;
@@ -134,28 +126,27 @@ export class TestContainer extends Container {
     private disabledMocks: Component[] = [];
 
     public init() {
-        this.storage.saveInstance(ClassComponent.create(TestContainer), this);
+        this.storage.saveInstance(Component.create(TestContainer), this);
     }
 
     public getComponent(component: Component): Component {
-        if (<any>component === ClassComponent.create(ApplicationContext) || <any>component === ClassComponent.create(TestingContext)) {
-            return ClassComponent.create(TestingContext);
+        if (<any>component === Component.create(ApplicationContext) || <any>component === Component.create(TestingContext)) {
+            return Component.create(TestingContext);
         }
-        if (<any>component === ClassComponent.create(Container) || <any>component === ClassComponent.create(TestContainer)) {
-            return ClassComponent.create(TestContainer);
+        if (<any>component === Component.create(Container) || <any>component === Component.create(TestContainer)) {
+            return Component.create(TestContainer);
         }
 
+        if (!this.isComponentForMock(component)) {
+            return super.getComponent(component);
+        }
         return component;
     }
 
     public setMock<T>(Class: new (...any: any[]) => T, o: T): T;
     public setMock<TDependency>(objectKey: DependencyKey<TDependency>, o: TDependency): TDependency;
     public setMock<T>(component: any, o: T) {
-        if (component.prototype) {
-            this.setComponentMock(ClassComponent.create(component), o);
-        } else {
-            this.setComponentMock(DependencyComponent.create(component), o);
-        }
+        this.setComponentMock(Component.create(component), o);
     }
 
     private setComponentMock<T>(component: Component<T>, o: T) {
@@ -163,7 +154,7 @@ export class TestContainer extends Container {
     }
 
     private isComponentForMock(component: Component): boolean {
-        if (<any>component === ClassComponent.create(TestingContext) || <any>component === ClassComponent.create(TestContainer)) {
+        if (<any>component === Component.create(TestingContext) || <any>component === Component.create(TestContainer)) {
             return false;
         }
         if (this.disabledMocks.indexOf(component) !== -1) {
@@ -195,7 +186,7 @@ export class TestContainer extends Container {
     }
 
     public disableMock<T>(Class: new () => T) {
-        this.disabledMocks.push(ClassComponent.create(Class));
+        this.disabledMocks.push(Component.create(Class));
     }
 
     public setTestProvider(testProvider: TestProvider) {
@@ -237,8 +228,8 @@ export class ComponentContainer {
 
     constructor(container: Container) {
         this.container = container;
-        this.storage.saveInstance(ClassComponent.create(ComponentContainer), this);
-        this.storage.saveInstance(ClassComponent.create(ComponentContext), new ComponentContext(this));
+        this.storage.saveInstance(Component.create(ComponentContainer), this);
+        this.storage.saveInstance(Component.create(ComponentContext), new ComponentContext(this));
     }
 
     public getDependencyList(components: Component[]) {
@@ -248,11 +239,7 @@ export class ComponentContainer {
     public getBean<T>(Class: new (...any: any[]) => T): T;
     public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
-        if (dependencyKey.prototype) {
-            return this.getComponentInstance(ClassComponent.create(dependencyKey));
-        } else {
-            return this.getComponentInstance<T>(DependencyComponent.create(dependencyKey));
-        }
+        return this.getComponentInstance(Component.create(dependencyKey));
     }
 
     public getComponentInstance<T>(component: Component): T {
