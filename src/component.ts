@@ -3,7 +3,7 @@ import {ComponentType, constants} from "./enums";
 import {ApplicationContext, ComponentContext, TestingContext} from "./base";
 import {ComponentContainer, Container} from "./container";
 import {getAllPropertyNames} from "./utils";
-import {DependencyKey} from "./dependencyKey";
+import {DependencyToken} from "./dependencyToken";
 import {ComponentConfig} from "./componentConfig";
 
 export abstract class Component<T = any> implements ComponentConfig<T> {
@@ -47,7 +47,7 @@ export abstract class Component<T = any> implements ComponentConfig<T> {
     }
 
     add<TDependency extends T>(Class: { new(...any: any[]): TDependency }): ComponentConfig<T>;
-    add<TDependency extends T>(objectKey: DependencyKey<TDependency>): ComponentConfig<T>;
+    add<TDependency extends T>(objectKey: DependencyToken<TDependency>): ComponentConfig<T>;
     add(cmp: any): any {
         this.components.push(Component.create(cmp));
         return this;
@@ -133,9 +133,9 @@ export class ClassComponent<T> extends Component<T> {
 
 export class DependencyComponent<T> extends Component<T> {
     private static map: Map<object, DependencyComponent<any>> = new Map<object, DependencyComponent<any>>();
-    private key: DependencyKey<T>
+    private key: DependencyToken<T>
 
-    public static create<T>(key: DependencyKey<T>): DependencyComponent<T> {
+    public static create<T>(key: DependencyToken<T>): DependencyComponent<T> {
         if (!this.map.has(key)) {
             this.map.set(key, new DependencyComponent<T>(key));
         }
@@ -143,7 +143,7 @@ export class DependencyComponent<T> extends Component<T> {
         return this.map.get(key) as DependencyComponent<T>;
     }
 
-    private constructor(key: DependencyKey<T>) {
+    private constructor(key: DependencyToken<T>) {
         super();
         this.key = key;
     }

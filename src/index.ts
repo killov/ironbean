@@ -3,7 +3,7 @@ import * as decorators from "./decorators";
 import * as componentConfig from "./componentConfig";
 import * as scopeM from "./scope";
 import * as enums from "./enums";
-import * as dependencyKey from "./dependencyKey";
+import * as dependencyKey from "./dependencyToken";
 
 export const ComponentType = enums.ComponentType;
 export const ScopeType = enums.ScopeType;
@@ -19,7 +19,7 @@ export const destroyContext = base.destroyContext;
 export const getComponentConfig = componentConfig.getComponentConfig;
 
 export const getDefaultScope = scopeM.getDefaultScope;
-export const DependencyKey = dependencyKey.DependencyKey;
+export const DependencyToken = dependencyKey.DependencyToken;
 
 export {ApplicationContext, ComponentContext, TestingContext } from "./base";
 

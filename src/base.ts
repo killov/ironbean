@@ -9,7 +9,7 @@ import {
 import {ComponentType} from "./enums";
 import {component} from "./decorators";
 import {TestProvider} from "./testProvider";
-import {DependencyKey} from "./dependencyKey";
+import {DependencyToken} from "./dependencyToken";
 
 (function() {
     if (typeof (Object as any).id === "undefined") {
@@ -38,7 +38,7 @@ export class ApplicationContext {
     }
 
     public getBean<T>(Class: new (...any: any[]) => T): T;
-    public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
+    public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
         return this.container.getBean(dependencyKey);
     }
@@ -53,7 +53,7 @@ export class ComponentContext {
     }
 
     public getBean<T>(Class: new (...any: any[]) => T): T;
-    public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
+    public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
         return this.container.getBean(dependencyKey);
     }
@@ -73,7 +73,7 @@ export class TestingContext extends ApplicationContext {
     }
 
     public setMock<T>(Class: new (...any: any[]) => T, instance: T): T;
-    public setMock<TDependency>(dependencyKey: DependencyKey<TDependency>, instance: TDependency): TDependency;
+    public setMock<TDependency>(dependencyKey: DependencyToken<TDependency>, instance: TDependency): TDependency;
     public setMock(Class: any, instance: any) {
         return this.testContainer.setMock(Class, instance);
     }

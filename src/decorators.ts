@@ -2,7 +2,7 @@ import "reflect-metadata";
 import {ComponentType, constants} from "./enums";
 import {ComponentContainer, currentComponentContainer, getBaseContainer} from "./container";
 import {Scope} from "./scope";
-import {DependencyKey} from "./dependencyKey";
+import {DependencyToken} from "./dependencyToken";
 import {markAsOverridenDefineProperty} from "./useDefClassFiedsHack";
 
 export type Class = new (...args: any[]) => any;
@@ -66,7 +66,7 @@ export function autowired(target: any, propertyName: string) {
     }
 }
 
-export function type<T>(key: DependencyKey<T>) {
+export function type<T>(key: DependencyToken<T>) {
     return function(target: any, propertyName: string | symbol, parameterIndex?: number) {
         if (parameterIndex === undefined) {
             Reflect.defineMetadata(constants.types, key, target, propertyName);

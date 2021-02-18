@@ -4,7 +4,7 @@ import {
     type,
     destroyContext,
     postConstruct,
-    getBaseTestingContext, TestingContext, getBaseApplicationContext, DependencyKey
+    getBaseTestingContext, TestingContext, getBaseApplicationContext, DependencyToken
 } from "../src";
 import {Container} from "../src/container";
 
@@ -25,9 +25,9 @@ describe("testing", () => {
     }
 
     it("inject by key", () => {
-        const key = DependencyKey.create<string>();
-        const key2 = DependencyKey.create<string>();
-        const key3 = DependencyKey.create<b>();
+        const key = DependencyToken.create<string>();
+        const key2 = DependencyToken.create<string>();
+        const key3 = DependencyToken.create<b>();
 
         key.setFactory(() => "datata");
         key2.setFactory(() => "datata22");

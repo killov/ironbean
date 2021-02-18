@@ -9,7 +9,7 @@ interface ISettings {
 
 type ComponentFactory<TDependency> = (componentContext: ComponentContext) => TDependency
 
-export class DependencyKey<TDependency> {
+export class DependencyToken<TDependency> {
     // @ts-ignore
     a: TDependency;
     private _componentType: ComponentType;
@@ -22,7 +22,7 @@ export class DependencyKey<TDependency> {
     }
 
     public static create<TDependency>(settings: ISettings = {}) {
-        return new DependencyKey<TDependency>(settings.componentType || ComponentType.Singleton, settings.scope || getDefaultScope());
+        return new DependencyToken<TDependency>(settings.componentType || ComponentType.Singleton, settings.scope || getDefaultScope());
     }
 
     public setFactory(factory: ComponentFactory<TDependency>): void {

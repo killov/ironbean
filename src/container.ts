@@ -4,7 +4,7 @@ import {TestProvider} from "./testProvider";
 import {ApplicationContext, ComponentContext, TestingContext} from "./base";
 import {DependencyStorage} from "./dependencyStorage";
 import {getDefaultScope, ScopeImpl} from "./scope";
-import {DependencyKey} from "./dependencyKey";
+import {DependencyToken} from "./dependencyToken";
 import {ClassComponent, Component} from "./component";
 
 @component(ComponentType.Singleton)
@@ -24,7 +24,7 @@ export class Container {
     }
 
     public getBean<T>(Class: new (...any: any[]) => T): T;
-    public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
+    public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
         return this.getComponentInstance(this.getComponent(Component.create(dependencyKey)));
     }
@@ -144,7 +144,7 @@ export class TestContainer extends Container {
     }
 
     public setMock<T>(Class: new (...any: any[]) => T, o: T): T;
-    public setMock<TDependency>(objectKey: DependencyKey<TDependency>, o: TDependency): TDependency;
+    public setMock<TDependency>(objectKey: DependencyToken<TDependency>, o: TDependency): TDependency;
     public setMock<T>(component: any, o: T) {
         this.setComponentMock(Component.create(component), o);
     }
@@ -237,7 +237,7 @@ export class ComponentContainer {
     }
 
     public getBean<T>(Class: new (...any: any[]) => T): T;
-    public getBean<TDependency>(objectKey: DependencyKey<TDependency>): TDependency;
+    public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
         return this.getComponentInstance(Component.create(dependencyKey));
     }
