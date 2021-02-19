@@ -4,9 +4,8 @@ import {ApplicationContext, ComponentContext, TestingContext} from "./base";
 import {ComponentContainer, Container} from "./container";
 import {getAllPropertyNames} from "./utils";
 import {DependencyToken} from "./dependencyToken";
-import {ComponentConfig} from "./componentConfig";
 
-export abstract class Component<T = any> implements ComponentConfig<T> {
+export abstract class Component<T = any> {
     components: Component[] = [];
 
     public static create<T>(Class: any): Component<T> {
@@ -46,10 +45,8 @@ export abstract class Component<T = any> implements ComponentConfig<T> {
         return last ? last.getComponent() : this;
     }
 
-    add<TDependency extends T>(Class: { new(...any: any[]): TDependency }): ComponentConfig<T>;
-    add<TDependency extends T>(objectKey: DependencyToken<TDependency>): ComponentConfig<T>;
-    add(cmp: any): any {
-        this.components.push(Component.create(cmp));
+    add(cmp: Component): any {
+        this.components.push(cmp);
         return this;
     }
 }

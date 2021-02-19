@@ -16,7 +16,7 @@ export const getBaseApplicationContext = base.getBaseApplicationContext;
 export const getBaseTestingContext = base.getBaseTestingContext;
 export const destroyContext = base.destroyContext;
 
-export const getComponentConfig = componentConfig.getComponentConfig;
+export const take = componentConfig.take;
 
 export const getDefaultScope = scopeM.getDefaultScope;
 export const DependencyToken = dependencyKey.DependencyToken;

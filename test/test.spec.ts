@@ -10,7 +10,7 @@ import {
     getDefaultScope,
     postConstruct,
     scope,
-    ScopeType, getComponentConfig
+    ScopeType, take
 } from "../src";
 import {Container} from "../src/container";
 import {ComponentType} from "../src/enums";
@@ -501,13 +501,13 @@ describe("test", () => {
         @component
         class A implements F {
             x: number = 10;
-
+            h: number = 20;
             @autowired
             @type(f)
             f!: F;
         }
 
-        getComponentConfig(f).add(A);
+        take(f).to(A);
 
         it("test1", () => {
             expect(applicationContext.getBean(f).x).toBe(10)
