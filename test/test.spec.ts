@@ -90,7 +90,7 @@ describe("test", () => {
     it("inject by key null return of factory", () => {
         const key = DependencyToken.create<string|null>();
 
-        key.setFactory(() => null);
+        take(key).setFactory(() => null);
 
         expect(applicationContext.getBean(key)).toBe(null);
         expect(applicationContext.getBean(key)).toBe(null);
@@ -100,7 +100,7 @@ describe("test", () => {
         const key = DependencyToken.create<number>();
         let i = 0;
 
-        key.setFactory(() => i++);
+        take(key).setFactory(() => i++);
 
         expect(applicationContext.getBean(key)).toBe(0);
         expect(applicationContext.getBean(key)).toBe(0);
@@ -111,7 +111,7 @@ describe("test", () => {
         const key = DependencyToken.create<number>({componentType: ComponentType.Prototype});
         let i = 0;
 
-        key.setFactory(() => i++);
+        take(key).setFactory(() => i++);
 
         expect(applicationContext.getBean(key)).toBe(0);
         expect(applicationContext.getBean(key)).toBe(1);
@@ -123,8 +123,8 @@ describe("test", () => {
         const key2 = DependencyToken.create<number>({componentType: ComponentType.Prototype});
         let i = 0;
 
-        key.setFactory(() => i++);
-        key2.setFactory((context) => {
+        take(key).setFactory(() => i++);
+        take(key2).setFactory((context) => {
             expect(context.getBean(key)).toBe(context.getBean(key));
 
             return context.getBean(key) + context.getBean(key);
@@ -152,9 +152,21 @@ describe("test", () => {
         const key2 = DependencyToken.create<string>();
         const key3 = DependencyToken.create<b>();
 
-        key.setFactory(() => "datata");
-        key2.setFactory(() => "datata22");
-        key3.setFactory(() => new b());
+        class Item {
+            a: string;
+            constructor(a: string) {
+                this.a = a;
+            }
+        }
+
+        take(key).setFactory(() => "datata");
+        take(key2).setFactory(() => "datata22");
+        take(key3).setFactory(() => new b());
+        take(key3).setFactory(() => new b());
+        take(Item).setFactory((context) => new Item(context.getBean(key) + context.getBean(key2)));
+
+        expect(applicationContext.getBean(Item).a).toBe("datatadatata22");
+        expect(applicationContext.getBean(Item)).toBe(applicationContext.getBean(Item));
 
         @component
         class a {
@@ -166,8 +178,9 @@ describe("test", () => {
             }
 
             @postConstruct
-            post(@type(key3) data: b) {
+            post(@type(key3) data: b, item: Item) {
                 expect(data instanceof  b).toBe(true);
+                expect(item.a).toBe("datatadatata22");
             }
         }
 
@@ -334,7 +347,7 @@ describe("test", () => {
             scope: ticket
         });
 
-        key.setFactory(() => new Object());
+        take(key).setFactory(() => new Object());
 
         @component
         @scope(ticket)

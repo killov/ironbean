@@ -4,6 +4,7 @@ import {ApplicationContext, ComponentContext, TestingContext} from "./base";
 import {ComponentContainer, Container} from "./container";
 import {getAllPropertyNames} from "./utils";
 import {DependencyToken} from "./dependencyToken";
+import {ComponentFactory} from "./componentConfig";
 
 export abstract class Component<T = any> {
     components: Component[] = [];
@@ -33,6 +34,10 @@ export abstract class Component<T = any> {
     }
 
     public postConstruct(_container: ComponentContainer, _instance: T) {
+        throw "not implemented";
+    }
+
+    public setFactory(_factory: ComponentFactory<T>): void {
         throw "not implemented";
     }
 
@@ -131,6 +136,7 @@ export class ClassComponent<T> extends Component<T> {
 export class DependencyComponent<T> extends Component<T> {
     private static map: Map<object, DependencyComponent<any>> = new Map<object, DependencyComponent<any>>();
     private key: DependencyToken<T>
+    private factory?: ComponentFactory<T>;
 
     public static create<T>(key: DependencyToken<T>): DependencyComponent<T> {
         if (!this.map.has(key)) {
@@ -143,6 +149,10 @@ export class DependencyComponent<T> extends Component<T> {
     private constructor(key: DependencyToken<T>) {
         super();
         this.key = key;
+    }
+
+    setFactory(factory: ComponentFactory<T>): void {
+        this.factory = factory;
     }
 
     public getScope(): ScopeImpl {
@@ -158,13 +168,11 @@ export class DependencyComponent<T> extends Component<T> {
     }
 
     public construct(_container: ComponentContainer, ..._params: any[]): T {
-        const factory = this.key.getFactory();
-
-        if (!factory) {
+         if (!this.factory) {
             throw new Error("Factory for " + this.key + "not found.");
         }
 
-        return factory(_container.getBean(ComponentContext));
+        return this.factory(_container.getBean(ComponentContext));
     }
 
 

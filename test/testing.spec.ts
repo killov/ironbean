@@ -4,7 +4,7 @@ import {
     type,
     destroyContext,
     postConstruct,
-    getBaseTestingContext, TestingContext, getBaseApplicationContext, DependencyToken
+    getBaseTestingContext, TestingContext, getBaseApplicationContext, DependencyToken, take
 } from "../src";
 import {Container} from "../src/container";
 
@@ -29,9 +29,9 @@ describe("testing", () => {
         const key2 = DependencyToken.create<string>();
         const key3 = DependencyToken.create<b>();
 
-        key.setFactory(() => "datata");
-        key2.setFactory(() => "datata22");
-        key3.setFactory(() => new b());
+        take(key).setFactory(() => "datata");
+        take(key2).setFactory(() => "datata22");
+        take(key3).setFactory(() => new b());
 
         @component
         class a {
