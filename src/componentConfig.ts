@@ -1,6 +1,6 @@
 import {DependencyToken} from "./dependencyToken";
 import {Component} from "./component";
-import {ComponentContext} from "./base";
+import {ComponentContext} from "./componentContext";
 
 type Dependency<TDependency> = (new (...any: any[]) => TDependency)|DependencyToken<TDependency>;
 export type ComponentFactory<TDependency> = (componentContext: ComponentContext) => TDependency

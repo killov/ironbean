@@ -21,6 +21,7 @@ export const take = componentConfig.take;
 export const getDefaultScope = scopeM.getDefaultScope;
 export const DependencyToken = dependencyKey.DependencyToken;
 
-export {ApplicationContext, ComponentContext, TestingContext } from "./base";
+export {ComponentContext} from "./componentContext";
+export {ApplicationContext, TestingContext } from "./base";
 
 
