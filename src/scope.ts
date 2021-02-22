@@ -1,4 +1,4 @@
-import {ScopeType} from "./enums";
+import {ScopeType} from "./internals";
 
 export interface Scope {
     createScope(name: string, type?: ScopeType): Scope;

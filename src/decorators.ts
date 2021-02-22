@@ -1,9 +1,12 @@
 import "reflect-metadata";
-import {ComponentType, constants} from "./enums";
-import {ComponentContainer, currentComponentContainer, getBaseContainer} from "./container";
-import {Scope} from "./scope";
-import {DependencyToken} from "./dependencyToken";
-import {markAsOverridenDefineProperty} from "./useDefClassFiedsHack";
+import {
+    ComponentContainer,
+    ComponentType,
+    constants,
+    currentComponentContainer, DependencyToken,
+    getBaseContainer, markAsOverridenDefineProperty,
+    Scope
+} from "./internals";
 
 export type Class = new (...args: any[]) => any;
 export function component(componentType: ComponentType): any;

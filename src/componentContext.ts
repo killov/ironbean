@@ -1,7 +1,4 @@
-import {component} from "./decorators";
-import {ComponentType} from "./enums";
-import {ComponentContainer} from "./container";
-import {DependencyToken} from "./dependencyToken";
+import {ComponentType, ComponentContainer, DependencyToken, component} from "./internals";
 
 @component(ComponentType.Prototype)
 export class ComponentContext {

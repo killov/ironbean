@@ -1,4 +1,4 @@
-import {getAllPropertyNames} from "./utils";
+import {getAllPropertyNames} from "./internals";
 
 export class TestProvider {
 

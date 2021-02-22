@@ -3,12 +3,8 @@ import {
     destroyContainer,
     getBaseContainer,
     getTestContainer,
-    TestContainer
-} from "./container";
-import {ComponentType} from "./enums";
-import {component} from "./decorators";
-import {TestProvider} from "./testProvider";
-import {DependencyToken} from "./dependencyToken";
+    TestContainer, ComponentType, component, TestProvider, DependencyToken
+} from "./internals";
 
 (function() {
     if (typeof (Object as any).id === "undefined") {

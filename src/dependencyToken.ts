@@ -1,5 +1,4 @@
-import {ComponentType} from "./enums";
-import {getDefaultScope, Scope} from "./scope";
+import {ComponentType, getDefaultScope, Scope} from "./internals";
 
 interface ISettings {
     componentType?: ComponentType;

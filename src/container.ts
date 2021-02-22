@@ -1,12 +1,14 @@
-import {component} from "./decorators";
-import {ComponentType, constants, ScopeType} from "./enums";
-import {TestProvider} from "./testProvider";
-import {ApplicationContext, TestingContext} from "./base";
-import {DependencyStorage} from "./dependencyStorage";
-import {getDefaultScope, ScopeImpl} from "./scope";
-import {DependencyToken} from "./dependencyToken";
-import {ClassComponent, Component} from "./component";
-import {ComponentContext} from "./componentContext";
+import {
+    ApplicationContext,
+    ClassComponent,
+    Component,
+    component, ComponentContext,
+    ComponentType, constants,
+    DependencyStorage,
+    DependencyToken,
+    getDefaultScope,
+    ScopeImpl, ScopeType, TestingContext, TestProvider
+} from "./internals";
 
 @component(ComponentType.Singleton)
 export class Container {

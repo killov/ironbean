@@ -1,11 +1,13 @@
-import {getDefaultScope, ScopeImpl} from "./scope";
-import {ComponentType, constants} from "./enums";
-import {ApplicationContext, TestingContext} from "./base";
-import {ComponentContainer, Container} from "./container";
-import {getAllPropertyNames} from "./utils";
-import {DependencyToken} from "./dependencyToken";
-import {ComponentFactory} from "./componentConfig";
-import {ComponentContext} from "./componentContext";
+import {
+    ApplicationContext,
+    ComponentContainer, ComponentContext,
+    ComponentFactory,
+    ComponentType,
+    constants, Container,
+    DependencyToken, getAllPropertyNames,
+    getDefaultScope,
+    ScopeImpl, TestingContext
+} from "./internals";
 
 export abstract class Component<T = any> {
     components: Component[] = [];
