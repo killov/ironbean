@@ -10,7 +10,7 @@ class Take<TDependency> {
         this.takenDependency = dd;
     }
 
-    public to<T extends TDependency>(dependency: Dependency<T>): void {
+    public bindTo<T extends TDependency>(dependency: Dependency<T>): void {
         Component.create(this.takenDependency).add(Component.create(dependency))
     }
 
@@ -20,7 +20,7 @@ class Take<TDependency> {
         // @ts-ignore
         if (dependency.prototype) {
             dependencyToken = DependencyToken.create<TDependency>();
-            this.to(dependencyToken);
+            this.bindTo(dependencyToken);
         }
         Component.create(dependencyToken).setFactory(factory);
     }

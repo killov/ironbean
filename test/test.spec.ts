@@ -520,7 +520,7 @@ describe("test", () => {
             f!: F;
         }
 
-        take(f).to(A);
+        take(f).bindTo(A);
 
         it("test1", () => {
             expect(applicationContext.getBean(f).x).toBe(10)
