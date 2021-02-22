@@ -1,6 +1,6 @@
 import {Component, ComponentContext, DependencyToken} from "./internals";
 
-type Dependency<TDependency> = (new (...any: any[]) => TDependency)|DependencyToken<TDependency>;
+export type Dependency<TDependency> = (new (...any: any[]) => TDependency)|DependencyToken<TDependency>;
 export type ComponentFactory<TDependency> = (componentContext: ComponentContext) => TDependency
 
 class Take<TDependency> {

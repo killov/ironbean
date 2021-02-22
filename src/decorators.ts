@@ -1,12 +1,5 @@
 import "reflect-metadata";
-import {
-    ComponentContainer,
-    ComponentType,
-    constants,
-    currentComponentContainer, DependencyToken,
-    getBaseContainer, markAsOverridenDefineProperty,
-    Scope
-} from "./internals";
+import {ComponentType, constants, DependencyToken, Scope} from "./internals";
 
 export type Class = new (...args: any[]) => any;
 export function component(componentType: ComponentType): any;
@@ -39,34 +32,6 @@ export function scope(scope: Scope): (Class: Class) => any {
     }
 
     return decorator;
-}
-
-function createAndSetComponentContainer(target: any) {
-    const componentContainer = new ComponentContainer(getBaseContainer());
-    Reflect.defineMetadata(constants.componentContainer, componentContainer, target);
-    return componentContainer;
-}
-
-export function autowired(target: any, propertyName: string) {
-    const set = () => {};
-    const get = function(this: any) {
-        const target = this;
-        const container = Reflect.getMetadata(constants.componentContainer, target) || currentComponentContainer || createAndSetComponentContainer(target);
-        const type = Reflect.getMetadata(constants.types, target, propertyName)
-            || Reflect.getMetadata("design:type", target, propertyName);
-
-        return container.getBean(type);
-    };
-
-    if (delete target[propertyName]) {
-        Object.defineProperty(target, propertyName, {
-            get: get,
-            set: set,
-            enumerable: true,
-            configurable: true
-        });
-        markAsOverridenDefineProperty(target, propertyName);
-    }
 }
 
 export function type<T>(key: DependencyToken<T>) {

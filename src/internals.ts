@@ -1,5 +1,8 @@
+import "reflect-metadata";
 export * from "./enums";
+export * from "./zaop";
 export * from "./decorators";
+export * from "./autowired";
 export * from "./container";
 export * from "./componentContext";
 export * from "./componentConfig";
