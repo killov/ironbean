@@ -3,7 +3,7 @@ import {
     destroyContainer,
     getBaseContainer,
     getTestContainer,
-    TestContainer, ComponentType, component, TestProvider, DependencyToken
+    TestContainer, ComponentType, component, DependencyToken
 } from "./internals";
 
 (function() {
@@ -74,7 +74,6 @@ export function getBaseApplicationContext(): ApplicationContext {
 
 export function getBaseTestingContext(): TestingContext {
     const container = getTestContainer();
-    container.setTestProvider(new TestProvider());
     return container.getBean(TestingContext);
 }
 

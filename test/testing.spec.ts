@@ -21,7 +21,7 @@ describe("testing", () => {
     });
 
     function expectDependenciesCount(dependenciesCount: number) {
-        expect(testingContext.getBean(Container).countOfDependencies()).toBe(dependenciesCount);
+        expect(testingContext.getBean(Container).countOfDependencies()).toBe(dependenciesCount + 1);
     }
 
     it("inject by key", () => {

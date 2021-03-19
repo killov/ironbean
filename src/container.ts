@@ -130,6 +130,8 @@ export class TestContainer extends Container {
 
     public init() {
         this.storage.saveInstance(Component.create(TestContainer), this);
+        this.disableMock(TestProvider);
+        this.testProvider = this.getBean(TestProvider);
     }
 
     public getComponent(component: Component): Component {
@@ -190,10 +192,6 @@ export class TestContainer extends Container {
 
     public disableMock<T>(Class: new () => T) {
         this.disabledMocks.push(Component.create(Class));
-    }
-
-    public setTestProvider(testProvider: TestProvider) {
-        this.testProvider = testProvider;
     }
 }
 
