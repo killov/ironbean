@@ -1,6 +1,5 @@
-import {TestingContext} from "fire-dic";
-import {getTestContainer} from "fire-dic/dist/container";
-import {TestProvider} from "fire-dic/dist/testProvider";
+import {getBaseTestingContext, take, TestingContext} from "fire-dic";
+import {TestProvider} from "fire-dic/dist/api";
 import Spy = jasmine.Spy;
 import SpyObj = jasmine.SpyObj;
 
@@ -19,6 +18,8 @@ class JasmineTestProvider extends TestProvider {
     }
 }
 
+take(TestProvider).bindTo(JasmineTestProvider);
+
 function getAllPropertyNames(obj: object) {
     let result: string[] = [];
     while (obj) {
@@ -35,9 +36,7 @@ export class JasmineTestingContext extends TestingContext {
 }
 
 export function getBaseJasmineTestingContext(): JasmineTestingContext {
-    const container = getTestContainer();
-    container.setTestProvider(new JasmineTestProvider());
-    return container.getBean(TestingContext as any) as JasmineTestingContext;
+    return getBaseTestingContext() as JasmineTestingContext;
 }
 
 type DataPropertyNames<T> = {

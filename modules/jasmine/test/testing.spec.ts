@@ -1,5 +1,5 @@
 import {getBaseJasmineTestingContext, getPropertyDescriptor, JasmineTestingContext} from "../src";
-import {autowired, component, DependencyKey, destroyContext, postConstruct, type} from "fire-dic";
+import {autowired, component, DependencyToken, destroyContext, postConstruct, take, type} from "fire-dic";
 import {Container} from "fire-dic/dist/container";
 
 describe("jasmine testing", () => {
@@ -19,13 +19,13 @@ describe("jasmine testing", () => {
     }
 
     it("inject by key", () => {
-        const key = DependencyKey.create();
-        const key2 = DependencyKey.create();
-        const key3 = DependencyKey.create();
+        const key = DependencyToken.create();
+        const key2 = DependencyToken.create();
+        const key3 = DependencyToken.create();
 
-        testingContext.addDependenceFactory(key, () => "datata");
-        testingContext.addDependenceFactory(key2, () => "datata22");
-        testingContext.addDependenceFactory(key3, () => new b());
+        take(key).setFactory(() => "datata");
+        take(key2).setFactory(() => "datata22");
+        take(key3).setFactory(() => new b());
 
         @component
         class a {
@@ -82,7 +82,7 @@ describe("jasmine testing", () => {
 
         expect(testingContext.getBean(key)).toBe("datata");
         expect(testingContext.getBean(key2)).toBe("datata22");
-
+        debugger
         const m = testingContext.getMock(a)
         m.getText.and.returnValue("ahoja");
 
