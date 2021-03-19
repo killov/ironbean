@@ -60,8 +60,8 @@ export abstract class Component<T = any> {
 
     collectComponents(components: Component[] = []) {
         components.push(this);
-        components.push(...components);
-        components.forEach(c => c.collectComponents(components));
+        components.push(...this.components);
+        this.components.forEach(c => c.collectComponents(components));
 
         return components;
     }
