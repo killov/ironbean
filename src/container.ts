@@ -191,7 +191,8 @@ export class TestContainer extends Container {
     }
 
     public disableMock<T>(Class: new () => T) {
-        this.disabledMocks.push(Component.create(Class));
+        const component = Component.create(Class);
+        this.disabledMocks.push(...component.collectComponents());
     }
 }
 

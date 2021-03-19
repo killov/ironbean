@@ -57,6 +57,14 @@ export abstract class Component<T = any> {
         this.components.push(cmp);
         return this;
     }
+
+    collectComponents(components: Component[] = []) {
+        components.push(this);
+        components.push(...components);
+        components.forEach(c => c.collectComponents(components));
+
+        return components;
+    }
 }
 
 export class ClassComponent<T> extends Component<T> {
