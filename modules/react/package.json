@@ -1,6 +1,6 @@
 {
     "name": "fire-dic-react",
-    "version": "1.0.2",
+    "version": "1.2.0",
     "description": "",
     "main": "dist/index.js",
     "files": [
@@ -15,8 +15,8 @@
     "author": "Zdeněk Mazurák",
     "license": "ISC",
     "dependencies": {
-        "fire-dic": "^1.0.11",
-        "react": "^16.13.1"
+        "fire-dic": "~1.2.1",
+        "react": "^16.13.1 || ^17.0.0"
     },
     "devDependencies": {
         "react-dom": "^16.13.1",
