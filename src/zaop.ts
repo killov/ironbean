@@ -23,7 +23,7 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
         const get = function(this: any) {
             if (settings.get) {
                 const target = this;
-                const container = Reflect.getMetadata(constants.componentContainer, target) || currentComponentContainer || createAndSetComponentContainer(target);
+                const container = getComponentContainerFromInstance(target);
                 const context = new PropertyDecoratorContext();
                 context.type = Reflect.getMetadata(constants.types, target, propertyName)
                     || Reflect.getMetadata("design:type", target, propertyName);
@@ -45,6 +45,10 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
     }
 
     return decorator;
+}
+
+function getComponentContainerFromInstance(target: any): ComponentContainer {
+    return Reflect.getMetadata(constants.componentContainer, target) || currentComponentContainer || createAndSetComponentContainer(target)
 }
 
 function createAndSetComponentContainer(target: any) {
