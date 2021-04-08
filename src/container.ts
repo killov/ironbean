@@ -126,7 +126,7 @@ export class Container {
 @component(ComponentType.Singleton)
 export class TestContainer extends Container {
     private testProvider!: TestProvider;
-    private disabledMocks: Component[] = [];
+    private disabledMocks: Set<Component> = new Set<Component>();
 
     public init() {
         this.storage.saveInstance(Component.create(TestContainer), this);
@@ -162,7 +162,7 @@ export class TestContainer extends Container {
         if (<any>component === Component.create(TestingContext) || <any>component === Component.create(TestContainer)) {
             return false;
         }
-        if (this.disabledMocks.indexOf(component) !== -1) {
+        if (this.disabledMocks.has(component)) {
             return false;
         }
 
@@ -190,9 +190,17 @@ export class TestContainer extends Container {
         return super.getBean(Class);
     }
 
-    public disableMock<T>(Class: new () => T) {
+    public disableMock<T>(Class: new () => T, disable: boolean = true) {
         const component = Component.create(Class);
-        this.disabledMocks.push(...component.collectComponents());
+        if (disable) {
+            component.collectComponents().forEach(component => {
+                this.disabledMocks.add(component);
+            })
+        } else {
+            component.collectComponents().forEach(component => {
+                this.disabledMocks.delete(component);
+            })
+        }
     }
 }
 

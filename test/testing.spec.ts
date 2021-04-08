@@ -135,6 +135,13 @@ describe("testing", () => {
         testingContext = getBaseTestingContext();
         testingContext.disableMock(A);
         expect(testingContext.getBean(A).getA()).toBe("a");
+
+        destroyContext();
+        testingContext = getBaseTestingContext();
+        testingContext.disableMock(A);
+        testingContext.enableMock(A);
+
+        expect(testingContext.getBean(A).getA()).toBe(undefined as any);
     })
 
     it("set Mock", () => {
