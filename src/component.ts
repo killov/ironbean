@@ -6,7 +6,7 @@ import {
     constants, Container,
     DependencyToken, getAllPropertyNames,
     getDefaultScope,
-    ScopeImpl, TestingContext
+    ScopeImpl, TestContainer, TestingContext
 } from "./internals";
 
 export abstract class Component<T = any> {
@@ -140,7 +140,7 @@ export class ClassComponent<T> extends Component<T> {
         const Class = this._Class;
 
         // @ts-ignore
-        return Class === ApplicationContext || Class === TestingContext || Class === Container;
+        return Class === ApplicationContext || Class === TestingContext || Class === Container || Class === TestContainer;
     }
 }
 

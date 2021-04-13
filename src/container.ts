@@ -29,7 +29,7 @@ export class Container {
     public getBean<T>(Class: new (...any: any[]) => T): T;
     public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
-        return this.getComponentInstance(this.getComponent(Component.create(dependencyKey)));
+        return this.getComponentInstance(Component.create(dependencyKey));
     }
 
     public getComponent(component: Component): Component {
@@ -51,14 +51,14 @@ export class Container {
                 this.runPostConstruct(instance, component, componentContainer);
                 return instance;
             } else {
-                return this.getContainerForClass(component).getComponentInstance(component);
+                return this.getContainerForComponent(component).getComponentInstance(component);
             }
         }
 
         return instance as T;
     }
 
-    protected getContainerForClass(component: Component): Container {
+    protected getContainerForComponent(component: Component): Container {
         const scope = component.getScope();
         const commonScope = ScopeImpl.getCommonParent(scope, this.getScope());
         const commonContainer = this.getParentContainerByScope(commonScope);
@@ -131,6 +131,8 @@ export class TestContainer extends Container {
     public init() {
         this.storage.saveInstance(Component.create(TestContainer), this);
         this.disableMock(TestProvider);
+        this.disableMock(TestingContext);
+        this.disableMock(TestContainer);
         this.testProvider = this.getBean(TestProvider);
     }
 
@@ -159,9 +161,6 @@ export class TestContainer extends Container {
     }
 
     private isComponentForMock(component: Component): boolean {
-        if (<any>component === Component.create(TestingContext) || <any>component === Component.create(TestContainer)) {
-            return false;
-        }
         if (this.disabledMocks.has(component)) {
             return false;
         }
@@ -190,7 +189,7 @@ export class TestContainer extends Container {
         return super.getBean(Class);
     }
 
-    public disableMock<T>(Class: new () => T, disable: boolean = true) {
+    public disableMock<T>(Class: new (...any: any[]) => T, disable: boolean = true) {
         const component = Component.create(Class);
         if (disable) {
             component.collectComponents().forEach(component => {
