@@ -82,7 +82,7 @@ describe("jasmine testing", () => {
 
         expect(testingContext.getBean(key)).toBe("datata");
         expect(testingContext.getBean(key2)).toBe("datata22");
-        debugger
+
         const m = testingContext.getMock(a)
         m.getText.and.returnValue("ahoja");
 
@@ -113,6 +113,5 @@ describe("jasmine testing", () => {
         const ic1 = testingContext.getBeanWithMocks(c);
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
-
     });
 });

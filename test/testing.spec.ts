@@ -166,4 +166,27 @@ describe("testing", () => {
         expect(testingContext.getBean(A).getA()).toBe("a");
         expect(testingContext.getBean(A)).toBe(mock);
     })
+
+
+    it("custom mocks", () => {
+
+        @component
+        class a {
+            f = "ajp";
+        }
+
+        class b {
+            @autowired a!: a;
+            g = "haha";
+        }
+
+        class customA extends a {
+            f = "moje vlastni";
+        }
+
+        testingContext.setMock(a, customA);
+
+        const iB = testingContext.getBeanWithMocks(b);
+        expect(iB.a.f).toBe("moje vlastni");
+    });
 });

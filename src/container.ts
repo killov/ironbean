@@ -127,6 +127,7 @@ export class Container {
 export class TestContainer extends Container {
     private testProvider!: TestProvider;
     private disabledMocks: Set<Component> = new Set<Component>();
+    private mockFactories: Map<Component, Component> = new Map<Component, Component>();
 
     public init() {
         this.storage.saveInstance(Component.create(TestContainer), this);
@@ -150,9 +151,14 @@ export class TestContainer extends Container {
         return component;
     }
 
-    public setMock<T>(Class: new (...any: any[]) => T, o: T): T;
+    public setMock<T>(Class: new (...any: any[]) => T, classFactory: new (...any: any[]) => T): T;
+    public setMock<T>(Class: new (...any: any[]) => T, instance: T): T;
     public setMock<TDependency>(objectKey: DependencyToken<TDependency>, o: TDependency): TDependency;
-    public setMock<T>(component: any, o: T) {
+    public setMock(component: any, o: any) {
+        if (o.prototype) {
+            this.mockFactories.set(Component.create(component), Component.create(o));
+            return;
+        }
         this.setComponentMock(Component.create(component), o);
     }
 
@@ -170,6 +176,9 @@ export class TestContainer extends Container {
 
     protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): T {
         if (this.isComponentForMock(component)) {
+            if (this.mockFactories.has(component)) {
+                return super.buildNewInstance(this.mockFactories.get(component)!, componentContainer)
+            }
             if (component instanceof ClassComponent) {
                 return this.testProvider.mockClass(component.Class);
             }
