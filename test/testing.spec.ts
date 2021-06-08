@@ -182,6 +182,7 @@ describe("testing", () => {
 
         class customA extends a {
             f = "moje vlastni";
+            hmm =  10;
         }
 
         testingContext.setMock(a, customA);

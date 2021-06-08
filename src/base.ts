@@ -52,9 +52,9 @@ export class TestingContext extends ApplicationContext {
         return this.testContainer.getClassInstanceWithMocks(Class);
     }
 
-    public setMock<T>(Class: new (...any: any[]) => T, classFactory: new (...any: any[]) => T): T;
-    public setMock<T>(Class: new (...any: any[]) => T, instance: T): T;
-    public setMock<TDependency>(dependencyKey: DependencyToken<TDependency>, instance: TDependency): TDependency;
+    public setMock<T, CF extends T>(Class: new (...any: any[]) => T, classFactory: new (...any: any[]) => CF): void;
+    public setMock<T>(Class: new (...any: any[]) => T, instance: T): void;
+    public setMock<TDependency>(dependencyKey: DependencyToken<TDependency>, instance: TDependency): TDependency
     public setMock(Class: any, instance: any) {
         return this.testContainer.setMock(Class, instance);
     }
