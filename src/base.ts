@@ -3,7 +3,7 @@ import {
     destroyContainer,
     getBaseContainer,
     getTestContainer,
-    TestContainer, ComponentType, component, DependencyToken
+    TestContainer, ComponentType, component, DependencyToken, TClass
 } from "./internals";
 
 (function() {
@@ -32,7 +32,7 @@ export class ApplicationContext {
         this.container = container;
     }
 
-    public getBean<T>(Class: new (...any: any[]) => T): T;
+    public getBean<T>(Class: TClass<T>): T;
     public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
     public getBean<T>(dependencyKey: any): T {
         return this.container.getBean(dependencyKey);
@@ -48,26 +48,26 @@ export class TestingContext extends ApplicationContext {
         this.testContainer = container;
     }
 
-    public getBeanWithMocks<T>(Class: new (...any: any[]) => T): T {
+    public getBeanWithMocks<T>(Class: TClass<T>): T {
         return this.testContainer.getClassInstanceWithMocks(Class);
     }
 
-    public setMock<T, CF extends T>(Class: new (...any: any[]) => T, classFactory: new (...any: any[]) => CF): void;
-    public setMock<T>(Class: new (...any: any[]) => T, instance: T): void;
+    public setMock<T, CF extends T>(Class: TClass<T>, classFactory: new (...any: any[]) => CF): void;
+    public setMock<T>(Class: TClass<T>, instance: T): void;
     public setMock<TDependency>(dependencyKey: DependencyToken<TDependency>, instance: TDependency): TDependency
     public setMock(Class: any, instance: any) {
         return this.testContainer.setMock(Class, instance);
     }
 
-    public disableMock<T>(Class: new (...any: any[]) => T) {
+    public disableMock<T>(Class: TClass<T>) {
         return this.testContainer.disableMock(Class);
     }
 
-    public enableMock<T>(Class: new (...any: any[]) => T) {
+    public enableMock<T>(Class: TClass<T>) {
         return this.testContainer.disableMock(Class, false);
     }
 
-    public getMock<T>(Class: new (...any: any[]) => T): T {
+    public getMock<T>(Class: TClass<T>): T {
         return this.getBean(Class);
     }
 }

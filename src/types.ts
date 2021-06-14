@@ -1,0 +1,1 @@
+export type TClass<T> = new (...args: any[]) => T;

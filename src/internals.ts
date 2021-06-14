@@ -14,3 +14,4 @@ export * from "./base";
 export * from "./testProvider";
 export * from "./component";
 export * from "./utils";
+export * from "./types";

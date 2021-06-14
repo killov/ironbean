@@ -1,12 +1,17 @@
 import {
     ApplicationContext,
-    ComponentContainer, ComponentContext,
+    ComponentContainer,
+    ComponentContext,
     ComponentFactory,
     ComponentType,
-    constants, Container,
-    DependencyToken, getAllPropertyNames,
+    constants,
+    Container,
+    DependencyToken,
+    getAllPropertyNames,
     getDefaultScope,
-    ScopeImpl, TestContainer, TestingContext
+    ScopeImpl, TClass,
+    TestContainer,
+    TestingContext
 } from "./internals";
 
 export abstract class Component<T = any> {
@@ -68,15 +73,14 @@ export abstract class Component<T = any> {
 }
 
 export class ClassComponent<T> extends Component<T> {
-
     private static map: Map<object, ClassComponent<any>> = new Map<object, ClassComponent<any>>();
-    private _Class: new(...args: any[]) => T;
+    private readonly _Class: TClass<T>;
 
-    get Class(): { new(...args: any[]): T } {
+    get Class(): TClass<T> {
         return this._Class;
     }
 
-    public static create<T>(Class: new (...args: any[]) => T): ClassComponent<T> {
+    public static create<T>(Class: TClass<T>): ClassComponent<T> {
         if (!this.map.has(Class)) {
             this.map.set(Class, new ClassComponent<T>(Class));
         }
@@ -84,17 +88,17 @@ export class ClassComponent<T> extends Component<T> {
         return this.map.get(Class) as ClassComponent<T>;
     }
 
-    private constructor(Class: new (...args: any[]) => T) {
+    private constructor(Class: TClass<T>) {
         super();
         this._Class = Class;
     }
 
     public getScope(): ScopeImpl {
-        return Reflect.getMetadata(constants.scope, this._Class) || getDefaultScope();
+        return Reflect.getMetadata(constants.scope, this._Class) ?? getDefaultScope();
     }
 
     public getType(): ComponentType {
-        return Reflect.getMetadata(constants.componentType, this._Class);
+        return Reflect.getMetadata(constants.componentType, this._Class) ?? ComponentType.Prototype;
     }
 
     public getConstructDependencyList(): Component[] {
@@ -146,7 +150,7 @@ export class ClassComponent<T> extends Component<T> {
 
 export class DependencyComponent<T> extends Component<T> {
     private static map: Map<object, DependencyComponent<any>> = new Map<object, DependencyComponent<any>>();
-    private key: DependencyToken<T>
+    private readonly key: DependencyToken<T>
     private factory?: ComponentFactory<T>;
 
     public static create<T>(key: DependencyToken<T>): DependencyComponent<T> {

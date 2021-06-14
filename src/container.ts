@@ -3,11 +3,11 @@ import {
     ClassComponent,
     Component,
     component, ComponentContext,
-    ComponentType, constants,
+    ComponentType, constants, Dependency,
     DependencyStorage,
     DependencyToken,
     getDefaultScope,
-    ScopeImpl, ScopeType, TestingContext, TestProvider
+    ScopeImpl, ScopeType, TClass, TestingContext, TestProvider
 } from "./internals";
 
 @component(ComponentType.Singleton)
@@ -26,10 +26,9 @@ export class Container {
         this.storage.saveInstance(Component.create(Container), this);
     }
 
-    public getBean<T>(Class: new (...any: any[]) => T): T;
-    public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
-    public getBean<T>(dependencyKey: any): T {
-        return this.getComponentInstance(Component.create(dependencyKey));
+    public getBean<T>(Class: TClass<T>): T;
+    public getBean<TDependency>(dependency: Dependency<TDependency>): TDependency {
+        return this.getComponentInstance(Component.create(dependency));
     }
 
     public getComponent(component: Component): Component {
@@ -151,8 +150,8 @@ export class TestContainer extends Container {
         return component;
     }
 
-    public setMock<T>(Class: new (...any: any[]) => T, classFactory: new (...any: any[]) => T): T;
-    public setMock<T>(Class: new (...any: any[]) => T, instance: T): T;
+    public setMock<T>(Class: TClass<T>, classFactory: TClass<T>): T;
+    public setMock<T>(Class: TClass<T>, instance: T): T;
     public setMock<TDependency>(objectKey: DependencyToken<TDependency>, o: TDependency): TDependency;
     public setMock(component: any, o: any) {
         if (o.prototype) {
@@ -193,12 +192,12 @@ export class TestContainer extends Container {
         }
     }
 
-    public getClassInstanceWithMocks<T>(Class: new () => T): T {
+    public getClassInstanceWithMocks<T>(Class: TClass<T>): T {
         this.disableMock(Class);
         return super.getBean(Class);
     }
 
-    public disableMock<T>(Class: new (...any: any[]) => T, disable: boolean = true) {
+    public disableMock<T>(Class: TClass<T>, disable: boolean = true) {
         const component = Component.create(Class);
         if (disable) {
             component.collectComponents().forEach(component => {
@@ -254,10 +253,8 @@ export class ComponentContainer {
         return components.map((component) => this.getComponentInstance(component))
     }
 
-    public getBean<T>(Class: new (...any: any[]) => T): T;
-    public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
-    public getBean<T>(dependencyKey: any): T {
-        return this.getComponentInstance(Component.create(dependencyKey));
+    public getBean<TDependency>(dependency: Dependency<TDependency>): TDependency {
+        return this.getComponentInstance(Component.create(dependency));
     }
 
     public getComponentInstance<T>(component: Component): T {
