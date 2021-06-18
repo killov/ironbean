@@ -88,7 +88,7 @@ describe("test", () => {
     });
 
     it("inject by key null return of factory", () => {
-        const key = DependencyToken.create<string|null>();
+        const key = DependencyToken.create<string|null>("key");
 
         take(key).setFactory(() => null);
 
@@ -97,7 +97,7 @@ describe("test", () => {
     });
 
     it("inject by key singleton return of factory", () => {
-        const key = DependencyToken.create<number>();
+        const key = DependencyToken.create<number>("key");
         let i = 0;
 
         take(key).setFactory(() => i++);
@@ -108,7 +108,7 @@ describe("test", () => {
     });
 
     it("inject by key prototype return of factory", () => {
-        const key = DependencyToken.create<number>({componentType: ComponentType.Prototype});
+        const key = DependencyToken.create<number>("key", {componentType: ComponentType.Prototype});
         let i = 0;
 
         take(key).setFactory(() => i++);
@@ -119,8 +119,8 @@ describe("test", () => {
     });
 
     it("inject by key prototype return of factory - test component context", () => {
-        const key = DependencyToken.create<number>({componentType: ComponentType.Prototype});
-        const key2 = DependencyToken.create<number>({componentType: ComponentType.Prototype});
+        const key = DependencyToken.create<number>("key", {componentType: ComponentType.Prototype});
+        const key2 = DependencyToken.create<number>("key2", {componentType: ComponentType.Prototype});
         let i = 0;
 
         take(key).setFactory(() => i++);
@@ -140,7 +140,7 @@ describe("test", () => {
     });
 
     it("inject by key without factory", () => {
-        const key = DependencyToken.create<number>({componentType: ComponentType.Prototype});
+        const key = DependencyToken.create<number>("key", {componentType: ComponentType.Prototype});
 
         expect(() => {
             applicationContext.getBean(key);
@@ -148,9 +148,9 @@ describe("test", () => {
     });
 
     it("inject by key", () => {
-        const key = DependencyToken.create<string>();
-        const key2 = DependencyToken.create<string>();
-        const key3 = DependencyToken.create<b>();
+        const key = DependencyToken.create<string>("key");
+        const key2 = DependencyToken.create<string>("key2");
+        const key3 = DependencyToken.create<b>("key3");
 
         class Item {
             a: string;
@@ -343,7 +343,7 @@ describe("test", () => {
         const ticket = getDefaultScope().createScope("ticket", ScopeType.Singleton);
 
 
-        const key = DependencyToken.create<Object>({
+        const key = DependencyToken.create<Object>("key3", {
             scope: ticket
         });
 
@@ -542,7 +542,7 @@ describe("test", () => {
             x: number;
             f: F;
         }
-        const f = DependencyToken.create<F>();
+        const f = DependencyToken.create<F>("f");
 
         @component
         class A implements F {

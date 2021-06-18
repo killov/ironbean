@@ -19,7 +19,7 @@ class Take<TDependency> {
         let dependencyToken = dependency;
         // @ts-ignore
         if (dependency.prototype) {
-            dependencyToken = DependencyToken.create<TDependency>();
+            dependencyToken = DependencyToken.create<TDependency>("");
             this.bindTo(dependencyToken);
         }
         Component.create(dependencyToken).setFactory(factory);

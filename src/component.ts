@@ -70,6 +70,10 @@ export abstract class Component<T = any> {
 
         return components;
     }
+
+    abstract isInjectable(): boolean;
+
+    abstract get name(): string;
 }
 
 export class ClassComponent<T> extends Component<T> {
@@ -146,6 +150,14 @@ export class ClassComponent<T> extends Component<T> {
         // @ts-ignore
         return Class === ApplicationContext || Class === TestingContext || Class === Container || Class === TestContainer;
     }
+
+    isInjectable(): boolean {
+        return Reflect.getMetadata(constants.component, this._Class) === true;
+    }
+
+    get name(): string {
+        return "Class " + this._Class.name;
+    }
 }
 
 export class DependencyComponent<T> extends Component<T> {
@@ -184,7 +196,7 @@ export class DependencyComponent<T> extends Component<T> {
 
     public construct(_container: ComponentContainer, ..._params: any[]): T {
          if (!this.factory) {
-            throw new Error("Factory for " + this.key + "not found.");
+            throw new Error("Factory for " + this.name + "not found.");
         }
 
         return this.factory(_container.getBean(ComponentContext));
@@ -193,5 +205,13 @@ export class DependencyComponent<T> extends Component<T> {
 
     public postConstruct(_container: ComponentContainer, _instance: any) {
 
+    }
+
+    isInjectable(): boolean {
+        return true;
+    }
+
+    get name(): string {
+        return this.key.name;
     }
 }

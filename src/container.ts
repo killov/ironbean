@@ -37,6 +37,9 @@ export class Container {
 
     public getComponentInstance<T>(component: Component): T {
         component = this.getComponent(component);
+        if (!component.isInjectable()) {
+            throw new Error("I can't instantiate a " + component.name + " that is not a component. ");
+        }
         const instance = this.storage.getInstance(component);
 
         if (instance === undefined) {

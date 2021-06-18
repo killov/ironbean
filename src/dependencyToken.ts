@@ -10,14 +10,16 @@ export class DependencyToken<TDependency> {
     a: TDependency;
     private _componentType: ComponentType;
     private _scope: Scope;
+    private _name: string;
 
-    private constructor(componentType: ComponentType, scope: Scope) {
+    private constructor(name: string, componentType: ComponentType, scope: Scope) {
+        this._name = name;
         this._scope = scope;
         this._componentType = componentType;
     }
 
-    public static create<TDependency>(settings: ISettings = {}) {
-        return new DependencyToken<TDependency>(settings.componentType || ComponentType.Singleton, settings.scope || getDefaultScope());
+    public static create<TDependency>(name: string, settings: ISettings = {}) {
+        return new DependencyToken<TDependency>(name, settings.componentType || ComponentType.Singleton, settings.scope || getDefaultScope());
     }
 
     get componentType(): ComponentType {
@@ -26,5 +28,9 @@ export class DependencyToken<TDependency> {
 
     get scope(): Scope {
         return this._scope;
+    }
+
+    get name(): string {
+        return this._name;
     }
 }

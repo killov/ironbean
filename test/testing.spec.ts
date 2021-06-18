@@ -25,9 +25,9 @@ describe("testing", () => {
     }
 
     it("inject by key", () => {
-        const key = DependencyToken.create<string>();
-        const key2 = DependencyToken.create<string>();
-        const key3 = DependencyToken.create<b>();
+        const key = DependencyToken.create<string>("key");
+        const key2 = DependencyToken.create<string>("key2");
+        const key3 = DependencyToken.create<b>("key3");
 
         take(key).setFactory(() => "datata");
         take(key2).setFactory(() => "datata22");
@@ -121,6 +121,7 @@ describe("testing", () => {
     })
 
     it("disable Mock", () => {
+        @component
         class A {
             a: string = "a";
 
@@ -145,6 +146,7 @@ describe("testing", () => {
     })
 
     it("set Mock", () => {
+        @component
         class A {
             a: string = "a";
 
@@ -175,6 +177,7 @@ describe("testing", () => {
             f = "ajp";
         }
 
+        @component
         class b {
             @autowired a!: a;
             g = "haha";
@@ -192,7 +195,7 @@ describe("testing", () => {
     });
 
     it("mock for dependendcy token null", () => {
-        const token = DependencyToken.create<null>();
+        const token = DependencyToken.create<null>("token");
 
         testingContext.setMock(token, null);
         @component
