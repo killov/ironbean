@@ -190,4 +190,26 @@ describe("testing", () => {
         const iB = testingContext.getBeanWithMocks(b);
         expect(iB.a.f).toBe("moje vlastni");
     });
+
+    it("mock for dependendcy token null", () => {
+        const token = DependencyToken.create<null>();
+
+        testingContext.setMock(token, null);
+        @component
+        class a {
+            @autowired
+            @type(token)
+            a!: null;
+        }
+
+        class customA extends a {
+            f = "moje vlastni";
+            hmm =  10;
+        }
+
+        testingContext.setMock(a, customA);
+
+        const iA = testingContext.getBeanWithMocks(a);
+        expect(iA.a).toBe(null);
+    });
 });

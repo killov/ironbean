@@ -154,7 +154,7 @@ export class TestContainer extends Container {
     public setMock<T>(Class: TClass<T>, instance: T): T;
     public setMock<TDependency>(objectKey: DependencyToken<TDependency>, o: TDependency): TDependency;
     public setMock(component: any, o: any) {
-        if (o.prototype) {
+        if (typeof o === "function" && o.prototype) {
             this.mockFactories.set(Component.create(component), Component.create(o));
             return;
         }
