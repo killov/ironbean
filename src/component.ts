@@ -102,8 +102,8 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     public getConstructDependencyList(): Component[] {
-        const Classes = Reflect.getMetadata("design:paramtypes", this._Class) as any[] || [];
-        const objectKeys = Reflect.getMetadata(constants.types, this._Class) as any[]
+        const Classes = Reflect.getOwnMetadata("design:paramtypes", this._Class) as any[] || [];
+        const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[]
 
         return ClassComponent.getComponents(Classes, objectKeys);
     }

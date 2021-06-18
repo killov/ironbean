@@ -502,6 +502,39 @@ describe("test", () => {
             expect(context.getBean(AComponent).c).not.toBe(oldC);
             expect(context.getBean(C)).not.toBe(oldC);
         });
+
+        it("overriden constructor", () => {
+
+            @component
+            class Omg {
+                constructor() {
+                }
+            }
+
+            @component
+            class Wtf {
+                constructor() {
+                }
+            }
+
+            @component
+            class Base {
+                constructor(_omg: Omg, _omg2: Omg) {
+                    expect(arguments.length).toBe(2);
+                }
+            }
+
+            @component
+            class Child extends Base {
+                constructor(_omgd: Wtf) {
+                    expect(arguments.length).toBe(1);
+                    super(new Omg(), new Omg());
+                }
+            }
+
+            applicationContext.getBean(Base);
+            applicationContext.getBean(Child);
+        })
     });
 
     describe("intrfaces tests", () => {
