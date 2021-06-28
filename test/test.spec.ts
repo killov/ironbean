@@ -144,7 +144,7 @@ describe("test", () => {
 
         expect(() => {
             applicationContext.getBean(key);
-        }).toThrow();
+        }).toThrowError("Factory for key not found.");
     });
 
     it("inject by key", () => {

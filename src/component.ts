@@ -25,29 +25,17 @@ export abstract class Component<T = any> {
         }
     }
 
-    public getScope(): ScopeImpl {
-        throw "not implemented";
-    }
+    abstract getScope(): ScopeImpl;
 
-    public getType(): ComponentType {
-        throw "not implemented";
-    }
+    abstract getType(): ComponentType;
 
-    public getConstructDependencyList(): Component[] {
-        throw "not implemented";
-    }
+    abstract getConstructDependencyList(): Component[];
 
-    public construct(_container: ComponentContainer, ..._params: any[]): T {
-        throw "not implemented";
-    }
+    abstract construct(_container: ComponentContainer, ..._params: any[]): T;
 
-    public postConstruct(_container: ComponentContainer, _instance: T) {
-        throw "not implemented";
-    }
+    abstract postConstruct(_container: ComponentContainer, _instance: T): void;
 
-    public setFactory(_factory: ComponentFactory<T>): void {
-        throw "not implemented";
-    }
+    abstract setFactory(_factory: ComponentFactory<T>): void;
 
     public isApplicationContext(): boolean {
         return false;
@@ -69,6 +57,10 @@ export abstract class Component<T = any> {
         this.components.forEach(c => c.collectComponents(components));
 
         return components;
+    }
+
+    public isClass(): boolean {
+        return false;
     }
 
     abstract isInjectable(): boolean;
@@ -158,6 +150,13 @@ export class ClassComponent<T> extends Component<T> {
     get name(): string {
         return "Class " + this._Class.name;
     }
+
+    setFactory(_factory: ComponentFactory<T>): void {
+    }
+
+    public isClass(): boolean {
+        return true;
+    }
 }
 
 export class DependencyComponent<T> extends Component<T> {
@@ -196,7 +195,7 @@ export class DependencyComponent<T> extends Component<T> {
 
     public construct(_container: ComponentContainer, ..._params: any[]): T {
          if (!this.factory) {
-            throw new Error("Factory for " + this.name + "not found.");
+            throw new Error("Factory for " + this.name + " not found.");
         }
 
         return this.factory(_container.getBean(ComponentContext));

@@ -10,16 +10,19 @@ class Take<TDependency> {
         this.takenDependency = dd;
     }
 
+    private get takenComponent(): Component {
+        return Component.create(this.takenDependency);
+    }
+
     public bindTo<T extends TDependency>(dependency: Dependency<T>): void {
-        Component.create(this.takenDependency).add(Component.create(dependency))
+        this.takenComponent.add(Component.create(dependency))
     }
 
     public setFactory(factory: ComponentFactory<TDependency>): void {
-        const dependency = this.takenDependency;
-        let dependencyToken = dependency;
-        // @ts-ignore
-        if (dependency.prototype) {
-            dependencyToken = DependencyToken.create<TDependency>("");
+        let dependencyToken = this.takenDependency;
+
+        if (this.takenComponent.isClass()) {
+            dependencyToken = DependencyToken.create<TDependency>(this.takenComponent.name);
             this.bindTo(dependencyToken);
         }
         Component.create(dependencyToken).setFactory(factory);
