@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import {ComponentType, constants, DependencyToken, Scope} from "./internals";
+import {ComponentType, constants, DependencyToken, Scope, TClass} from "./internals";
 
-export type Class = new (...args: any[]) => any;
-export function component(componentType: ComponentType): any;
+export type Class = TClass<any>;
+export function component(componentType: ComponentType): ClassDecorator;
 export function component(Class: Class): any;
 export function component(ClassOrType: Class | ComponentType): any {
     let componentType = ComponentType.Singleton;
@@ -34,7 +34,7 @@ export function scope(scope: Scope): (Class: Class) => any {
     return decorator;
 }
 
-export function type<T>(key: DependencyToken<T>) {
+export function type<T>(key: DependencyToken<T>|(() => TClass<T>)) {
     return function(target: any, propertyName: string | symbol, parameterIndex?: number) {
         if (parameterIndex === undefined) {
             Reflect.defineMetadata(constants.types, key, target, propertyName);

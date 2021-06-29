@@ -87,6 +87,63 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
+    it("test 1 types", () => {
+        @component
+        class a {
+            test = "sa";
+        }
+
+        @component
+        class b {
+            @type(() => a)
+            @autowired a!: any;
+        }
+
+        expectDependenciesCount(2);
+        const ib1 = applicationContext.getBean(b);
+        expectDependenciesCount(3);
+        const ib2 = applicationContext.getBean(b);
+        expectDependenciesCount(3);
+        const ib3 = applicationContext.getBean(b);
+        expectDependenciesCount(3);
+        const ib4 = applicationContext.getBean(b);
+        expectDependenciesCount(3);
+        const ia1 = applicationContext.getBean(a);
+        expectDependenciesCount(4);
+        const ia2 = applicationContext.getBean(a);
+        expectDependenciesCount(4);
+        const ia3 = applicationContext.getBean(a);
+        expectDependenciesCount(4);
+        const ia4 = applicationContext.getBean(a);
+        expectDependenciesCount(4);
+
+        expect(ib1.a).toBe(ia1);
+        expect(ib1).toBe(ib2);
+        expect(ib1).toBe(ib3);
+        expect(ib1).toBe(ib4);
+        expect(ia1).toBe(ia2);
+        expect(ia1).toBe(ia3);
+        expect(ia1).toBe(ia4);
+
+        @component
+        class c {
+            constructor(@type(() => a)a: any) {
+                expect(a).toBe(ia1);
+            }
+
+            @postConstruct
+            postConstruct(@type(() => b)b: any, @type(() => c)c: any) {
+                expect(b).toBe(ib1);
+                expect(c).toBe(this);
+            }
+        }
+        spyOn(c.prototype, "postConstruct").and.callThrough();
+        const ic1 = applicationContext.getBean(c);
+
+        expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
+        expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
+    });
+
     it("inject by key null return of factory", () => {
         const key = DependencyToken.create<string|null>("key");
 

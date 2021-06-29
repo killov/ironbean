@@ -25,8 +25,7 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
                 const target = this;
                 const container = getComponentContainerFromInstance(target);
                 const context = new PropertyDecoratorContext();
-                context.type = Reflect.getMetadata(constants.types, target, propertyName)
-                    || Reflect.getMetadata("design:type", target, propertyName);
+                context.type = resolveType(target, propertyName);
                 context.componentContext = container.getBean(ComponentContext);
                 return settings.get(context);
             }
@@ -45,6 +44,16 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
     }
 
     return decorator;
+}
+
+function resolveType(target: any, propertyName: string|symbol) {
+    let type = Reflect.getMetadata(constants.types, target, propertyName);
+
+    if (typeof type === "function") {
+        type = type();
+    }
+
+    return type || Reflect.getMetadata("design:type", target, propertyName);
 }
 
 function getComponentContainerFromInstance(target: any): ComponentContainer {

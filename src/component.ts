@@ -114,7 +114,11 @@ export class ClassComponent<T> extends Component<T> {
         if (key) {
             key.forEach((obj, index) => {
                 if (obj) {
-                    map[index] = Component.create(obj)
+                    if (typeof obj === "function") {
+                        map[index] = Component.create(obj())
+                    } else {
+                        map[index] = Component.create(obj)
+                    }
                 }
             })
         }
