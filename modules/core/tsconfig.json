@@ -62,6 +62,6 @@
     },
     "files": [
       "src/index.ts",
-      "modules/core/src/api.ts"
+      "src/api.ts"
     ]
 }
