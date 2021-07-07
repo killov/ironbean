@@ -16,6 +16,7 @@ import {
 
 export abstract class Component<T = any> {
     components: Component[] = [];
+    protected factory?: ComponentFactory<T>;
 
     public static create<T>(Class: any): Component<T> {
         if (Class.prototype) {
@@ -29,13 +30,21 @@ export abstract class Component<T = any> {
 
     abstract getType(): ComponentType;
 
+    abstract setType(type: ComponentType): void;
+
     abstract getConstructDependencyList(): Component[];
 
     abstract construct(_container: ComponentContainer, ..._params: any[]): T;
 
     abstract postConstruct(_container: ComponentContainer, _instance: T): void;
 
-    abstract setFactory(_factory: ComponentFactory<T>): void;
+    public setFactory(factory: ComponentFactory<T>): void {
+        this.factory = factory;
+    }
+
+    protected factoryConstruct(_container: ComponentContainer) {
+        return this.factory!(_container.getBean(ComponentContext));
+    }
 
     public isApplicationContext(): boolean {
         return false;
@@ -97,6 +106,10 @@ export class ClassComponent<T> extends Component<T> {
         return Reflect.getMetadata(constants.componentType, this._Class) ?? ComponentType.Prototype;
     }
 
+    public setType(componentType: ComponentType): void {
+        Reflect.defineMetadata(constants.componentType, componentType, this._Class);
+    }
+
     public getConstructDependencyList(): Component[] {
         const Classes = Reflect.getOwnMetadata("design:paramtypes", this._Class) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[]
@@ -105,6 +118,10 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     public construct(_container: ComponentContainer, ..._params: any[]): T {
+        if (this.factory) {
+            return this.factoryConstruct(_container)
+        }
+
         return new this._Class(..._params);
     }
 
@@ -148,14 +165,11 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     isInjectable(): boolean {
-        return Reflect.getMetadata(constants.component, this._Class) === true;
+        return Reflect.getMetadata(constants.component, this._Class) === true || this.factory !== undefined;
     }
 
     get name(): string {
         return "Class " + this._Class.name;
-    }
-
-    setFactory(_factory: ComponentFactory<T>): void {
     }
 
     public isClass(): boolean {
@@ -166,7 +180,6 @@ export class ClassComponent<T> extends Component<T> {
 export class DependencyComponent<T> extends Component<T> {
     private static map: Map<object, DependencyComponent<any>> = new Map<object, DependencyComponent<any>>();
     private readonly key: DependencyToken<T>
-    private factory?: ComponentFactory<T>;
 
     public static create<T>(key: DependencyToken<T>): DependencyComponent<T> {
         if (!this.map.has(key)) {
@@ -181,16 +194,16 @@ export class DependencyComponent<T> extends Component<T> {
         this.key = key;
     }
 
-    setFactory(factory: ComponentFactory<T>): void {
-        this.factory = factory;
-    }
-
     public getScope(): ScopeImpl {
         return this.key.scope as ScopeImpl;
     }
 
     public getType(): ComponentType {
         return this.key.componentType;
+    }
+
+    public setType(componentType: ComponentType): void {
+        this.key.componentType = componentType;
     }
 
     public getConstructDependencyList(): Component[] {
@@ -202,7 +215,7 @@ export class DependencyComponent<T> extends Component<T> {
             throw new Error("Factory for " + this.name + " not found.");
         }
 
-        return this.factory(_container.getBean(ComponentContext));
+        return this.factoryConstruct(_container);
     }
 
 

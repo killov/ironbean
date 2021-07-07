@@ -1,4 +1,4 @@
-import {Component, ComponentContext, DependencyToken, TClass} from "./internals";
+import {Component, ComponentContext, ComponentType, DependencyToken, TClass} from "./internals";
 
 export type Dependency<TDependency> = TClass<TDependency>|DependencyToken<TDependency>;
 export type ComponentFactory<TDependency> = (componentContext: ComponentContext) => TDependency
@@ -19,13 +19,11 @@ class Take<TDependency> {
     }
 
     public setFactory(factory: ComponentFactory<TDependency>): void {
-        let dependencyToken = this.takenDependency;
+        this.takenComponent.setFactory(factory);
+    }
 
-        if (this.takenComponent.isClass()) {
-            dependencyToken = DependencyToken.create<TDependency>(this.takenComponent.name);
-            this.bindTo(dependencyToken);
-        }
-        Component.create(dependencyToken).setFactory(factory);
+    public setType(componentType: ComponentType): void {
+        this.takenComponent.setType(componentType);
     }
 }
 

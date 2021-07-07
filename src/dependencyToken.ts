@@ -26,6 +26,10 @@ export class DependencyToken<TDependency> {
         return this._componentType;
     }
 
+    set componentType(value: ComponentType) {
+        this._componentType = value;
+    }
+
     get scope(): Scope {
         return this._scope;
     }

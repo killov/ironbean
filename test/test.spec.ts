@@ -1,19 +1,20 @@
 import {
     ApplicationContext,
-    ComponentContext,
     autowired,
     component,
-    type,
+    ComponentContext,
+    ComponentType,
     DependencyToken,
     destroyContext,
     getBaseApplicationContext,
     getDefaultScope,
     postConstruct,
     scope,
-    ScopeType, take
+    ScopeType,
+    take,
+    type
 } from "../src";
 import {Container} from "../src/container";
-import {ComponentType} from "../src/enums";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -221,6 +222,7 @@ describe("test", () => {
         take(key3).setFactory(() => new b());
         take(key3).setFactory(() => new b());
         take(Item).setFactory((context) => new Item(context.getBean(key) + context.getBean(key2)));
+        take(Item).setType(ComponentType.Singleton);
 
         expect(applicationContext.getBean(Item).a).toBe("datatadatata22");
         expect(applicationContext.getBean(Item)).toBe(applicationContext.getBean(Item));
