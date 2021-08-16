@@ -14,7 +14,8 @@ export {
     DependencyToken,
     ApplicationContext,
     TestingContext,
-    ComponentContext
+    ComponentContext,
+    Factory
 } from "./internals";
 
 
