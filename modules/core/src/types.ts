@@ -1,4 +1,4 @@
 export type TClass<T> = new (...args: any[]) => T;
-export interface Factory<T> {
+export interface IFactory<T> {
     create(): T
 }

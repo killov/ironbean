@@ -6,7 +6,7 @@ import {
     ComponentType,
     constants,
     Container,
-    DependencyToken, Factory,
+    DependencyToken, IFactory,
     getAllPropertyNames,
     getDefaultScope,
     ScopeImpl, TClass,
@@ -44,12 +44,12 @@ export abstract class Component<T = any> {
 
     private izClass(func: any): boolean {
         return typeof func === 'function'
-            && /^class\s/.test(Function.prototype.toString.call(func));
+            && func.prototype.create !== undefined;
     }
 
     protected factoryConstruct(_container: ComponentContainer) {
         if (this.izClass(this.factory)) {
-            const factory = _container.getBean(this.factory as TClass<Factory<T>>) as Factory<T>;
+            const factory = _container.getBean(this.factory as TClass<IFactory<T>>) as IFactory<T>;
             return factory.create();
         }
 

@@ -5,7 +5,7 @@ import {
     ComponentContext,
     ComponentType,
     DependencyToken,
-    destroyContext,
+    destroyContext, IFactory,
     getBaseApplicationContext,
     getDefaultScope,
     postConstruct,
@@ -165,11 +165,47 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(0);
     });
 
+    it("inject by key singleton return of class factory", () => {
+        const key = DependencyToken.create<number>("key");
+        let i = 0;
+
+        @component
+        class Fa implements IFactory<number> {
+            create(): number {
+                return i++;
+            }
+        }
+
+        take(key).setFactory(Fa);
+
+        expect(applicationContext.getBean(key)).toBe(0);
+        expect(applicationContext.getBean(key)).toBe(0);
+        expect(applicationContext.getBean(key)).toBe(0);
+    });
+
     it("inject by key prototype return of factory", () => {
         const key = DependencyToken.create<number>("key", {componentType: ComponentType.Prototype});
         let i = 0;
 
         take(key).setFactory(() => i++);
+
+        expect(applicationContext.getBean(key)).toBe(0);
+        expect(applicationContext.getBean(key)).toBe(1);
+        expect(applicationContext.getBean(key)).toBe(2);
+    });
+
+    it("inject by key prototype return of class factory", () => {
+        const key = DependencyToken.create<number>("key", {componentType: ComponentType.Prototype});
+        let i = 0;
+
+        @component
+        class Fa implements IFactory<number> {
+            create(): number {
+                return i++;
+            }
+        }
+
+        take(key).setFactory(Fa);
 
         expect(applicationContext.getBean(key)).toBe(0);
         expect(applicationContext.getBean(key)).toBe(1);

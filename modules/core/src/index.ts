@@ -15,7 +15,7 @@ export {
     ApplicationContext,
     TestingContext,
     ComponentContext,
-    Factory
+    IFactory
 } from "./internals";
 
 
