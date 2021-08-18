@@ -573,6 +573,21 @@ describe("test", () => {
             }
         }
 
+        it("missing type", () => {
+            @component
+            class A {
+                @autowired
+                item: Object;
+            }
+            let context = getBaseApplicationContext();
+
+            const i = context.getBean(A);
+
+            expect(() => {
+                i.item;
+            }).toThrowError("Property item of class A failed to determine type.")
+        });
+
         it("test1", () => {
             let context = getBaseApplicationContext();
             const oldB = context.getBean(AComponent).b;

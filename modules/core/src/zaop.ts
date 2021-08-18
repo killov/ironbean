@@ -22,10 +22,10 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
         const set = () => {};
         const get = function(this: any) {
             if (settings.get) {
-                const target = this;
-                const container = getComponentContainerFromInstance(target);
+                const instance = this;
+                const container = getComponentContainerFromInstance(instance);
                 const context = new PropertyDecoratorContext();
-                context.type = resolveType(target, propertyName);
+                context.type = resolveType(instance, propertyName);
                 context.componentContext = container.getBean(ComponentContext);
                 return settings.get(context);
             }
@@ -53,7 +53,17 @@ function resolveType(target: any, propertyName: string|symbol) {
         type = type();
     }
 
-    return type || Reflect.getMetadata("design:type", target, propertyName);
+    if (type) {
+        return type;
+    }
+
+    const fromMetaData = Reflect.getMetadata("design:type", target, propertyName);
+
+    if (fromMetaData === Object) {
+        throw new Error("Property " + propertyName.toString() + " of class " + target.constructor.name + " failed to determine type.");
+    }
+
+    return fromMetaData;
 }
 
 function getComponentContainerFromInstance(target: any): ComponentContainer {
