@@ -6,10 +6,12 @@ import {
     ComponentType,
     constants,
     Container,
-    DependencyToken, IFactory,
+    DependencyToken,
     getAllPropertyNames,
     getDefaultScope,
-    ScopeImpl, TClass,
+    IFactory,
+    ScopeImpl,
+    TClass,
     TestContainer,
     TestingContext
 } from "./internals";
@@ -20,9 +22,9 @@ export abstract class Component<T = any> {
 
     public static create<T>(Class: any): Component<T> {
         if (Class.prototype) {
-            return ClassComponent.create(Class);
+            return ClassComponent.create<T>(Class);
         } else {
-            return DependencyComponent.create(Class);
+            return DependencyComponent.create<T>(Class);
         }
     }
 
@@ -42,18 +44,21 @@ export abstract class Component<T = any> {
         this.factory = factory;
     }
 
-    private izClass(func: any): boolean {
+    private isFactoryClass(func: any): func is TClass<IFactory<T>> {
         return typeof func === 'function'
             && func.prototype.create !== undefined;
     }
 
-    protected factoryConstruct(_container: ComponentContainer) {
-        if (this.izClass(this.factory)) {
-            const factory = _container.getBean(this.factory as TClass<IFactory<T>>) as IFactory<T>;
-            return factory.create();
+    protected factoryConstruct(container: ComponentContainer) {
+        if (this.isFactoryClass(this.factory)) {
+            const factoryClass = this.factory;
+            const factory = container.getBean(factoryClass) as IFactory<T>;
+            const args = ClassComponent.getDependencyListFromMethod(factoryClass, "create", container);
+
+            return factory.create.apply(factory, args);
         }
 
-        return (this.factory as any)(_container.getBean(ComponentContext));
+        return (this.factory as any)(container.getBean(ComponentContext));
     }
 
     public isApplicationContext(): boolean {
@@ -159,12 +164,17 @@ export class ClassComponent<T> extends Component<T> {
 
         for (let key of getAllPropertyNames(Class.prototype)) {
             if (Reflect.getMetadata(constants.postConstruct, instance, key)) {
-                let Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, key) as any[] || [];
-                const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, key);
-                Classes = ClassComponent.getComponents(Classes, objectKeys);
-                (instance[key] as Function).apply(instance, container.getDependencyList(Classes));
+                (instance[key] as Function).apply(instance, ClassComponent.getDependencyListFromMethod(Class, key, container));
             }
         }
+    }
+
+    public static getDependencyListFromMethod<T>(Class: TClass<T>, propertyName: string, container: ComponentContainer) {
+        let Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, propertyName) as any[] || [];
+        const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, propertyName);
+        Classes = ClassComponent.getComponents(Classes, objectKeys);
+
+        return container.getDependencyList(Classes);
     }
 
     public isApplicationContext(): boolean {
