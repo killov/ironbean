@@ -58,7 +58,11 @@ export abstract class Component<T = any> {
             return factory.create.apply(factory, args);
         }
 
-        return (this.factory as any)(container.getBean(ComponentContext));
+        if (this.factory === undefined) {
+            throw new Error("Missing factory");
+        }
+
+        return this.factory(container.getBean(ComponentContext));
     }
 
     public isApplicationContext(): boolean {
