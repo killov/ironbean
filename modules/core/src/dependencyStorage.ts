@@ -1,24 +1,26 @@
-interface IDependence {
-    key: Object;
-    data: Object,
+import {Component} from "./component";
+
+interface IDependence<T> {
+    component: Component<T>;
+    instance: T,
 }
 
 export class DependencyStorage {
-    dependencies: Map<object, IDependence> = new Map<object, IDependence>();
+    dependencies: Map<object, IDependence<any>> = new Map<object, IDependence<any>>();
 
-    saveInstance(key: Object, instance: Object) {
-        this.dependencies.set(key, this.createDependenceItem(key, instance));
+    saveInstance<T>(component: Component<T>, instance: T) {
+        this.dependencies.set(component, this.createDependenceItem(component, instance));
     }
 
-    getInstance(key: Object) {
-        return this.dependencies.get(key)?.data;
+    getInstance<T>(key: Component<T>): T|undefined {
+        return this.dependencies.get(key)?.instance;
     }
 
-    protected createDependenceItem(key: Object, data: any): IDependence {
+    protected createDependenceItem<T>(component: Component<T>, instance: T): IDependence<T> {
         return {
-            key: key,
-            data: data,
-        }
+            component: component,
+            instance: instance
+        };
     }
 
     countOfDependencies(): number {

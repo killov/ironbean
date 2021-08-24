@@ -23,6 +23,6 @@
         "karma-jasmine": "^2.0.1",
         "karma-phantomjs-launcher": "^1.0.4",
         "karma-typescript": "^4.1.1",
-        "typescript": "^3.9.7"
+        "typescript": "^4.3.5"
     }
 }
