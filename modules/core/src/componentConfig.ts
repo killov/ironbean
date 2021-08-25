@@ -1,7 +1,8 @@
-import {Component, ComponentContext, ComponentType, DependencyToken, IFactory, TClass} from "./internals";
+import {Component, ComponentContext, ComponentType, DependencyToken, Factory, IFactory, TClass} from "./internals";
 
 export type Dependency<TDependency> = TClass<TDependency>|DependencyToken<TDependency>;
-export type ComponentFactory<TDependency> = ((componentContext: ComponentContext) => TDependency)|TClass<IFactory<TDependency>>;
+export type FunctionFactory<TDependency> = (componentContext: ComponentContext) => TDependency;
+export type ComponentFactory<TDependency> = FunctionFactory<TDependency>|TClass<IFactory<TDependency>>;
 
 class Take<TDependency> {
     private readonly takenDependency: Dependency<TDependency>;
@@ -19,7 +20,7 @@ class Take<TDependency> {
     }
 
     public setFactory(factory: ComponentFactory<TDependency>): void {
-        this.takenComponent.setFactory(factory);
+        this.takenComponent.setFactory(Factory.create(factory));
     }
 
     public setType(componentType: ComponentType): void {

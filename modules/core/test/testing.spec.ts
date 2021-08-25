@@ -164,7 +164,7 @@ describe("testing", () => {
         destroyContext();
         testingContext = getBaseTestingContext();
         const mock = new B();
-        testingContext.setMock(A, mock);
+        testingContext.setMock(A, () => mock);
         expect(testingContext.getBean(A).getA()).toBe("a");
         expect(testingContext.getBean(A)).toBe(mock);
     })
@@ -195,9 +195,9 @@ describe("testing", () => {
     });
 
     it("mock for dependendcy token null", () => {
-        const token = DependencyToken.create<null>("token");
+        const token = DependencyToken.create<number>("token");
 
-        testingContext.setMock(token, null);
+        testingContext.setMock(token, () => null);
         @component
         class a {
             @autowired

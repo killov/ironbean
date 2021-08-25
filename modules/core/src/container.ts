@@ -2,12 +2,23 @@ import {
     ApplicationContext,
     ClassComponent,
     Component,
-    component, ComponentContext,
-    ComponentType, constants, Dependency,
+    component,
+    ComponentContext,
+    ComponentType,
+    constants,
+    Dependency,
     DependencyStorage,
     DependencyToken,
+    Factory,
+    FunctionFactory,
     getDefaultScope,
-    ScopeImpl, ScopeType, TClass, TestingContext, TestProvider
+    IConstructable,
+    isFunction,
+    ScopeImpl,
+    ScopeType,
+    TClass,
+    TestingContext,
+    TestProvider
 } from "./internals";
 
 @component(ComponentType.Singleton)
@@ -23,7 +34,7 @@ export class Container {
     }
 
     init() {
-        this.storage.saveInstance(Component.create(Container), this);
+        this.storage.saveInstance(Component.create<Container>(Container), this);
     }
 
     public getBean<T>(Class: TClass<T>): T;
@@ -99,7 +110,7 @@ export class Container {
         return container.getContainerForClassInternal(scope);
     }
 
-    protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): T {
+    protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
         const Classes = component.getConstructDependencyList();
         const oldComponentContext = currentComponentContainer;
         currentComponentContainer = componentContainer;
@@ -129,10 +140,10 @@ export class Container {
 export class TestContainer extends Container {
     private testProvider!: TestProvider;
     private disabledMocks: Set<Component> = new Set<Component>();
-    private mockFactories: Map<Component, Component> = new Map<Component, Component>();
+    private mockFactories: Map<Component, IConstructable<any>> = new Map<Component, IConstructable<any>>();
 
     public init() {
-        this.storage.saveInstance(Component.create(TestContainer), this);
+        this.storage.saveInstance(Component.create<TestContainer>(TestContainer), this);
         this.disableMock(TestProvider);
         this.disableMock(TestingContext);
         this.disableMock(TestContainer);
@@ -153,27 +164,18 @@ export class TestContainer extends Container {
         return component;
     }
 
-    public setMock<T>(Class: TClass<T>, classFactory: TClass<T>): T;
-    public setMock<T>(Class: TClass<T>, instance: T): T;
-    public setMock<TDependency>(objectKey: DependencyToken<TDependency>, o: TDependency): TDependency;
+    public setMock<T>(Class: TClass<T>, factory: TClass<T>|FunctionFactory<T>): T;
+    public setMock<T>(dependencyToken: DependencyToken<T>, factory: FunctionFactory<T>): T;
     public setMock(component: any, o: any) {
-        if (typeof o === "function" && o.prototype) {
+        if (isFunction(o)) {
+            this.mockFactories.set(Component.create(component), Factory.create(o));
+        } else {
             this.mockFactories.set(Component.create(component), Component.create(o));
-            return;
         }
-        this.setComponentMock(Component.create(component), o);
-    }
-
-    private setComponentMock<T>(component: Component<T>, o: T) {
-        this.storage.saveInstance(component, o);
     }
 
     private isComponentForMock(component: Component): boolean {
-        if (this.disabledMocks.has(component)) {
-            return false;
-        }
-
-        return component instanceof ClassComponent;
+        return !this.disabledMocks.has(component);
     }
 
     protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): T {
@@ -182,7 +184,7 @@ export class TestContainer extends Container {
                 return super.buildNewInstance(this.mockFactories.get(component)!, componentContainer)
             }
             if (component instanceof ClassComponent) {
-                return this.testProvider.mockClass(component.Class);
+                return this.testProvider.mockClass(component.Class as any);
             }
         }
 
@@ -248,7 +250,7 @@ export class ComponentContainer {
 
     constructor(container: Container) {
         this.container = container;
-        this.storage.saveInstance(Component.create(ComponentContainer), this);
+        this.storage.saveInstance(Component.create<ComponentContainer>(ComponentContainer), this);
         this.storage.saveInstance(Component.create(ComponentContext), new ComponentContext(this));
     }
 

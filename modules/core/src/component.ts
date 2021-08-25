@@ -16,9 +16,14 @@ import {
     TestingContext
 } from "./internals";
 
-export abstract class Component<T = any> {
+export interface IConstructable<T> {
+    construct(container: ComponentContainer, ..._params: any[]): T;
+    getConstructDependencyList(): Component[];
+}
+
+export abstract class Component<T = any> implements IConstructable<T> {
     components: Component[] = [];
-    protected factory?: ComponentFactory<T>;
+    protected factory?: Factory<T>;
 
     public static create<T>(Class: any): Component<T> {
         if (Class.prototype) {
@@ -40,29 +45,8 @@ export abstract class Component<T = any> {
 
     abstract postConstruct(_container: ComponentContainer, _instance: T): void;
 
-    public setFactory(factory: ComponentFactory<T>): void {
+    public setFactory(factory: Factory<T>): void {
         this.factory = factory;
-    }
-
-    private isFactoryClass(func: any): func is TClass<IFactory<T>> {
-        return typeof func === 'function'
-            && func.prototype.create !== undefined;
-    }
-
-    protected factoryConstruct(container: ComponentContainer) {
-        if (this.isFactoryClass(this.factory)) {
-            const factoryClass = this.factory;
-            const factory = container.getBean(factoryClass) as IFactory<T>;
-            const args = ClassComponent.getDependencyListFromMethod(factoryClass, "create", container);
-
-            return factory.create.apply(factory, args);
-        }
-
-        if (this.factory === undefined) {
-            throw new Error("Missing factory");
-        }
-
-        return this.factory(container.getBean(ComponentContext));
     }
 
     public isApplicationContext(): boolean {
@@ -136,9 +120,9 @@ export class ClassComponent<T> extends Component<T> {
         return ClassComponent.getComponents(Classes, objectKeys);
     }
 
-    public construct(_container: ComponentContainer, ..._params: any[]): T {
+    public construct(container: ComponentContainer, ..._params: any[]): T {
         if (this.factory) {
-            return this.factoryConstruct(_container)
+            return this.factory.construct(container);
         }
 
         return new this._Class(..._params);
@@ -234,12 +218,12 @@ export class DependencyComponent<T> extends Component<T> {
         return [];
     }
 
-    public construct(_container: ComponentContainer, ..._params: any[]): T {
+    public construct(container: ComponentContainer, ..._params: any[]): T {
          if (!this.factory) {
             throw new Error("Factory for " + this.name + " not found.");
         }
 
-        return this.factoryConstruct(_container);
+        return this.factory.construct(container)
     }
 
 
@@ -253,5 +237,42 @@ export class DependencyComponent<T> extends Component<T> {
 
     get name(): string {
         return this.key.name;
+    }
+}
+
+export class Factory<T> implements IConstructable<T> {
+    protected factory: ComponentFactory<T>;
+
+    public static create<T>(factory: ComponentFactory<T>): Factory<T> {
+        return new Factory<T>(factory);
+    }
+
+    private constructor(factory: ComponentFactory<T>) {
+        this.factory = factory
+    }
+
+    public getConstructDependencyList(): Component[] {
+        return [];
+    }
+
+    public construct(_container: ComponentContainer, ..._params: any[]): T {
+        return this.factoryConstruct(_container);
+    }
+
+    private isFactoryClass(func: any): func is TClass<IFactory<T>> {
+        return typeof func === 'function'
+            && func.prototype.create !== undefined;
+    }
+
+    protected factoryConstruct(container: ComponentContainer) {
+        if (this.isFactoryClass(this.factory)) {
+            const factoryClass = this.factory;
+            const factory = container.getBean(factoryClass);
+            const args = ClassComponent.getDependencyListFromMethod(factoryClass, "create", container);
+
+            return factory.create.apply(factory, args);
+        }
+
+        return this.factory(container.getBean(ComponentContext));
     }
 }

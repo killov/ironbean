@@ -1,9 +1,14 @@
 import {
+    component,
+    ComponentType,
     Container,
+    DependencyToken,
     destroyContainer,
+    FunctionFactory,
     getBaseContainer,
     getTestContainer,
-    TestContainer, ComponentType, component, DependencyToken, TClass
+    TClass,
+    TestContainer
 } from "./internals";
 
 (function() {
@@ -52,10 +57,9 @@ export class TestingContext extends ApplicationContext {
         return this.testContainer.getClassInstanceWithMocks(Class);
     }
 
-    public setMock<T, CF extends T>(Class: TClass<T>, classFactory: new (...any: any[]) => CF): void;
-    public setMock<T>(Class: TClass<T>, instance: T): void;
-    public setMock<TDependency>(dependencyKey: DependencyToken<TDependency>, instance: TDependency): TDependency
-    public setMock(Class: any, instance: any) {
+    public setMock<T>(Class: TClass<T>, factory: TClass<T>|FunctionFactory<T>): void;
+    public setMock<T>(dependencyToken: DependencyToken<T>, factory: FunctionFactory<T>): void;
+    public setMock(Class: any, instance: any): void {
         return this.testContainer.setMock(Class, instance);
     }
 
