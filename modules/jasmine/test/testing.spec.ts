@@ -19,9 +19,9 @@ describe("jasmine testing", () => {
     }
 
     it("inject by key", () => {
-        const key = DependencyToken.create();
-        const key2 = DependencyToken.create();
-        const key3 = DependencyToken.create();
+        const key = DependencyToken.create("key");
+        const key2 = DependencyToken.create("key2");
+        const key3 = DependencyToken.create("key3");
 
         take(key).setFactory(() => "datata");
         take(key2).setFactory(() => "datata22");

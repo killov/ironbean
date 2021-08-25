@@ -1,8 +1,9 @@
-import {getBaseTestingContext, take, TestingContext} from "fire-dic";
+import {component, getBaseTestingContext, take, TestingContext} from "fire-dic";
 import {TestProvider} from "fire-dic/dist/api";
 import Spy = jasmine.Spy;
 import SpyObj = jasmine.SpyObj;
 
+@component
 class JasmineTestProvider extends TestProvider {
     public mockClass<T>(Class: { new(): T }): T {
         const methods = [];
@@ -29,10 +30,8 @@ function getAllPropertyNames(obj: object) {
     return result;
 }
 
-export class JasmineTestingContext extends TestingContext {
-    public getMock<T>(Class: new (...any: any[]) => T): jasmine.SpyObj<T> {
-        return super.getMock(Class) as jasmine.SpyObj<T>;
-    }
+export abstract class JasmineTestingContext extends TestingContext {
+    abstract getMock<T>(Class: new (...any: any[]) => T): jasmine.SpyObj<T>;
 }
 
 export function getBaseJasmineTestingContext(): JasmineTestingContext {
