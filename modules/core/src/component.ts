@@ -19,6 +19,8 @@ import {
 export interface IConstructable<T> {
     construct(container: ComponentContainer, ..._params: any[]): T;
     getConstructDependencyList(): Component[];
+    isConstructable(): boolean;
+    name: string;
 }
 
 export abstract class Component<T = any> implements IConstructable<T> {
@@ -71,11 +73,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
         return components;
     }
 
-    public isClass(): boolean {
-        return false;
-    }
-
-    abstract isInjectable(): boolean;
+    abstract isConstructable(): boolean;
 
     abstract get name(): string;
 }
@@ -172,16 +170,12 @@ export class ClassComponent<T> extends Component<T> {
         return Class === ApplicationContext || Class === TestingContext || Class === Container || Class === TestContainer;
     }
 
-    isInjectable(): boolean {
-        return Reflect.getMetadata(constants.component, this._Class) === true || this.factory !== undefined;
+    isConstructable(): boolean {
+        return Reflect.getOwnMetadata(constants.component, this._Class) === true || this.factory !== undefined;
     }
 
     get name(): string {
         return "Class " + this._Class.name;
-    }
-
-    public isClass(): boolean {
-        return true;
     }
 }
 
@@ -231,7 +225,7 @@ export class DependencyComponent<T> extends Component<T> {
 
     }
 
-    isInjectable(): boolean {
+    isConstructable(): boolean {
         return true;
     }
 
@@ -275,4 +269,10 @@ export class Factory<T> implements IConstructable<T> {
 
         return this.factory(container.getBean(ComponentContext));
     }
+
+    isConstructable(): boolean {
+        return true;
+    }
+
+    name = "";
 }

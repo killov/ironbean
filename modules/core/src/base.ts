@@ -2,7 +2,7 @@ import {
     component,
     ComponentType,
     Container,
-    DependencyToken,
+    Dependency,
     destroyContainer,
     FunctionFactory,
     getBaseContainer,
@@ -37,10 +37,8 @@ export class ApplicationContext {
         this.container = container;
     }
 
-    public getBean<T>(Class: TClass<T>): T;
-    public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
-    public getBean<T>(dependencyKey: any): T {
-        return this.container.getBean(dependencyKey);
+    public getBean<T>(dependency: Dependency<T>): T {
+        return this.container.getBean(dependency);
     }
 }
 
@@ -57,17 +55,19 @@ export class TestingContext extends ApplicationContext {
         return this.testContainer.getClassInstanceWithMocks(Class);
     }
 
-    public setMock<T>(Class: TClass<T>, factory: TClass<T>|FunctionFactory<T>): void;
-    public setMock<T>(dependencyToken: DependencyToken<T>, factory: FunctionFactory<T>): void;
-    public setMock(Class: any, instance: any): void {
-        return this.testContainer.setMock(Class, instance);
+    public setMock<T, K extends T>(dependency: Dependency<T>, classFactory: TClass<K>): void {
+        this.testContainer.setMock(dependency, classFactory);
     }
 
-    public disableMock<T>(Class: TClass<T>) {
+    public setMockFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionFactory<K>): void {
+        this.testContainer.setMockFactory(dependency, factory);
+    }
+
+    public disableMock<T>(Class: TClass<T>): void {
         return this.testContainer.disableMock(Class);
     }
 
-    public enableMock<T>(Class: TClass<T>) {
+    public enableMock<T>(Class: TClass<T>): void {
         return this.testContainer.disableMock(Class, false);
     }
 

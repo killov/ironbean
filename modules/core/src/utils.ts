@@ -6,7 +6,3 @@ export function getAllPropertyNames(obj: object) {
     }
     return result;
 }
-
-export function isFunction(functionToCheck): boolean {
-    return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]';
-}

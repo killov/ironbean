@@ -164,7 +164,7 @@ describe("testing", () => {
         destroyContext();
         testingContext = getBaseTestingContext();
         const mock = new B();
-        testingContext.setMock(A, () => mock);
+        testingContext.setMockFactory(A, () => mock);
         expect(testingContext.getBean(A).getA()).toBe("a");
         expect(testingContext.getBean(A)).toBe(mock);
     })
@@ -183,6 +183,7 @@ describe("testing", () => {
             g = "haha";
         }
 
+        @component
         class customA extends a {
             f = "moje vlastni";
             hmm =  10;
@@ -194,10 +195,24 @@ describe("testing", () => {
         expect(iB.a.f).toBe("moje vlastni");
     });
 
-    it("mock for dependendcy token null", () => {
-        const token = DependencyToken.create<number>("token");
+    it("inject class without decorator", () => {
+        class A {
+            asd: string;
+        }
 
-        testingContext.setMock(token, () => null);
+        class B extends A {
+            g: string;
+        }
+
+        expect(() => {
+            testingContext.setMock(A, B);
+        }).toThrowError("Mock factory Class B for dependency Class A must be @component.")
+    });
+
+    it("mock for dependendcy token null", () => {
+        const token = DependencyToken.create<number|null>("token");
+
+        testingContext.setMockFactory(token, () => null);
         @component
         class a {
             @autowired
@@ -205,6 +220,7 @@ describe("testing", () => {
             a!: null;
         }
 
+        @component
         class customA extends a {
             f = "moje vlastni";
             hmm =  10;

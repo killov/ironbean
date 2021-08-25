@@ -245,6 +245,15 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(2);
     });
 
+    it("inject class without decorator", () => {
+        class A {
+
+        }
+        expect(() => {
+            applicationContext.getBean(A);
+        }).toThrowError("I can't instantiate a Class A that is not a component.");
+    });
+
     it("inject by key prototype return of factory - test component context", () => {
         const key = DependencyToken.create<number>("key", {componentType: ComponentType.Prototype});
         const key2 = DependencyToken.create<number>("key2", {componentType: ComponentType.Prototype});

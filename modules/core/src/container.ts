@@ -8,12 +8,10 @@ import {
     constants,
     Dependency,
     DependencyStorage,
-    DependencyToken,
     Factory,
     FunctionFactory,
     getDefaultScope,
     IConstructable,
-    isFunction,
     ScopeImpl,
     ScopeType,
     TClass,
@@ -37,8 +35,7 @@ export class Container {
         this.storage.saveInstance(Component.create<Container>(Container), this);
     }
 
-    public getBean<T>(Class: TClass<T>): T;
-    public getBean<TDependency>(dependency: Dependency<TDependency>): TDependency {
+    public getBean<T>(dependency: Dependency<T>): T {
         return this.getComponentInstance(Component.create(dependency));
     }
 
@@ -48,9 +45,6 @@ export class Container {
 
     public getComponentInstance<T>(component: Component): T {
         component = this.getComponent(component);
-        if (!component.isInjectable()) {
-            throw new Error("I can't instantiate a " + component.name + " that is not a component. ");
-        }
         const instance = this.storage.getInstance(component);
 
         if (instance === undefined) {
@@ -111,6 +105,9 @@ export class Container {
     }
 
     protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
+        if (!component.isConstructable()) {
+            throw new Error("I can't instantiate a " + component.name + " that is not a component.");
+        }
         const Classes = component.getConstructDependencyList();
         const oldComponentContext = currentComponentContainer;
         currentComponentContainer = componentContainer;
@@ -164,14 +161,17 @@ export class TestContainer extends Container {
         return component;
     }
 
-    public setMock<T>(Class: TClass<T>, factory: TClass<T>|FunctionFactory<T>): T;
-    public setMock<T>(dependencyToken: DependencyToken<T>, factory: FunctionFactory<T>): T;
-    public setMock(component: any, o: any) {
-        if (isFunction(o)) {
-            this.mockFactories.set(Component.create(component), Factory.create(o));
-        } else {
-            this.mockFactories.set(Component.create(component), Component.create(o));
+    public setMock<T, K extends T>(dependency: Dependency<T>, factory: TClass<K>): void {
+        const mockedComponent = Component.create(dependency);
+        const factoryComponent = Component.create(factory);
+        if (!factoryComponent.isConstructable()) {
+            throw new Error("Mock factory " + factoryComponent.name + " for dependency " + mockedComponent.name + " must be @component.");
         }
+        this.mockFactories.set(mockedComponent, factoryComponent);
+    }
+
+    public setMockFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionFactory<K>): void {
+        this.mockFactories.set(Component.create(dependency), Factory.create(factory));
     }
 
     private isComponentForMock(component: Component): boolean {
