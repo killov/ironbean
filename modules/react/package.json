@@ -1,6 +1,6 @@
 {
     "name": "fire-dic-react",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "description": "",
     "main": "dist/index.js",
     "files": [
@@ -15,7 +15,7 @@
     "author": "Zdeněk Mazurák",
     "license": "ISC",
     "dependencies": {
-        "fire-dic": "~1.2.1",
+        "fire-dic": "~1.3.0",
         "react": "^16.13.1 || ^17.0.0"
     },
     "devDependencies": {
@@ -27,8 +27,9 @@
         "karma-jasmine": "^2.0.1",
         "karma-phantomjs-launcher": "^1.0.4",
         "karma-typescript": "^4.1.1",
-        "typescript": "^3.7.4",
+        "typescript": "^4.3.5",
         "@types/react": "^16.9.49",
-        "@types/react-dom": "^16.9.6"
+        "@types/react-dom": "^16.9.6",
+        "@types/jasmine": "^3.5.0"
     }
 }
