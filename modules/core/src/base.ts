@@ -11,24 +11,6 @@ import {
     TestContainer
 } from "./internals";
 
-(function() {
-    if (typeof (Object as any).id === "undefined") {
-        let id = 0;
-
-        (Object as any).id = function(o: any) {
-            if (typeof o.__uniqueid === "undefined") {
-                Object.defineProperty(o, "__uniqueid", {
-                    value: ++id,
-                    enumerable: false,
-                    writable: false
-                });
-            }
-
-            return o.__uniqueid;
-        };
-    }
-})();
-
 @component(ComponentType.Singleton)
 export class ApplicationContext {
     private container: Container;

@@ -5,6 +5,8 @@ export interface Scope {
 }
 
 export class ScopeImpl implements Scope {
+    private static idCounter = 0;
+    private readonly id = ScopeImpl.idCounter++;
     private readonly parent: ScopeImpl|null;
     private readonly name: string;
     private readonly type: ScopeType;
@@ -33,7 +35,7 @@ export class ScopeImpl implements Scope {
     }
 
     getId(): number {
-        return (Object as any).id(this);
+        return this.id;
     }
 
     getChildScopeDirectionTo(scope: ScopeImpl): ScopeImpl {
