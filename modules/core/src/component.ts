@@ -17,8 +17,7 @@ import {
 } from "./internals";
 
 export interface IConstructable<T> {
-    construct(container: ComponentContainer, ..._params: any[]): T;
-    getConstructDependencyList(): Component[];
+    construct(container: ComponentContainer): T;
     isConstructable(): boolean;
     name: string;
 }
@@ -41,9 +40,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
 
     abstract setType(type: ComponentType): void;
 
-    abstract getConstructDependencyList(): Component[];
-
-    abstract construct(_container: ComponentContainer, ..._params: any[]): T;
+    abstract construct(container: ComponentContainer): T;
 
     abstract postConstruct(_container: ComponentContainer, _instance: T): void;
 
@@ -111,19 +108,23 @@ export class ClassComponent<T> extends Component<T> {
         Reflect.defineMetadata(constants.componentType, componentType, this._Class);
     }
 
-    public getConstructDependencyList(): Component[] {
+    private getConstructDependencyList(): Component[] {
         const Classes = Reflect.getOwnMetadata("design:paramtypes", this._Class) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[]
 
         return ClassComponent.getComponents(Classes, objectKeys);
     }
 
-    public construct(container: ComponentContainer, ..._params: any[]): T {
+    public construct(container: ComponentContainer): T {
         if (this.factory) {
             return this.factory.construct(container);
         }
 
-        return new this._Class(..._params);
+        const params = container.getDependencyList(this.getConstructDependencyList());
+        const instance = new this._Class(...params);
+        Reflect.defineMetadata(constants.componentContainer, container, instance);
+
+        return instance;
     }
 
     private static getComponents(types: any[], key: any[]): Component[] {
@@ -208,10 +209,6 @@ export class DependencyComponent<T> extends Component<T> {
         this.key.componentType = componentType;
     }
 
-    public getConstructDependencyList(): Component[] {
-        return [];
-    }
-
     public construct(container: ComponentContainer, ..._params: any[]): T {
          if (!this.factory) {
             throw new Error("Factory for " + this.name + " not found.");
@@ -245,12 +242,8 @@ export class Factory<T> implements IConstructable<T> {
         this.factory = factory
     }
 
-    public getConstructDependencyList(): Component[] {
-        return [];
-    }
-
-    public construct(_container: ComponentContainer, ..._params: any[]): T {
-        return this.factoryConstruct(_container);
+    public construct(container: ComponentContainer): T {
+        return this.factoryConstruct(container);
     }
 
     private isFactoryClass(func: any): func is TClass<IFactory<T>> {

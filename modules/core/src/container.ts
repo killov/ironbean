@@ -108,14 +108,10 @@ export class Container {
         if (!component.isConstructable()) {
             throw new Error("I can't instantiate a " + component.name + " that is not a component.");
         }
-        const Classes = component.getConstructDependencyList();
         const oldComponentContext = currentComponentContainer;
         currentComponentContainer = componentContainer;
-        const instance = component.construct(componentContainer, ...componentContainer.getDependencyList(Classes));
+        const instance = component.construct(componentContainer);
         currentComponentContainer = oldComponentContext;
-        if (component instanceof ClassComponent) {
-            Reflect.defineMetadata(constants.componentContainer, componentContainer, instance);
-        }
 
         return instance;
     }
