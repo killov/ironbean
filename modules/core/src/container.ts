@@ -1,11 +1,10 @@
 import {
-    ApplicationContext,
+    ApplicationContextComponent,
     ClassComponent,
     Component,
     component,
     ComponentContext,
     ComponentType,
-    constants,
     Dependency,
     DependencyStorage,
     Factory,
@@ -16,6 +15,7 @@ import {
     ScopeType,
     TClass,
     TestingContext,
+    TestingContextComponent,
     TestProvider
 } from "./internals";
 
@@ -43,7 +43,7 @@ export class Container {
         return component.getComponent();
     }
 
-    public getComponentInstance<T>(component: Component): T {
+    public getComponentInstance<T>(component: Component<T>): T {
         component = this.getComponent(component);
         const instance = this.storage.getInstance(component);
 
@@ -144,21 +144,18 @@ export class TestContainer extends Container {
     }
 
     public getComponent(component: Component): Component {
-        if (<any>component === Component.create(ApplicationContext) || <any>component === Component.create(TestingContext)) {
-            return Component.create(TestingContext);
+        if (component === ApplicationContextComponent || component === TestingContextComponent) {
+            return TestingContextComponent;
         }
-        if (<any>component === Component.create(Container) || <any>component === Component.create(TestContainer)) {
-            return Component.create(TestContainer);
+        if (component === ContainerComponent || component === TestContainerComponent) {
+            return TestContainerComponent;
         }
 
-        if (!this.isComponentForMock(component)) {
-            return super.getComponent(component);
-        }
-        return component;
+        return super.getComponent(component);
     }
 
     public setMock<T, K extends T>(dependency: Dependency<T>, factory: TClass<K>): void {
-        const mockedComponent = Component.create(dependency);
+        const mockedComponent = this.getComponent(Component.create(dependency));
         const factoryComponent = Component.create(factory);
         if (!factoryComponent.isConstructable()) {
             throw new Error("Mock factory " + factoryComponent.name + " for dependency " + mockedComponent.name + " must be @component.");
@@ -167,11 +164,12 @@ export class TestContainer extends Container {
     }
 
     public setMockFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionFactory<K>): void {
-        this.mockFactories.set(Component.create(dependency), Factory.create(factory));
+        const mockedComponent = this.getComponent(Component.create(dependency));
+        this.mockFactories.set(mockedComponent, Factory.create(factory));
     }
 
     private isComponentForMock(component: Component): boolean {
-        return !this.disabledMocks.has(component);
+        return !this.disabledMocks.has(this.getComponent(component));
     }
 
     protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): T {
@@ -199,15 +197,11 @@ export class TestContainer extends Container {
     }
 
     public disableMock<T>(Class: TClass<T>, disable: boolean = true) {
-        const component = Component.create(Class);
+        const component = this.getComponent(Component.create(Class));
         if (disable) {
-            component.collectComponents().forEach(component => {
-                this.disabledMocks.add(component);
-            })
+            this.disabledMocks.add(component);
         } else {
-            component.collectComponents().forEach(component => {
-                this.disabledMocks.delete(component);
-            })
+            this.disabledMocks.delete(component);
         }
     }
 }
@@ -270,5 +264,8 @@ export class ComponentContainer {
         return instance;
     }
 }
+
+const ContainerComponent = Component.create(Container);
+const TestContainerComponent = Component.create(TestContainer);
 
 export let currentComponentContainer: ComponentContainer | undefined;

@@ -62,14 +62,6 @@ export abstract class Component<T = any> implements IConstructable<T> {
         return this;
     }
 
-    collectComponents(components: Component[] = []) {
-        components.push(this);
-        components.push(...this.components);
-        this.components.forEach(c => c.collectComponents(components));
-
-        return components;
-    }
-
     abstract isConstructable(): boolean;
 
     abstract get name(): string;

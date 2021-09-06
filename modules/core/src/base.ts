@@ -1,4 +1,5 @@
 import {
+    Component,
     component,
     ComponentType,
     Container,
@@ -72,3 +73,5 @@ export function destroyContext(): void {
     destroyContainer();
 }
 
+export const ApplicationContextComponent = Component.create(ApplicationContext);
+export const TestingContextComponent = Component.create(TestingContext);
