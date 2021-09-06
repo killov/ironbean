@@ -38,16 +38,16 @@ export class ScopeImpl implements Scope {
         return this.id;
     }
 
-    getChildScopeDirectionTo(scope: ScopeImpl): ScopeImpl {
+    getDirectChildFor(scope: ScopeImpl): ScopeImpl {
         const parent = scope.getParent()
         if (parent === null) {
             throw new Error();
         }
-        return this === parent ? scope : this.getChildScopeDirectionTo(parent);
+        return this === parent ? scope : this.getDirectChildFor(parent);
     }
 
     toString(): string {
-        return  this.parent ? this.parent.toString() + "." + this.name : this.name;
+        return this.parent ? this.parent.toString() + "." + this.name : this.name;
     }
 
     static getCommonParent(scope1: ScopeImpl, scope2: ScopeImpl): ScopeImpl {

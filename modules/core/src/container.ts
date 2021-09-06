@@ -70,7 +70,7 @@ export class Container {
         const commonScope = ScopeImpl.getCommonParent(scope, this.getScope());
         const commonContainer = this.getParentContainerByScope(commonScope);
 
-        return commonContainer.getContainerForClassInternal(scope);
+        return commonContainer.getContainerForScope(scope);
     }
 
     protected getParentContainerByScope(scope: ScopeImpl): Container {
@@ -86,22 +86,22 @@ export class Container {
         return parent.getParentContainerByScope(scope);
     }
 
-    private getContainerForClassInternal(scope: ScopeImpl): Container {
+    private getContainerForScope(scope: ScopeImpl): Container {
         if (scope === this.getScope()) {
             return this;
         }
-        const childScope = this.getScope().getChildScopeDirectionTo(scope);
+        const childScope = this.getScope().getDirectChildFor(scope);
         const scopeId = childScope.getId();
         let container = this.children[scopeId];
         if (container) {
-            return container
+            return container;
         }
         container = new Container(this, childScope);
         if (childScope.getType() === ScopeType.Singleton) {
             this.children[scopeId] = container;
         }
         container.init();
-        return container.getContainerForClassInternal(scope);
+        return container.getContainerForScope(scope);
     }
 
     protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
@@ -187,7 +187,7 @@ export class TestContainer extends Container {
         return super.buildNewInstance(component, componentContainer);
     }
 
-    protected runPostConstruct(instance: any, component: Component, componentContainer: ComponentContainer) {
+    protected runPostConstruct<T>(instance: T, component: Component<T>, componentContainer: ComponentContainer) {
         if (!this.isComponentForMock(component)) {
             super.runPostConstruct(instance, component, componentContainer)
         }
