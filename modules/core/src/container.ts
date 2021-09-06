@@ -49,6 +49,9 @@ export class Container {
 
         if (instance === undefined) {
             if (component.getScope() === this.getScope() || component.isApplicationContext()) {
+                if (!component.isConstructable()) {
+                    throw new Error("I can't instantiate a " + component.name + " that is not a component.");
+                }
                 const type = component.getType();
                 const componentContainer = new ComponentContainer(this);
                 const instance = this.buildNewInstance(component, componentContainer);
@@ -105,9 +108,6 @@ export class Container {
     }
 
     protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
-        if (!component.isConstructable()) {
-            throw new Error("I can't instantiate a " + component.name + " that is not a component.");
-        }
         const oldComponentContext = currentComponentContainer;
         currentComponentContainer = componentContainer;
         const instance = component.construct(componentContainer);
@@ -191,13 +191,13 @@ export class TestContainer extends Container {
         }
     }
 
-    public getClassInstanceWithMocks<T>(Class: TClass<T>): T {
-        this.disableMock(Class);
-        return super.getBean(Class);
+    public getInstanceWithMocks<T>(dependency: Dependency<T>): T {
+        this.disableMock(dependency);
+        return super.getBean(dependency);
     }
 
-    public disableMock<T>(Class: TClass<T>, disable: boolean = true) {
-        const component = this.getComponent(Component.create(Class));
+    public disableMock<T>(dependency: Dependency<T>, disable: boolean = true) {
+        const component = this.getComponent(Component.create(dependency));
         if (disable) {
             this.disabledMocks.add(component);
         } else {

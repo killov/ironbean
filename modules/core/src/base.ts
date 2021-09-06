@@ -34,8 +34,8 @@ export class TestingContext extends ApplicationContext {
         this.testContainer = container;
     }
 
-    public getBeanWithMocks<T>(Class: TClass<T>): T {
-        return this.testContainer.getClassInstanceWithMocks(Class);
+    public getBeanWithMocks<T>(dependency: Dependency<T>): T {
+        return this.testContainer.getInstanceWithMocks(dependency);
     }
 
     public setMock<T, K extends T>(dependency: Dependency<T>, classFactory: TClass<K>): void {
@@ -46,16 +46,16 @@ export class TestingContext extends ApplicationContext {
         this.testContainer.setMockFactory(dependency, factory);
     }
 
-    public disableMock<T>(Class: TClass<T>): void {
-        return this.testContainer.disableMock(Class);
+    public disableMock<T>(dependency: Dependency<T>): void {
+        return this.testContainer.disableMock(dependency);
     }
 
-    public enableMock<T>(Class: TClass<T>): void {
-        return this.testContainer.disableMock(Class, false);
+    public enableMock<T>(dependency: Dependency<T>): void {
+        return this.testContainer.disableMock(dependency, false);
     }
 
-    public getMock<T>(Class: TClass<T>): T {
-        return this.getBean(Class);
+    public getMock<T>(dependency: Dependency<T>): T {
+        return this.getBean(dependency);
     }
 }
 

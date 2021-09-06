@@ -7,8 +7,8 @@ export type ComponentFactory<TDependency> = FunctionFactory<TDependency>|TClass<
 class Take<TDependency> {
     private readonly takenDependency: Dependency<TDependency>;
 
-    constructor(dd: Dependency<TDependency>) {
-        this.takenDependency = dd;
+    constructor(dependency: Dependency<TDependency>) {
+        this.takenDependency = dependency;
     }
 
     private get takenComponent(): Component {

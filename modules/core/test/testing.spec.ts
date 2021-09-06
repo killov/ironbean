@@ -145,6 +145,32 @@ describe("testing", () => {
         expect(testingContext.getBean(A).getA()).toBe(undefined as any);
     })
 
+    it("disable Mock 2", () => {
+        class A {
+            a: string = "a";
+
+            getA() {
+                return "a";
+            }
+        }
+        const acko = DependencyToken.create<A>("acko");
+        take(acko).setFactory(() => new A());
+
+        expect(testingContext.getBean(acko).getA()).toBe("a");
+
+        destroyContext();
+        testingContext = getBaseTestingContext();
+        testingContext.disableMock(acko);
+        expect(testingContext.getBean(acko).getA()).toBe("a");
+
+        destroyContext();
+        testingContext = getBaseTestingContext();
+        testingContext.disableMock(acko);
+        testingContext.enableMock(acko);
+
+        expect(testingContext.getBean(acko).getA()).toBe("a");
+    })
+
     it("set Mock", () => {
         @component
         class A {
@@ -192,6 +218,34 @@ describe("testing", () => {
         testingContext.setMock(a, customA);
 
         const iB = testingContext.getBeanWithMocks(b);
+        expect(iB.a.f).toBe("moje vlastni");
+    });
+
+    it("custom mocks 2", () => {
+
+        @component
+        class a {
+            f = "ajp";
+        }
+
+        @component
+        class b {
+            @autowired a!: a;
+            g = "haha";
+        }
+
+        const becko = DependencyToken.create<b>("becko");
+        take(becko).bindTo(b);
+
+        @component
+        class customA extends a {
+            f = "moje vlastni";
+            hmm =  10;
+        }
+
+        testingContext.setMock(a, customA);
+
+        const iB = testingContext.getBeanWithMocks(becko);
         expect(iB.a.f).toBe("moje vlastni");
     });
 
