@@ -7,9 +7,28 @@ import {
     markAsOverridenDefineProperty
 } from "./internals";
 
-class PropertyDecoratorContext {
-    type?: Dependency<any>
-    componentContext!: ComponentContext;
+interface PropertyDecoratorContext {
+    type: Dependency<any>|undefined;
+    componentContext: ComponentContext;
+}
+
+class PropertyDecoratorContextImpl implements PropertyDecoratorContext {
+    private readonly instance: object;
+    private readonly propertyName: string | symbol;
+
+    constructor(instance: object, propertyName: string|symbol) {
+        this.instance = instance;
+        this.propertyName = propertyName;
+    }
+
+    get type(): Dependency<any>|undefined {
+        return resolveType(this.instance, this.propertyName);
+    }
+
+    get componentContext (): ComponentContext {
+        const container = getComponentContainerFromInstance(this.instance);
+        return container.getBean(ComponentContext);
+    }
 }
 
 interface IPropertyDecoratorSettings {
@@ -22,11 +41,7 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
         const set = () => {};
         const get = function(this: any) {
             if (settings.get) {
-                const instance = this;
-                const container = getComponentContainerFromInstance(instance);
-                const context = new PropertyDecoratorContext();
-                context.type = resolveType(instance, propertyName);
-                context.componentContext = container.getBean(ComponentContext);
+                const context = new PropertyDecoratorContextImpl(this, propertyName);
                 return settings.get(context);
             }
             return target[propertyName];
