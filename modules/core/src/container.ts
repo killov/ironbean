@@ -144,14 +144,16 @@ export class TestContainer extends Container {
     }
 
     public getComponent(component: Component): Component {
-        if (component === ApplicationContextComponent || component === TestingContextComponent) {
-            return TestingContextComponent;
+        switch (component) {
+            case ApplicationContextComponent:
+            case TestingContextComponent:
+                return TestingContextComponent;
+            case ContainerComponent:
+            case TestContainerComponent:
+                return TestContainerComponent;
+            default:
+                return super.getComponent(component);
         }
-        if (component === ContainerComponent || component === TestContainerComponent) {
-            return TestContainerComponent;
-        }
-
-        return super.getComponent(component);
     }
 
     public setMock<T, K extends T>(dependency: Dependency<T>, factory: TClass<K>): void {
@@ -252,9 +254,9 @@ export class ComponentContainer {
         return this.getComponentInstance(Component.create(dependency));
     }
 
-    public getComponentInstance<T>(component: Component): T {
+    public getComponentInstance<T>(component: Component<T>): T {
         component = this.container.getComponent(component);
-        let instance: any = this.storage.getInstance(component);
+        let instance: T|undefined = this.storage.getInstance(component);
 
         if (instance === undefined) {
             instance = this.container.getComponentInstance(component);
