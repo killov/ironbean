@@ -1,5 +1,6 @@
 import "reflect-metadata";
 export * from "./enums";
+export * from "./plugin";
 export * from "./zaop";
 export * from "./decorators";
 export * from "./autowired";

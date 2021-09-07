@@ -2,7 +2,7 @@ import {
     ComponentContainer,
     ComponentContext,
     constants,
-    currentComponentContainer,
+    currentComponentContainer, plugins,
     Dependency, getBaseContainer,
     markAsOverwrittenDefineProperty
 } from "./internals";
@@ -81,8 +81,17 @@ function resolveType(target: any, propertyName: string|symbol) {
     return fromMetaData;
 }
 
-function getComponentContainerFromInstance(target: any): ComponentContainer {
-    return Reflect.getMetadata(constants.componentContainer, target) || currentComponentContainer || createAndSetComponentContainer(target)
+function getComponentContainerFromInstance(target: object): ComponentContainer {
+    for (let decorator of plugins) {
+        if (decorator.getComponentContainerForClassInstance) {
+            const container = decorator.getComponentContainerForClassInstance(target);
+            if (container) {
+                return container;
+            }
+        }
+    }
+
+    return Reflect.getMetadata(constants.componentContainer, target) || currentComponentContainer || createAndSetComponentContainer(target);
 }
 
 function createAndSetComponentContainer(target: any) {

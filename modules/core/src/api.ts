@@ -1,3 +1,5 @@
 export {
-    TestProvider
+    TestProvider,
+    registerPlugin,
+    IPlugin
 } from "./internals";
