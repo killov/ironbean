@@ -4,7 +4,7 @@ import {
     constants,
     currentComponentContainer,
     Dependency, getBaseContainer,
-    markAsOverridenDefineProperty
+    markAsOverwrittenDefineProperty
 } from "./internals";
 
 interface PropertyDecoratorContext {
@@ -54,7 +54,7 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
                 enumerable: true,
                 configurable: true
             });
-            markAsOverridenDefineProperty(target, propertyName);
+            markAsOverwrittenDefineProperty(target, propertyName);
         }
     }
 
