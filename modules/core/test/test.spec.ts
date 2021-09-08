@@ -16,6 +16,7 @@ import {
     type
 } from "../src";
 import {Container} from "../src/container";
+import {currentComponentContainer} from "../src/containerStorage";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -26,6 +27,7 @@ describe("test", () => {
     })
 
     afterEach(() => {
+        expect(currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
         destroyContext();
     });
 
@@ -193,6 +195,20 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(0);
         expect(applicationContext.getBean(key)).toBe(1);
         expect(applicationContext.getBean(key)).toBe(2);
+    });
+
+    it("inject by key prototype return  throw", () => {
+        const key = DependencyToken.create<number>("key", {componentType: ComponentType.Prototype});
+        let i = 0;
+
+        take(key).setFactory(() => {
+            throw new Error("oujeee");
+            return 1;
+        });
+
+        expect(() => {
+            applicationContext.getBean(key);
+        }).toThrowError("oujeee");
     });
 
     it("inject by key prototype return of class factory", () => {

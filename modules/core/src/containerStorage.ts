@@ -32,9 +32,11 @@ export function destroyContainer(): void {
 export let currentComponentContainer: ComponentContainer | undefined;
 
 export function currentComponentContainerAction<T>(componentContainer: ComponentContainer, action: () => T): T {
-    const oldComponentContext = currentComponentContainer;
+    const oldComponentContainer = currentComponentContainer;
     currentComponentContainer = componentContainer;
-    const result = action();
-    currentComponentContainer = oldComponentContext;
-    return result;
+    try {
+        return action();
+    } finally {
+        currentComponentContainer = oldComponentContainer;
+    }
 }
