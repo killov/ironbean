@@ -1,4 +1,4 @@
-import {Container, TestContainer} from "./internals";
+import {ComponentContainer, Container, TestContainer} from "./internals";
 
 let container: Container | null;
 
@@ -25,5 +25,16 @@ export function getTestContainer(): TestContainer {
 }
 
 export function destroyContainer(): void {
+    currentComponentContainer = undefined;
     container = null;
+}
+
+export let currentComponentContainer: ComponentContainer | undefined;
+
+export function currentComponentContainerAction<T>(componentContainer: ComponentContainer, action: () => T): T {
+    const oldComponentContext = currentComponentContainer;
+    currentComponentContainer = componentContainer;
+    const result = action();
+    currentComponentContainer = oldComponentContext;
+    return result;
 }

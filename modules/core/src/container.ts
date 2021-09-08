@@ -2,7 +2,7 @@ import {
     Component,
     component,
     ComponentContainer,
-    ComponentType,
+    ComponentType, currentComponentContainerAction,
     Dependency,
     DependencyStorage,
     getDefaultScope,
@@ -100,12 +100,9 @@ export class Container {
     }
 
     protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
-        const oldComponentContext = currentComponentContainer;
-        currentComponentContainer = componentContainer;
-        const instance = component.construct(componentContainer);
-        currentComponentContainer = oldComponentContext;
-
-        return instance;
+        return currentComponentContainerAction(componentContainer, () => {
+            return component.construct(componentContainer)
+        });
     }
 
     protected runPostConstruct(instance: any, component: Component, componentContainer: ComponentContainer) {
@@ -122,4 +119,3 @@ export class Container {
 }
 
 export const ContainerComponent = Component.create(Container);
-export let currentComponentContainer: ComponentContainer | undefined;

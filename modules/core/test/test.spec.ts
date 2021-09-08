@@ -655,6 +655,20 @@ describe("test", () => {
             expect(context.getBean(C)).not.toBe(oldC);
         });
 
+        it("new initialize autowired", () => {
+            class A2 {
+                @autowired b!: B;
+                @autowired c!: C;
+                @autowired c2!: C;
+            }
+
+            const i = new A2();
+
+            expect(i.b).toBe(applicationContext.getBean(B));
+            expect(i.c).toBe(i.c2);
+            expect(i.c).not.toBe(applicationContext.getBean(C));
+        });
+
         it("overriden constructor", () => {
 
             @component
