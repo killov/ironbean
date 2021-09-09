@@ -648,6 +648,8 @@ describe("test", () => {
             const b = scopeContext.provideScope(() => new B())
 
             expect(a instanceof A).toBe(true);
+            expect(b instanceof A).toBe(true);
+            expect(b instanceof B).toBe(true);
 
             expect(a.context).toBe(scopeContext);
             expect(b.context).toBe(scopeContext);
