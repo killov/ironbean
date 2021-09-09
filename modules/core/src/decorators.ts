@@ -1,5 +1,15 @@
 import "reflect-metadata";
-import {ComponentType, constants, DependencyToken, Scope, TClass} from "./internals";
+import {
+    Component,
+    ComponentContainer,
+    ComponentType,
+    constants,
+    currentComponentContainerAction,
+    currentContainer,
+    DependencyToken, getBaseContainer,
+    Scope,
+    TClass
+} from "./internals";
 
 export type Class = TClass<any>;
 export function component(componentType: ComponentType): ClassDecorator;
@@ -24,7 +34,7 @@ export function component(ClassOrType: Class | ComponentType): any {
     return decorator;
 }
 
-export function scope(scope: Scope): (Class: Class) => any {
+export function scope(scope: Scope): ClassDecorator {
     function decorator(Class: any): any {
         Reflect.defineMetadata(constants.scope, scope, Class);
 
@@ -48,4 +58,28 @@ export function type<T>(key: DependencyToken<T>|(() => TClass<T>)) {
 
 export function postConstruct<T>(target: T, propertyName: string) {
     Reflect.defineMetadata(constants.postConstruct, true, target, propertyName);
+}
+
+export function needScope(scope: Scope): any {
+    return function (Class: any) {
+        const extended = (...args: any[]) => {
+            if (currentContainer === undefined) {
+                throw new Error(Component.create(Class).name +  " must be initialized via [provideScope] " + scope + ".");
+            }
+            const container = currentContainer.getParentContainerByScope(scope);
+            if (container === undefined) {
+                throw new Error(Component.create(Class).name + " initialized with different scope provided, please provide scope " + scope + ".");
+            }
+
+            const componentContainer = new ComponentContainer(container);
+            const instance = currentComponentContainerAction(componentContainer, () => new Class(...args));
+            Reflect.defineMetadata(constants.componentContainer, componentContainer, instance);
+
+            return instance;
+        }
+
+        extended.prototype = Class.prototype;
+
+        return extended;
+    }
 }

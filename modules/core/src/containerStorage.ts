@@ -30,6 +30,7 @@ export function destroyContainer(): void {
 }
 
 export let currentComponentContainer: ComponentContainer | undefined;
+export let currentContainer: Container | undefined;
 
 export function currentComponentContainerAction<T>(componentContainer: ComponentContainer, action: () => T): T {
     const oldComponentContainer = currentComponentContainer;
@@ -38,5 +39,15 @@ export function currentComponentContainerAction<T>(componentContainer: Component
         return action();
     } finally {
         currentComponentContainer = oldComponentContainer;
+    }
+}
+
+export function currentContainerAction<T>(container: Container, action: () => T): T {
+    const oldComponentContainer = currentContainer;
+    currentContainer = container;
+    try {
+        return action();
+    } finally {
+        currentContainer = oldComponentContainer;
     }
 }

@@ -17,6 +17,7 @@ import {
 } from "../src";
 import {Container} from "../src/container";
 import {currentComponentContainer} from "../src/containerStorage";
+import {needScope} from "../src/decorators";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -594,6 +595,63 @@ describe("test", () => {
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
+    });
+
+    describe("need scope", () => {
+        const Scope = getDefaultScope().createScope("scopeName");
+
+        @needScope(Scope)
+        class A {
+           @autowired context: ApplicationContext;
+        }
+
+        @needScope(Scope)
+        class B extends A {
+
+        }
+
+        @component
+        @scope(Scope)
+        class Help {
+           @autowired context: ApplicationContext;
+        }
+
+        it("different scope provided", () => {
+            expect(() => {
+                const a = applicationContext.provideScope(() => {
+                    new A();
+                });
+            }).toThrowError("Class A initialized with different scope provided, please provide scope DEFAULT.scopeName.");
+
+            expect(() => {
+                const a = applicationContext.provideScope(() => {
+                    new B()
+                });
+            }).toThrowError("Class B initialized with different scope provided, please provide scope DEFAULT.scopeName.");
+
+        }) ;
+
+       it("ust be initialized via provideScope", () => {
+           expect(() => {
+               const a = new A();
+           }).toThrowError("Class A must be initialized via [provideScope] DEFAULT.scopeName.");
+
+           expect(() => {
+               const b = new B();
+           }).toThrowError("Class B must be initialized via [provideScope] DEFAULT.scopeName.");
+        });
+
+        it("correct using", () => {
+            const scopeContext = applicationContext.getBean(Help).context;
+
+            const a = scopeContext.provideScope(() => new A())
+            const b = scopeContext.provideScope(() => new B())
+
+            expect(a instanceof A).toBe(true);
+
+            expect(a.context).toBe(scopeContext);
+            expect(b.context).toBe(scopeContext);
+        });
     });
 
     describe("autowired tests", () => {

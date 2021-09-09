@@ -3,6 +3,7 @@ import {
     component,
     ComponentType,
     Container,
+    currentContainerAction,
     Dependency,
     destroyContainer,
     FunctionFactory,
@@ -14,7 +15,7 @@ import {
 
 @component(ComponentType.Singleton)
 export class ApplicationContext {
-    private container: Container;
+    private readonly container: Container;
 
     constructor(container: Container) {
         this.container = container;
@@ -22,6 +23,10 @@ export class ApplicationContext {
 
     public getBean<T>(dependency: Dependency<T>): T {
         return this.container.getBean(dependency);
+    }
+
+    public provideScope<T>(action: () => T) {
+        return currentContainerAction(this.container, action);
     }
 }
 

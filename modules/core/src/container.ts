@@ -6,7 +6,7 @@ import {
     Dependency,
     DependencyStorage,
     getDefaultScope,
-    IConstructable,
+    IConstructable, Scope,
     ScopeImpl,
     ScopeType
 } from "./internals";
@@ -65,17 +65,21 @@ export class Container {
         const commonScope = ScopeImpl.getCommonParent(scope, this.getScope());
         const commonContainer = this.getParentContainerByScope(commonScope);
 
+        if (commonContainer === undefined) {
+            throw new Error("");
+        }
+
         return commonContainer.getContainerForScope(scope);
     }
 
-    protected getParentContainerByScope(scope: ScopeImpl): Container {
+    public getParentContainerByScope(scope: Scope): Container|undefined {
         if (this.getScope() === scope) {
             return this;
         }
         const parent = this.parent;
 
         if (parent === null) {
-            throw new Error();
+            return undefined;
         }
 
         return parent.getParentContainerByScope(scope);
