@@ -62,7 +62,7 @@ export function postConstruct<T>(target: T, propertyName: string) {
 
 export function needScope(scope: Scope): any {
     return function (Class: any) {
-        const extended = (...args: any[]) => {
+        const extended = function (...args: any[]) {
             if (currentContainer === undefined) {
                 throw new Error(Component.create(Class).name +  " must be initialized via [provideScope] " + scope + ".");
             }
@@ -72,10 +72,8 @@ export function needScope(scope: Scope): any {
             }
 
             const componentContainer = new ComponentContainer(container);
-            const instance = currentComponentContainerAction(componentContainer, () => new Class(...args));
-            Reflect.defineMetadata(constants.componentContainer, componentContainer, instance);
-
-            return instance;
+            currentComponentContainerAction(componentContainer, () => Class.apply(this, args));
+            Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
         }
 
         extended.prototype = Class.prototype;

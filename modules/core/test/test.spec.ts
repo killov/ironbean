@@ -603,11 +603,23 @@ describe("test", () => {
         @needScope(Scope)
         class A {
            @autowired context: ApplicationContext;
+
+           public test() {
+               return "text";
+           }
+        }
+
+        class C {
+            @autowired context: ApplicationContext;
         }
 
         @needScope(Scope)
         class B extends A {
-
+            public borec: number;
+            constructor(borec: number) {
+                super();
+                this.borec = borec;
+            }
         }
 
         @component
@@ -625,7 +637,7 @@ describe("test", () => {
 
             expect(() => {
                 const a = applicationContext.provideScope(() => {
-                    new B()
+                    new B(10);
                 });
             }).toThrowError("Class B initialized with different scope provided, please provide scope DEFAULT.scopeName.");
 
@@ -637,7 +649,7 @@ describe("test", () => {
            }).toThrowError("Class A must be initialized via [provideScope] DEFAULT.scopeName.");
 
            expect(() => {
-               const b = new B();
+               const b = new B(10);
            }).toThrowError("Class B must be initialized via [provideScope] DEFAULT.scopeName.");
         });
 
@@ -645,7 +657,13 @@ describe("test", () => {
             const scopeContext = applicationContext.getBean(Help).context;
 
             const a = scopeContext.provideScope(() => new A())
-            const b = scopeContext.provideScope(() => new B())
+            const b = scopeContext.provideScope(() => new B(11))
+
+            expect(a.test()).toBe("text");
+            a.test = () => "shit";
+            expect(a.test()).toBe("shit");
+            expect(b.test()).toBe("text");
+            expect(b.borec).toBe(11);
 
             expect(a instanceof A).toBe(true);
             expect(b instanceof A).toBe(true);
