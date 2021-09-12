@@ -1,5 +1,5 @@
 import {FunctionComponent, ReactNode, useContext, useRef, createElement, createContext, useEffect} from "react";
-import {ApplicationContext, getBaseApplicationContext} from "fire-dic";
+import {ApplicationContext, getBaseApplicationContext} from "ironbean";
 
 export function useBean<T>(Class: new (...any: any[]) => T): T {
     const beanRef = useRef<T>();
