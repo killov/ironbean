@@ -77,6 +77,7 @@ export function needScope(scope: Scope): any {
         }
 
         extended.prototype = Class.prototype;
+        extended.prototype.constructor = extended;
 
         return extended;
     }
