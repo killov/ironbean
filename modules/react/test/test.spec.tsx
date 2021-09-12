@@ -6,7 +6,7 @@ import {
     getBaseApplicationContext,
     getDefaultScope,
     scope
-} from "fire-dic";
+} from "ironbean";
 import React, {FunctionComponent} from "react";
 import ReactDOMServer from 'react-dom/server';
 import {ApplicationContextProvider, useBean} from "../src";
