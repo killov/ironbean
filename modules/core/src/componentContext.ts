@@ -1,11 +1,4 @@
-import {
-    ComponentType,
-    ComponentContainer,
-    DependencyToken,
-    component,
-    TClass,
-    currentContainerAction, ApplicationContext, Dependency
-} from "./internals";
+import {ApplicationContext, component, ComponentContainer, ComponentType, Dependency} from "./internals";
 
 @component(ComponentType.Prototype)
 export class ComponentContext {

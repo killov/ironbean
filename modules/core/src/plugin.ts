@@ -1,4 +1,4 @@
-import {ComponentContainer, constants, currentComponentContainer, getBaseContainer} from "./internals";
+import {ComponentContainer} from "./internals";
 
 export interface IPlugin {
     getComponentContainerForClassInstance?(Class: object): ComponentContainer|undefined;

@@ -6,7 +6,7 @@ import {
     constants,
     currentComponentContainerAction,
     currentContainer,
-    DependencyToken, getBaseContainer,
+    DependencyToken,
     Scope,
     TClass
 } from "./internals";
@@ -62,7 +62,7 @@ export function postConstruct<T>(target: T, propertyName: string) {
 
 export function needScope(scope: Scope): any {
     return function (Class: any) {
-        const extended = function (...args: any[]) {
+        const extended = function (this: any, ...args: any[]) {
             if (currentContainer === undefined) {
                 throw new Error(Component.create(Class).name +  " must be initialized via [provideScope] " + scope + ".");
             }
