@@ -1,5 +1,5 @@
-import {component, getBaseTestingContext, take, TestingContext} from "fire-dic";
-import {TestProvider} from "fire-dic/dist/api";
+import {component, getBaseTestingContext, take, TestingContext} from "ironbean";
+import {TestProvider} from "ironbean/dist/api";
 import Spy = jasmine.Spy;
 import SpyObj = jasmine.SpyObj;
 

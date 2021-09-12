@@ -1,6 +1,6 @@
 import {getBaseJasmineTestingContext, getPropertyDescriptor, JasmineTestingContext} from "../src";
-import {autowired, component, DependencyToken, destroyContext, postConstruct, take, type} from "fire-dic";
-import {Container} from "fire-dic/dist/container";
+import {autowired, component, DependencyToken, destroyContext, postConstruct, take, type} from "ironbean";
+import {Container} from "ironbean/dist/container";
 
 describe("jasmine testing", () => {
     let testingContext: JasmineTestingContext;
