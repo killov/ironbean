@@ -1,4 +1,11 @@
-import {ComponentType, ComponentContainer, DependencyToken, component, TClass} from "./internals";
+import {
+    ComponentType,
+    ComponentContainer,
+    DependencyToken,
+    component,
+    TClass,
+    currentContainerAction, ApplicationContext, Dependency
+} from "./internals";
 
 @component(ComponentType.Prototype)
 export class ComponentContext {
@@ -8,9 +15,11 @@ export class ComponentContext {
         this.container = container;
     }
 
-    public getBean<T>(Class: TClass<T>): T;
-    public getBean<TDependency>(objectKey: DependencyToken<TDependency>): TDependency;
-    public getBean<T>(dependencyKey: any): T {
-        return this.container.getBean(dependencyKey);
+    public getBean<T>(dependency: Dependency<T>): T {
+        return this.container.getBean(dependency);
+    }
+
+    public provideScope<T>(action: () => T) {
+        return this.getBean(ApplicationContext).provideScope(action);
     }
 }

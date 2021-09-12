@@ -13,12 +13,12 @@ import {
     scope,
     ScopeType,
     take,
-    type
+    type,
+    needScope,
+    provideScope
 } from "../src";
 import {Container} from "../src/container";
 import {currentComponentContainer} from "../src/containerStorage";
-import {needScope} from "../src/decorators";
-
 describe("test", () => {
     let applicationContext: ApplicationContext;
 
@@ -626,6 +626,12 @@ describe("test", () => {
         @scope(Scope)
         class Help {
            @autowired context: ApplicationContext;
+
+           @provideScope
+           providuj(borec: number) {
+                expect(this.context instanceof ApplicationContext).toBe(true);
+                return new B(borec);
+           }
         }
 
         it("different scope provided", () => {
@@ -671,6 +677,15 @@ describe("test", () => {
 
             expect(a.context).toBe(scopeContext);
             expect(b.context).toBe(scopeContext);
+        });
+
+        it("correct using provide decorator", () => {
+            const help = applicationContext.getBean(Help);
+            const scopeContext = help.context;
+            const b = help.providuj(111);
+
+            expect(b.context).toBe(scopeContext);
+            expect(b.borec).toBe(111);
         });
     });
 

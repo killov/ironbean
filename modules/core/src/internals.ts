@@ -3,6 +3,7 @@ export * from "./enums";
 export * from "./plugin";
 export * from "./zaop";
 export * from "./decorators";
+export * from "./provdeScope";
 export * from "./autowired";
 export * from "./containerStorage";
 export * from "./component";

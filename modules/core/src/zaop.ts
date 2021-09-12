@@ -7,27 +7,37 @@ import {
     markAsOverwrittenDefineProperty
 } from "./internals";
 
-interface PropertyDecoratorContext {
-    type: Dependency<any>|undefined;
+interface DecoratorContext {
     componentContext: ComponentContext;
 }
 
-class PropertyDecoratorContextImpl implements PropertyDecoratorContext {
-    private readonly instance: object;
-    private readonly propertyName: string | symbol;
+interface PropertyDecoratorContext extends DecoratorContext {
+    type: Dependency<any>|undefined;
+}
 
-    constructor(instance: object, propertyName: string|symbol) {
+abstract class DecoratorContextImpl implements DecoratorContext {
+    protected readonly instance: object;
+
+    constructor(instance: object) {
         this.instance = instance;
-        this.propertyName = propertyName;
-    }
-
-    get type(): Dependency<any>|undefined {
-        return resolveType(this.instance, this.propertyName);
     }
 
     get componentContext (): ComponentContext {
         const container = getComponentContainerFromInstance(this.instance);
         return container.getBean(ComponentContext);
+    }
+}
+
+class PropertyDecoratorContextImpl extends DecoratorContextImpl implements PropertyDecoratorContext {
+    private readonly propertyName: string | symbol;
+
+    constructor(instance: object, propertyName: string|symbol) {
+        super(instance);
+        this.propertyName = propertyName;
+    }
+
+    get type(): Dependency<any>|undefined {
+        return resolveType(this.instance, this.propertyName);
     }
 }
 
@@ -98,4 +108,41 @@ function createAndSetComponentContainer(target: any) {
     const componentContainer = new ComponentContainer(getBaseContainer());
     Reflect.defineMetadata(constants.componentContainer, componentContainer, target);
     return componentContainer;
+}
+
+interface IMethodDecoratorSettings {
+    call?: (context: MethodDecoratorContext) => void
+}
+
+interface MethodDecoratorContext extends DecoratorContext {
+    callMethod(): any;
+    args: any[];
+}
+
+class MethodDecoratorContextImpl extends DecoratorContextImpl implements MethodDecoratorContext {
+    private readonly method: () => any;
+    public readonly args: any[];
+
+    constructor(instance: object, method: () => any, args: any) {
+        super(instance);
+        this.method = method;
+        this.args = args;
+    }
+
+    callMethod(): any {
+        return this.method();
+    }
+}
+
+export function createMethodDecorator(settings: IMethodDecoratorSettings): MethodDecorator {
+    const decorator = function (target: any, propertyName: string|symbol, descriptor: TypedPropertyDescriptor<any>) {
+        const call = descriptor.value;
+        descriptor.value = function(this: any, ...args: any[]) {
+            if (settings.call) {
+                return settings.call(new MethodDecoratorContextImpl(this, () => call.apply(this, args), args))
+            }
+            return target[propertyName];
+        };
+    }
+    return decorator;
 }

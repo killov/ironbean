@@ -23,7 +23,7 @@ export class ComponentContainer {
         return components.map((component) => this.getComponentInstance(component))
     }
 
-    public getBean<TDependency>(dependency: Dependency<TDependency>): TDependency {
+    public getBean<T>(dependency: Dependency<T>): T {
         return this.getComponentInstance(Component.create(dependency));
     }
 
