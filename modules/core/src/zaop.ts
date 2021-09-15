@@ -2,9 +2,14 @@ import {
     ComponentContainer,
     ComponentContext,
     constants,
-    currentComponentContainer, plugins,
-    Dependency, getBaseContainer,
-    markAsOverwrittenDefineProperty
+    currentComponentContainer,
+    currentComponentContainerAction,
+    currentContainer,
+    Dependency,
+    getBaseContainer,
+    markAsOverwrittenDefineProperty,
+    plugins,
+    TClass
 } from "./internals";
 
 interface DecoratorContext {
@@ -145,4 +150,53 @@ export function createMethodDecorator(settings: IMethodDecoratorSettings): Metho
         };
     }
     return decorator;
+}
+
+interface IClassDecoratorSettings {
+    constructor?: (context: ClassDecoratorContext) => void
+}
+
+interface ClassDecoratorContext extends DecoratorContext {
+    callConstructor(): any;
+}
+
+class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDecoratorContext {
+    private Class: TClass<any>;
+    private args: any[];
+
+    constructor(instance: any, Class: TClass<any>, args: any[]) {
+        super(instance);
+        this.Class = Class;
+        this.args = args;
+    }
+
+    callConstructor(): any {
+        return currentComponentContainerAction(
+            this.componentContainer,
+            () => this.Class.apply(this.instance, this.args)
+        );
+    }
+
+    get componentContainer(): ComponentContainer {
+        return this.componentContext.getBean(ComponentContainer);
+    }
+}
+
+export function createClassDecorator(settings: IClassDecoratorSettings) {
+    return function (Class: any) {
+        if (settings.constructor) {
+            const constructor = settings.constructor;
+            const extended = function (this: any, ...args: any[]) {
+                const componentContainer = new ComponentContainer(currentContainer ?? getBaseContainer());
+                Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
+                constructor(new ClassDecoratorContextImpl(this, Class, args));
+            }
+
+            extended.prototype = Class.prototype;
+            extended.prototype.constructor = extended;
+
+            return extended;
+        }
+        return Class;
+    }
 }

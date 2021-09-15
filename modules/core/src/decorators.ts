@@ -75,6 +75,7 @@ export function needScope(scope: Scope): any {
             currentComponentContainerAction(componentContainer, () => Class.apply(this, args));
             Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
         }
+        Object.setPrototypeOf(extended, Class);
 
         extended.prototype = Class.prototype;
         extended.prototype.constructor = extended;
