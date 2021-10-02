@@ -9,16 +9,17 @@ import {
     getBaseApplicationContext,
     getDefaultScope,
     IFactory,
+    needScope,
     postConstruct,
+    provideScope,
     scope,
     ScopeType,
     take,
-    type,
-    needScope,
-    provideScope
+    type
 } from "../src";
 import {Container} from "../src/container";
 import {currentComponentContainer} from "../src/containerStorage";
+
 describe("test", () => {
     let applicationContext: ApplicationContext;
 
@@ -596,6 +597,31 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
+
+    it("scopes combo", () => {
+        const s1 = getDefaultScope().createScope("1", ScopeType.Singleton);
+        const s2 = s1.createScope("2");
+
+        @component
+        @scope(s1)
+        class A {
+            @autowired c: ApplicationContext;
+        }
+
+        @component
+        @scope(s2)
+        class B {
+            @autowired a: A;
+            constructor(a: A, context: ApplicationContext) {
+                expect(a.c).not.toBe(context);
+            }
+        }
+
+        const a = applicationContext.getBean(A);
+        const b = applicationContext.getBean(B);
+        expect(a).toBe(applicationContext.getBean(A));
+        expect(b.a).toBe(applicationContext.getBean(A));
+    })
 
     describe("need scope", () => {
         const Scope = getDefaultScope().createScope("scopeName");

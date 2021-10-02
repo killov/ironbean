@@ -69,7 +69,7 @@ export class Container {
             throw new Error("");
         }
 
-        return commonContainer.getContainerForScope(scope);
+        return commonContainer.getOrCreateContainerForScope(scope, component);
     }
 
     public getParentContainerByScope(scope: Scope): Container|undefined {
@@ -85,22 +85,26 @@ export class Container {
         return parent.getParentContainerByScope(scope);
     }
 
-    private getContainerForScope(scope: ScopeImpl): Container {
+    private getOrCreateContainerForScope(scope: ScopeImpl, component: Component): Container {
         if (scope === this.getScope()) {
             return this;
         }
         const childScope = this.getScope().getDirectChildFor(scope);
         const scopeId = childScope.getId();
-        let container = this.children[scopeId];
-        if (container) {
-            return container;
-        }
-        container = new Container(this, childScope);
-        if (childScope.getType() === ScopeType.Singleton) {
+        const container = this.children[scopeId] ?? this.createContainer(childScope);
+
+        return container.getOrCreateContainerForScope(scope, component);
+    }
+
+    private createContainer(scope: ScopeImpl): Container {
+        const container = new Container(this, scope);
+        const scopeId = scope.getId();
+        if (scope.getType() === ScopeType.Singleton) {
             this.children[scopeId] = container;
         }
         container.init();
-        return container.getContainerForScope(scope);
+
+        return container;
     }
 
     protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
