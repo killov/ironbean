@@ -1,7 +1,14 @@
 import {ScopeType} from "./internals";
 
-export interface Scope {
-    createScope(name: string, type?: ScopeType): Scope;
+interface ISettings {
+    type?: ScopeType;
+}
+
+export abstract class Scope {
+    public static create(name: string, settings?: ISettings): Scope {
+        return defaultScope.createScope(name, settings);
+    }
+    abstract createScope(name: string, settings?: ISettings): Scope;
 }
 
 export class ScopeImpl implements Scope {
@@ -17,8 +24,8 @@ export class ScopeImpl implements Scope {
         this.name = name;
     }
 
-    createScope(name: string, type: ScopeType = ScopeType.Prototype): Scope {
-        return new ScopeImpl(name, type, this);
+    createScope(name: string, settings?: ISettings): Scope {
+        return new ScopeImpl(name, settings?.type ?? ScopeType.Prototype, this);
     }
 
     getParent(): ScopeImpl|null {

@@ -7,11 +7,11 @@ import {
     DependencyToken,
     destroyContext,
     getBaseApplicationContext,
-    getDefaultScope,
     IFactory,
     needScope,
     postConstruct,
     provideScope,
+    Scope,
     scope,
     ScopeType,
     take,
@@ -400,7 +400,7 @@ describe("test", () => {
             @autowired a!: a;
         }
 
-        const ticket = getDefaultScope().createScope("ticket");
+        const ticket = Scope.create("ticket");
 
 
         @component
@@ -495,7 +495,7 @@ describe("test", () => {
             @autowired a!: a;
         }
 
-        const ticket = getDefaultScope().createScope("ticket", ScopeType.Singleton);
+        const ticket = Scope.create("ticket", {type: ScopeType.Singleton});
 
 
         const key = DependencyToken.create<Object>("key3", {
@@ -599,7 +599,7 @@ describe("test", () => {
     });
 
     it("scopes combo", () => {
-        const s1 = getDefaultScope().createScope("1", ScopeType.Singleton);
+        const s1 = Scope.create("1", {type: ScopeType.Singleton});
         const s2 = s1.createScope("2");
 
         @component
@@ -624,9 +624,9 @@ describe("test", () => {
     })
 
     describe("need scope", () => {
-        const Scope = getDefaultScope().createScope("scopeName");
+        const scope1 = Scope.create("scopeName");
 
-        @needScope(Scope)
+        @needScope(scope1)
         class A {
            @autowired context: ApplicationContext;
 
@@ -639,7 +639,7 @@ describe("test", () => {
             @autowired context: ApplicationContext;
         }
 
-        @needScope(Scope)
+        @needScope(scope1)
         class B extends A {
             public borec: number;
             constructor(borec: number) {
@@ -649,7 +649,7 @@ describe("test", () => {
         }
 
         @component
-        @scope(Scope)
+        @scope(scope1)
         class Help {
            @autowired context: ApplicationContext;
 

@@ -10,12 +10,12 @@ export {
     getBaseTestingContext,
     destroyContext,
     take,
-    getDefaultScope,
     DependencyToken,
     ApplicationContext,
     TestingContext,
     ComponentContext,
     IFactory,
+    Scope,
     needScope,
     provideScope
 } from "./internals";
