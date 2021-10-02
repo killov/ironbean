@@ -27,7 +27,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        cache-dependency-path: package-lock.json
+        cache-dependency-path: packages/ironbean/package-lock.json
     - run: npm i
     - run: npm run build
     - run: npm run test:no-watch
