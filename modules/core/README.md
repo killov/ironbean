@@ -29,8 +29,8 @@ Modify your `tsconfig.json` to include the following settings
 ```
 ## Documentation
 
-- [Class component](#Class component)
-- [Dependency token](#Dependency token)
+- [Class component](#class-component)
+- [Dependency token](#dependency-token)
 
 ### Class component
 
