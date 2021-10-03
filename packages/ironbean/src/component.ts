@@ -22,16 +22,21 @@ export interface IConstructable<T> {
     name: string;
 }
 
+const component$ = Symbol();
+
 export abstract class Component<T = any> implements IConstructable<T> {
     components: Component[] = [];
     protected factory?: Factory<T>;
 
-    public static create<T>(Class: any): Component<T> {
-        if (Class.prototype) {
-            return ClassComponent.create<T>(Class);
-        } else {
-            return DependencyComponent.create<T>(Class);
+    public static create<T>(object: any): Component<T> {
+        if (Reflect.hasOwnMetadata(component$, object)) {
+            return Reflect.getOwnMetadata(component$, object);
         }
+
+        const component = object.prototype ? ClassComponent.create<T>(object) : DependencyComponent.create<T>(object);
+        Reflect.defineMetadata(component$, component, object)
+
+        return component;
     }
 
     abstract getScope(): ScopeImpl;
@@ -68,7 +73,6 @@ export abstract class Component<T = any> implements IConstructable<T> {
 }
 
 export class ClassComponent<T> extends Component<T> {
-    private static map: Map<object, ClassComponent<any>> = new Map<object, ClassComponent<any>>();
     private readonly _Class: TClass<T>;
 
     get Class(): TClass<T> {
@@ -76,11 +80,7 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     public static create<T>(Class: TClass<T>): ClassComponent<T> {
-        if (!this.map.has(Class)) {
-            this.map.set(Class, new ClassComponent<T>(Class));
-        }
-
-        return this.map.get(Class) as ClassComponent<T>;
+        return new ClassComponent<T>(Class);
     }
 
     private constructor(Class: TClass<T>) {
@@ -173,15 +173,10 @@ export class ClassComponent<T> extends Component<T> {
 }
 
 export class DependencyComponent<T> extends Component<T> {
-    private static map: Map<object, DependencyComponent<any>> = new Map<object, DependencyComponent<any>>();
     private readonly key: DependencyToken<T>
 
     public static create<T>(key: DependencyToken<T>): DependencyComponent<T> {
-        if (!this.map.has(key)) {
-            this.map.set(key, new DependencyComponent<T>(key));
-        }
-
-        return this.map.get(key) as DependencyComponent<T>;
+        return new DependencyComponent<T>(key);
     }
 
     private constructor(key: DependencyToken<T>) {
