@@ -1,17 +1,29 @@
 {
     "name": "ironbean",
     "version": "1.0.0",
-    "description": "",
+    "description": "Dependency injection library for Typescript or Javascript.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "typings": "dist/index.d.ts",
     "scripts": {
         "build": "tsc",
         "debug": "tsc --watch",
         "test": "karma start karma.conf.js",
         "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/killov/ironbean.git"
+    },
     "author": "Zdeněk Mazurák",
     "license": "MIT",
+    "keywords": [
+        "ironbean",
+        "autowired",
+        "dependency",
+        "injection",
+        "container"
+    ],
     "dependencies": {
         "reflect-metadata": "^0.1.13"
     },
