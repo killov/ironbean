@@ -29,12 +29,16 @@ export function AutoFactory<T>(dependency: Dependency<T>, settings?: ISettings):
         throw new Error(cmp.name + " for auto factory must be ComponentType.Prototype");
     }
 
-    return @component @scope(settings?.scope ?? getDefaultScope()) class implements AutoFactory<T> {
+    @component
+    @scope(settings?.scope ?? getDefaultScope())
+    class FactoryClass implements AutoFactory<T> {
         @autowired
         private context: ApplicationContext;
 
         create(): T {
             return this.context.getBean(dependency);
         }
-    };
+    }
+
+    return FactoryClass;
 }
