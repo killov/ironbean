@@ -6,6 +6,7 @@ import {
     constants,
     currentComponentContainerAction,
     currentContainer,
+    Dependency,
     DependencyToken,
     Scope,
     TClass
@@ -44,7 +45,7 @@ export function scope(scope: Scope): ClassDecorator {
     return decorator;
 }
 
-export function type<T>(key: DependencyToken<T>|(() => TClass<T>)) {
+export function type<T>(key: DependencyToken<T>|(() => Dependency<T>)) {
     return function(target: any, propertyName: string | symbol, parameterIndex?: number) {
         if (parameterIndex === undefined) {
             Reflect.defineMetadata(constants.types, key, target, propertyName);

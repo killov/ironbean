@@ -327,7 +327,7 @@ describe("test", () => {
         class a {
             test = "sa";
 
-            constructor(@type(key) data: string, @type(key2) data2: string) {
+            constructor(@type(() => key) data: string, @type(key2) data2: string) {
                 expect(data).toBe("datata");
                 expect(data2).toBe("datata22");
             }
