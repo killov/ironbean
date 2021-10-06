@@ -126,7 +126,7 @@ export class ClassComponent<T> extends Component<T> {
 
     private static getComponents(types: any[], key: any[], lazy: any[]): Component[] {
         return types.map((Class, index) => {
-            let component;
+            let component: Component;
             if (Class) {
                 component = Component.create(Class);
             }
@@ -135,10 +135,10 @@ export class ClassComponent<T> extends Component<T> {
                 component = typeof obj === "function" ? Component.create(obj()) : Component.create(obj)
             }
             if (lazy[index]) {
-                component = component.toLazy();
+                component = component!.toLazy();
             }
 
-            return component;
+            return component! as Component;
         });
     }
 
