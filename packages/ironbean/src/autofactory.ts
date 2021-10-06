@@ -20,12 +20,12 @@ interface ISettings {
 }
 
 export function AutoFactory<T>(dependency: Dependency<T>, settings?: ISettings): TClass<AutoFactory<T>> {
-    const cmp = Component.create(dependency);
+    const cmp = Component.create(dependency).getComponent();
 
     if (cmp.isConstructable()) {
         throw new Error(cmp.name + " for auto factory must be @component");
     }
-    if (cmp.getComponent().getType() !== ComponentType.Prototype) {
+    if (cmp.getType() !== ComponentType.Prototype) {
         throw new Error(cmp.name + " for auto factory must be ComponentType.Prototype");
     }
 
