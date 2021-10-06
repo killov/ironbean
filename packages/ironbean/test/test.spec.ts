@@ -231,6 +231,33 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(2);
     });
 
+    it("circular dependency", () => {
+        @component
+        class A {
+            constructor(@type(() => C) c) {
+
+            }
+        }
+
+        @component
+        class B {
+            constructor(@type(() => A) a) {
+
+            }
+        }
+
+        @component
+        class C {
+            constructor(@type(() => B) b) {
+
+            }
+        }
+
+        expect(() => applicationContext.getBean(A)).toThrowError("Circular dependency: Class A -> Class C -> Class B -> Class A");
+        expect(() => applicationContext.getBean(B)).toThrowError("Circular dependency: Class B -> Class A -> Class C -> Class B");
+        expect(() => applicationContext.getBean(C)).toThrowError("Circular dependency: Class C -> Class B -> Class A -> Class C");
+    })
+
     it("inject by key prototype return of class factory with deps", () => {
         const key = DependencyToken.create<number>("key", {componentType: ComponentType.Prototype});
         let i = 0;

@@ -10,6 +10,7 @@ import {
     ScopeImpl,
     ScopeType
 } from "./internals";
+import {Stack} from "./stack";
 
 @component(ComponentType.Singleton)
 export class Container {
@@ -17,6 +18,7 @@ export class Container {
     protected readonly parent: Container|null;
     protected readonly scope: ScopeImpl;
     protected readonly children: Container[] = [];
+    protected readonly resolvingStack = new Stack<Component>();
 
     constructor(parent: Container|null = null, scope: ScopeImpl|null = null) {
         this.parent = parent;
@@ -46,7 +48,18 @@ export class Container {
                 }
                 const type = component.getType();
                 const componentContainer = new ComponentContainer(this);
-                const instance = this.buildNewInstance(component, componentContainer);
+                let instance;
+
+                try {
+                    if (type === ComponentType.Singleton && this.resolvingStack.contains(component)) {
+                        this.throwCircularDependency(component);
+                    }
+                    this.resolvingStack.enqueue(component);
+                    instance = this.buildNewInstance(component, componentContainer);
+                } finally {
+                    this.resolvingStack.dequeue();
+                }
+
                 if (type === ComponentType.Singleton) {
                     this.storage.saveInstance(component, instance);
                 }
@@ -123,6 +136,15 @@ export class Container {
 
     public countOfDependencies(): number {
         return this.storage.countOfDependencies();
+    }
+
+    private throwCircularDependency(component: Component): void {
+        const names = [];
+        for (const i of this.resolvingStack.items) {
+            names.push(i.name);
+        }
+        names.push(component.name);
+        throw new Error("Circular dependency: " + names.join(" -> "));
     }
 }
 
