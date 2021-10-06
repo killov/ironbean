@@ -4,6 +4,7 @@ export const constants = {
     componentType: "_ioc_componentType",
     componentContainer: "_ioc_componentContainer",
     types: "_ioc_keys",
+    lazy: "_ioc_lazy",
     scope: "_ioc_scope"
 };
 

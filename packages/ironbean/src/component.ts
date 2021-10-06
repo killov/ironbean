@@ -39,6 +39,10 @@ export abstract class Component<T = any> implements IConstructable<T> {
         return component;
     }
 
+    public toLazy(): LazyComponent<T> {
+        return new LazyComponent(this);
+    }
+
     abstract getScope(): ScopeImpl;
 
     abstract getType(): ComponentType;
@@ -102,9 +106,10 @@ export class ClassComponent<T> extends Component<T> {
 
     private getConstructDependencyList(): Component[] {
         const Classes = Reflect.getOwnMetadata("design:paramtypes", this._Class) as any[] || [];
-        const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[]
+        const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[] ?? []
+        const lazy = Reflect.getOwnMetadata(constants.lazy, this._Class) as any[] ?? []
 
-        return ClassComponent.getComponents(Classes, objectKeys);
+        return ClassComponent.getComponents(Classes, objectKeys, lazy);
     }
 
     public construct(container: ComponentContainer): T {
@@ -119,22 +124,22 @@ export class ClassComponent<T> extends Component<T> {
         return instance;
     }
 
-    private static getComponents(types: any[], key: any[]): Component[] {
-        const map: (Component|undefined)[] = types.map(Class => Class ? Component.create(Class) : undefined);
+    private static getComponents(types: any[], key: any[], lazy: any[]): Component[] {
+        return types.map((Class, index) => {
+            let component;
+            if (Class) {
+                component = Component.create(Class);
+            }
+            if (key[index]) {
+                const obj = key[index];
+                component = typeof obj === "function" ? Component.create(obj()) : Component.create(obj)
+            }
+            if (lazy[index]) {
+                component = component.toLazy();
+            }
 
-        if (key) {
-            key.forEach((obj, index) => {
-                if (obj) {
-                    if (typeof obj === "function") {
-                        map[index] = Component.create(obj())
-                    } else {
-                        map[index] = Component.create(obj)
-                    }
-                }
-            })
-        }
-
-        return map as Component[];
+            return component;
+        });
     }
 
 
@@ -150,8 +155,9 @@ export class ClassComponent<T> extends Component<T> {
 
     public static getDependencyListFromMethod<T>(Class: TClass<T>, propertyName: string, container: ComponentContainer) {
         let Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, propertyName) as any[] || [];
-        const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, propertyName);
-        Classes = ClassComponent.getComponents(Classes, objectKeys);
+        const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, propertyName) ?? [];
+        const lazy = Reflect.getOwnMetadata(constants.lazy, Class.prototype, propertyName) ?? [];
+        Classes = ClassComponent.getComponents(Classes, objectKeys, lazy);
 
         return container.getDependencyList(Classes);
     }
@@ -215,6 +221,50 @@ export class DependencyComponent<T> extends Component<T> {
 
     get name(): string {
         return this.key.name;
+    }
+}
+
+export class LazyComponent<T> extends Component<T> {
+    private component: Component<T>;
+    constructor(component: Component<T>) {
+        super();
+        this.component = component;
+    }
+
+    construct(container: ComponentContainer): T {
+        return this.component.construct(container);
+    }
+
+    isConstructable(): boolean {
+        return this.component.isConstructable();
+    }
+
+    get name(): string {
+        return "Lazy " + this.component.name;
+    }
+
+    getScope(): ScopeImpl {
+        return this.component.getScope();
+    }
+
+    getType(): ComponentType {
+        return this.component.getType();
+    }
+
+    postConstruct(_container: ComponentContainer, _instance: T): void {
+        this.component.postConstruct(_container, _instance);
+    }
+
+    setType(type: ComponentType): void {
+        this.component.setType(type);
+    }
+
+    toLazy(): LazyComponent<T> {
+        return this;
+    }
+
+    getComponent(): Component {
+        return this.component.getComponent().toLazy();
     }
 }
 

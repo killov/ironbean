@@ -57,6 +57,16 @@ export function type<T>(key: DependencyToken<T>|(() => Dependency<T>)) {
     }
 }
 
+export function lazy(target: any, propertyName: string | symbol, parameterIndex?: number) {
+    if (parameterIndex === undefined) {
+        Reflect.defineMetadata(constants.lazy, true, target, propertyName);
+    } else {
+        const methodParameters: Object[] = Reflect.getOwnMetadata(constants.lazy, target, propertyName) || [];
+        methodParameters[parameterIndex] = true;
+        Reflect.defineMetadata(constants.lazy, methodParameters, target, propertyName);
+    }
+}
+
 export function postConstruct<T>(target: T, propertyName: string) {
     Reflect.defineMetadata(constants.postConstruct, true, target, propertyName);
 }
