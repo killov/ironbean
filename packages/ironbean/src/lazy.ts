@@ -1,4 +1,4 @@
-function createLazy<T extends object>(create: () => T): T {
+export function createLazy<T extends object>(create: () => T): T {
     return new Proxy<T>({} as any, new LazyProxyHandler<T>(create));
 }
 
@@ -13,12 +13,12 @@ class LazyProxyHandler<T extends object> implements ProxyHandler<T>{
         return this._instance = this._instance ?? this.create();
     }
 
-    get(target: T, p: PropertyKey) {
-        return this.instance[p];
+    get(_target: T, p: PropertyKey) {
+        return (this.instance as any)[p];
     }
 
-    set(target: T, p: PropertyKey, value: any, receiver: any): boolean {
-        this.instance[p] = value;
+    set(_target: T, p: PropertyKey, value: any): boolean {
+        (this.instance as any)[p] = value;
         return true;
     }
 }

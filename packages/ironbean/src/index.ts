@@ -17,7 +17,8 @@ export {
     IFactory,
     Scope,
     needScope,
-    provideScope
+    provideScope,
+    lazy
 } from "./internals";
 
 

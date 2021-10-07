@@ -13,7 +13,8 @@ import {
     ScopeImpl,
     TClass,
     TestContainer,
-    TestingContext
+    TestingContext,
+    createLazy
 } from "./internals";
 
 export interface IConstructable<T> {
@@ -27,6 +28,7 @@ const component$ = Symbol();
 export abstract class Component<T = any> implements IConstructable<T> {
     components: Component[] = [];
     protected factory?: Factory<T>;
+    private lazy: LazyComponent<T>|undefined;
 
     public static create<T>(object: any): Component<T> {
         if (Reflect.hasOwnMetadata(component$, object)) {
@@ -40,7 +42,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
     }
 
     public toLazy(): LazyComponent<T> {
-        return new LazyComponent(this);
+        return this.lazy = this.lazy ?? new LazyComponent(this);
     }
 
     abstract getScope(): ScopeImpl;
@@ -232,7 +234,7 @@ export class LazyComponent<T> extends Component<T> {
     }
 
     construct(container: ComponentContainer): T {
-        return this.component.construct(container);
+        return createLazy(() => container.getComponentInstance(this.component) as any);
     }
 
     isConstructable(): boolean {

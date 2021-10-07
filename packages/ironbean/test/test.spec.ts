@@ -7,7 +7,7 @@ import {
     DependencyToken,
     destroyContext,
     getBaseApplicationContext,
-    IFactory,
+    IFactory, lazy,
     needScope,
     postConstruct,
     provideScope,
@@ -230,6 +230,39 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(1);
         expect(applicationContext.getBean(key)).toBe(2);
     });
+
+    it("lazy", () => {
+        @component
+        class A {
+            x = {};
+
+            ahoj() {
+
+            }
+        }
+
+        @component
+        class B {
+            constructor(@lazy public a: A, @lazy public a2: A) {
+            }
+        }
+
+        const b = applicationContext.getBean(B);
+        expectDependenciesCount(4);
+        b.a.ahoj();
+        expectDependenciesCount(5);
+        b.a.ahoj();
+        expectDependenciesCount(5);
+        expect((b.a as any).shit).toBe(undefined);
+
+        b.a2.ahoj();
+        expectDependenciesCount(5);
+        expect((b.a2 as any).shit).toBe(undefined);
+
+        expect(b.a).toBe(b.a2);
+        expect(b.a.ahoj).toBe(b.a2.ahoj);
+        expect(b.a.x).toBe(b.a2.x);
+    })
 
     it("circular dependency", () => {
         @component

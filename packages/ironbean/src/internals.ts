@@ -20,3 +20,4 @@ export * from "./base";
 export * from "./testProvider";
 export * from "./utils";
 export * from "./types";
+export * from './lazy';
