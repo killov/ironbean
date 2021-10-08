@@ -47,7 +47,7 @@ export function scope(scope: Scope): ClassDecorator {
 
 export function type<T>(key: DependencyToken<T>|(() => Dependency<T>)) {
     return function(target: any, propertyName: string | symbol, parameterIndex?: number) {
-        if (parameterIndex === undefined) {
+        if (typeof parameterIndex !== "number") {
             Reflect.defineMetadata(constants.types, key, target, propertyName);
         } else {
             const methodParameters: Object[] = Reflect.getOwnMetadata(constants.types, target, propertyName) || [];

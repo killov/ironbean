@@ -89,7 +89,7 @@ function resolveType(target: any, propertyName: string|symbol) {
 
     const fromMetaData = Reflect.getMetadata("design:type", target, propertyName);
 
-    if (fromMetaData === Object) {
+    if (fromMetaData === Object || fromMetaData === undefined) {
         throw new Error("Property " + propertyName.toString() + " of class " + target.constructor.name + " failed to determine type.");
     }
 
