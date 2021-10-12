@@ -6,7 +6,7 @@ import {
     currentComponentContainerAction,
     currentContainer,
     Dependency,
-    getBaseContainer,
+    getBaseContainer, LazyToken,
     markAsOverwrittenDefineProperty,
     plugins,
     TClass
@@ -78,13 +78,14 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
 
 function resolveType(target: any, propertyName: string|symbol) {
     let type = Reflect.getMetadata(constants.types, target, propertyName);
+    const isLazy = Reflect.getMetadata(constants.lazy, target, propertyName);
 
     if (typeof type === "function") {
         type = type();
     }
 
     if (type) {
-        return type;
+        return isLazy ? LazyToken.create(type) : type;
     }
 
     const fromMetaData = Reflect.getMetadata("design:type", target, propertyName);
@@ -93,7 +94,7 @@ function resolveType(target: any, propertyName: string|symbol) {
         throw new Error("Property " + propertyName.toString() + " of class " + target.constructor.name + " failed to determine type.");
     }
 
-    return fromMetaData;
+    return isLazy ? LazyToken.create(fromMetaData) : fromMetaData;
 }
 
 function getComponentContainerFromInstance(target: object): ComponentContainer {

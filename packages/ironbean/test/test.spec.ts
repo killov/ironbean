@@ -280,6 +280,69 @@ describe("test", () => {
         expect(b.a.b).toBe(20);
     })
 
+    it("lazy autowired", () => {
+        @component
+        class A {
+            a = 1;
+            b = 10;
+            x = {};
+
+            ahoj() {
+                this.bye();
+                expect(this instanceof A).toBe(true);
+            }
+
+            getA() {
+                return this.a;
+            }
+
+            bye() {
+
+            }
+        }
+
+        @component
+        class B {
+            @lazy
+            @autowired
+            public a: A;
+
+            @lazy
+            @autowired
+            public a2: A
+
+            @autowired
+            public a3: A
+        }
+
+        const b = applicationContext.getBean(B);
+        expectDependenciesCount(3);
+        b.a.ahoj();
+        expectDependenciesCount(5);
+        b.a.ahoj();
+        expectDependenciesCount(5);
+        expect((b.a as any).shit).toBe(undefined);
+
+        b.a2.ahoj();
+        expectDependenciesCount(5);
+        expect((b.a2 as any).shit).toBe(undefined);
+
+        expect(b.a).toBe(b.a2);
+        expect(b.a.x).toBe(b.a2.x);
+
+        expect(b.a.getA()).toBe(1);
+        expect(b.a.b).toBe(10);
+
+        b.a.b = 20;
+        expect(b.a.b).toBe(20);
+        expect(b.a2).not.toBeInstanceOf(A);
+        expectDependenciesCount(5);
+
+        expect(b.a3.b).toBe(20);
+        expect(b.a3).toBeInstanceOf(A);
+        expectDependenciesCount(5);
+    })
+
     it("circular dependency", () => {
         @component
         class A {

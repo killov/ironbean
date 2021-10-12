@@ -58,7 +58,7 @@ export function type<T>(key: DependencyToken<T>|(() => Dependency<T>)) {
 }
 
 export function lazy(target: any, propertyName: string | symbol, parameterIndex?: number) {
-    if (parameterIndex === undefined) {
+    if (typeof parameterIndex !== "number") {
         Reflect.defineMetadata(constants.lazy, true, target, propertyName);
     } else {
         const methodParameters: Object[] = Reflect.getOwnMetadata(constants.lazy, target, propertyName) || [];

@@ -1,3 +1,5 @@
+import {Dependency} from "./componentConfig";
+
 export function createLazy<T extends object>(create: () => T): T {
     return new Proxy<T>({} as any, new LazyProxyHandler<T>(create));
 }
@@ -21,5 +23,19 @@ class LazyProxyHandler<T extends object> implements ProxyHandler<T>{
     set(_target: T, p: PropertyKey, value: any): boolean {
         (this.instance as any)[p] = value;
         return true;
+    }
+}
+
+export class LazyToken<TDependency = any> {
+    dependency: TDependency;
+
+    private constructor(dependency: TDependency) {
+        this.dependency = dependency;
+    }
+
+    public static create<TDependency>(dependency: Dependency<TDependency>): LazyToken<TDependency> {
+        return dependency instanceof LazyToken
+            ? dependency as LazyToken
+            : new LazyToken(dependency);
     }
 }

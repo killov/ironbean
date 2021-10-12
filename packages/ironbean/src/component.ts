@@ -6,15 +6,16 @@ import {
     ComponentType,
     constants,
     Container,
+    createLazy,
     DependencyToken,
     getAllPropertyNames,
     getDefaultScope,
     IFactory,
+    LazyToken,
     ScopeImpl,
     TClass,
     TestContainer,
-    TestingContext,
-    createLazy
+    TestingContext
 } from "./internals";
 
 export interface IConstructable<T> {
@@ -33,6 +34,10 @@ export abstract class Component<T = any> implements IConstructable<T> {
     public static create<T>(object: any): Component<T> {
         if (Reflect.hasOwnMetadata(component$, object)) {
             return Reflect.getOwnMetadata(component$, object);
+        }
+
+        if (object instanceof LazyToken) {
+            return Component.create<T>(object.dependency).toLazy();
         }
 
         const component = object.prototype ? ClassComponent.create<T>(object) : DependencyComponent.create<T>(object);

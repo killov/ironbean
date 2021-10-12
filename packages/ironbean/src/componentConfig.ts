@@ -1,6 +1,15 @@
-import {Component, ComponentContext, ComponentType, DependencyToken, Factory, IFactory, TClass} from "./internals";
+import {
+    Component,
+    ComponentContext,
+    ComponentType,
+    DependencyToken,
+    Factory,
+    IFactory,
+    LazyToken,
+    TClass
+} from "./internals";
 
-export type Dependency<TDependency> = TClass<TDependency>|DependencyToken<TDependency>;
+export type Dependency<TDependency> = TClass<TDependency>|DependencyToken<TDependency>|LazyToken<TDependency>;
 export type FunctionFactory<TDependency> = (componentContext: ComponentContext) => TDependency;
 export type ComponentFactory<TDependency> = FunctionFactory<TDependency>|TClass<IFactory<TDependency>>;
 
