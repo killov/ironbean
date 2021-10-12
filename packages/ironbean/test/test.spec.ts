@@ -234,9 +234,20 @@ describe("test", () => {
     it("lazy", () => {
         @component
         class A {
+            a = 1;
+            b = 10;
             x = {};
 
             ahoj() {
+                this.bye();
+                expect(this instanceof A).toBe(true);
+            }
+
+            getA() {
+                return this.a;
+            }
+
+            bye() {
 
             }
         }
@@ -260,8 +271,13 @@ describe("test", () => {
         expect((b.a2 as any).shit).toBe(undefined);
 
         expect(b.a).toBe(b.a2);
-        expect(b.a.ahoj).toBe(b.a2.ahoj);
         expect(b.a.x).toBe(b.a2.x);
+
+        expect(b.a.getA()).toBe(1);
+        expect(b.a.b).toBe(10);
+
+        b.a.b = 20;
+        expect(b.a.b).toBe(20);
     })
 
     it("circular dependency", () => {

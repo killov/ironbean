@@ -14,7 +14,8 @@ class LazyProxyHandler<T extends object> implements ProxyHandler<T>{
     }
 
     get(_target: T, p: PropertyKey) {
-        return (this.instance as any)[p];
+        const value = (this.instance as any)[p] as any;
+        return typeof value == 'function' ? value.bind(this.instance) : value;
     }
 
     set(_target: T, p: PropertyKey, value: any): boolean {
