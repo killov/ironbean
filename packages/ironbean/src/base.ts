@@ -9,6 +9,8 @@ import {
     FunctionFactory,
     getBaseContainer,
     getTestContainer,
+    Scope,
+    ScopeImpl,
     TClass,
     TestContainer
 } from "./internals";
@@ -27,6 +29,11 @@ export class ApplicationContext {
 
     public provideScope<T>(action: () => T) {
         return currentContainerAction(this.container, action);
+    }
+
+    public createOrGetParentContext(scope: Scope): ApplicationContext {
+        const container = this.container.getContainerForScope(scope as ScopeImpl);
+        return container.getBean(ApplicationContext);
     }
 }
 

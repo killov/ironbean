@@ -66,15 +66,14 @@ export class Container {
                 this.runPostConstruct(instance, component, componentContainer);
                 return instance;
             } else {
-                return this.getContainerForComponent(component).getComponentInstance(component);
+                return this.getContainerForScope(component.getScope(), component).getComponentInstance(component);
             }
         }
 
         return instance as T;
     }
 
-    protected getContainerForComponent(component: Component): Container {
-        const scope = component.getScope();
+    public getContainerForScope(scope: ScopeImpl, component?: Component): Container {
         const commonScope = ScopeImpl.getCommonParent(scope, this.getScope());
         const commonContainer = this.getParentContainerByScope(commonScope);
 
@@ -98,11 +97,14 @@ export class Container {
         return parent.getParentContainerByScope(scope);
     }
 
-    private getOrCreateContainerForScope(scope: ScopeImpl, component: Component): Container {
+    private getOrCreateContainerForScope(scope: ScopeImpl, component?: Component): Container {
         if (scope === this.getScope()) {
             return this;
         }
         const childScope = this.getScope().getDirectChildFor(scope);
+        if (component !== undefined) {
+            throw new Error("I can't create a container for (" + component.name + ") for scope (" + scope.toString() + "), Please use createOrGetParentContext for manual creation.");
+        }
         const scopeId = childScope.getId();
         const container = this.children[scopeId] ?? this.createContainer(childScope);
 

@@ -508,10 +508,13 @@ describe("test", () => {
         expectDependenciesCount(4);
         const ia4 = applicationContext.getBean(a);
         expectDependenciesCount(4);
-        const ticket1 = applicationContext.getBean(Ticket);
+        const ticket1 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
         expectDependenciesCount(4);
-        const ticket2 = applicationContext.getBean(Ticket);
+        const ticket2 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
         expectDependenciesCount(4);
+        expect(() => {
+            applicationContext.getBean(Ticket);
+        }).toThrowError("I can't create a container for (Class Ticket) for scope (DEFAULT.ticket), Please use createOrGetParentContext for manual creation.");
 
         expect(ib1.a).toBe(ia1);
         expect(ib1).toBe(ib2);
@@ -622,9 +625,9 @@ describe("test", () => {
         expectDependenciesCount(4);
         const ia4 = applicationContext.getBean(a);
         expectDependenciesCount(4);
-        const ticket1 = applicationContext.getBean(Ticket);
+        const ticket1 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
         expectDependenciesCount(4);
-        const ticket2 = applicationContext.getBean(Ticket);
+        const ticket2 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
         expectDependenciesCount(4);
 
         expect(ib1.a).toBe(ia1);
@@ -677,10 +680,10 @@ describe("test", () => {
             }
         }
 
-        const a = applicationContext.getBean(A);
-        const b = applicationContext.getBean(B);
-        expect(a).toBe(applicationContext.getBean(A));
-        expect(b.a).toBe(applicationContext.getBean(A));
+        const a = applicationContext.createOrGetParentContext(s1).getBean(A);
+        const b = applicationContext.createOrGetParentContext(s2).getBean(B);
+        expect(a).toBe(applicationContext.createOrGetParentContext(s1).getBean(A));
+        expect(b.a).toBe(applicationContext.createOrGetParentContext(s1).getBean(A));
     })
 
     describe("need scope", () => {
@@ -746,7 +749,7 @@ describe("test", () => {
         });
 
         it("correct using", () => {
-            const scopeContext = applicationContext.getBean(Help).context;
+            const scopeContext = applicationContext.createOrGetParentContext(scope1).getBean(Help).context;
 
             const a = scopeContext.provideScope(() => new A())
             const b = scopeContext.provideScope(() => new B(11))
@@ -766,7 +769,7 @@ describe("test", () => {
         });
 
         it("correct using provide decorator", () => {
-            const help = applicationContext.getBean(Help);
+            const help = applicationContext.createOrGetParentContext(scope1).getBean(Help);
             const scopeContext = help.context;
             const b = help.providuj(111);
 
