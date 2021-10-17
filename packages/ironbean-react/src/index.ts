@@ -1,20 +1,16 @@
-import {FunctionComponent, ReactNode, useContext, useRef, createElement, createContext, useEffect} from "react";
+import {createContext, createElement, FunctionComponent, ReactNode, useContext, useEffect, useState} from "react";
 import {ApplicationContext, getBaseApplicationContext} from "ironbean";
 
-export function useBean<T>(Class: new (...any: any[]) => T): T {
-    const beanRef = useRef<T>();
+export function useBean<T>(dependency: new (...any: any[]) => T): T {
     const componentAppContext = useContext(reactContext)
-
-    if (beanRef.current === undefined) {
-        const context: ApplicationContext = componentAppContext || getBaseApplicationContext();
-        beanRef.current = context.getBean(Class);
-    }
+    const getContext = () => componentAppContext ?? getBaseApplicationContext();
+    const [instance, setInstance] = useState<T>(() => getContext().getBean(dependency));
 
     useEffect(() => {
-        beanRef.current = undefined;
+        setInstance(getContext().getBean(dependency));
     }, [componentAppContext])
 
-    return beanRef.current;
+    return instance;
 }
 
 const reactContext = createContext<ApplicationContext|null>(null);
