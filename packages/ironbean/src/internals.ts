@@ -4,7 +4,7 @@ export * from "./plugin";
 export * from './lazy';
 export * from "./zaop";
 export * from "./decorators";
-export * from "./provdeScope";
+export * from "./provideScope";
 export * from "./autowired";
 export * from "./containerStorage";
 export * from "./component";

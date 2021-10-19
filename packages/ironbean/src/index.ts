@@ -15,6 +15,7 @@ export {
     TestingContext,
     ComponentContext,
     IFactory,
+    Dependency,
     Scope,
     needScope,
     provideScope,
