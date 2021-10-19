@@ -16,7 +16,7 @@
     "author": "Zdeněk Mazurák",
     "license": "MIT",
     "dependencies": {
-        "ironbean": "~1.0.0",
+        "ironbean": "~1.0.3",
         "react": "^16.13.1 || ^17.0.0"
     },
     "devDependencies": {

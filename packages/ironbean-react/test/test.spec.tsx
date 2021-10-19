@@ -3,8 +3,7 @@ import {
     autowired,
     component,
     destroyContext,
-    getBaseApplicationContext,
-    getDefaultScope,
+    getBaseApplicationContext, Scope,
     scope
 } from "ironbean";
 import React, {FunctionComponent} from "react";
@@ -24,7 +23,7 @@ describe("test", () => {
 
 
     it("test 1", (done) => {
-        const pageScope = getDefaultScope().createScope("pageScope");
+        const pageScope = Scope.create("pageScope");
 
         @component
         @scope(pageScope)
@@ -32,8 +31,8 @@ describe("test", () => {
             @autowired context!: ApplicationContext;
         }
 
-        const page1 = applicationContext.getBean(Page);
-        const page2 = applicationContext.getBean(Page);
+        const page1 = applicationContext.createOrGetParentContext(pageScope).getBean(Page);
+        const page2 = applicationContext.createOrGetParentContext(pageScope).getBean(Page);
 
         const ChildComponent: FunctionComponent = () => {
             const page = useBean(Page);
