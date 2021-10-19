@@ -1,12 +1,15 @@
 import {
+    ApplicationContext,
     ComponentContainer,
     ComponentContext,
     constants,
+    Container,
     currentComponentContainer,
     currentComponentContainerAction,
     currentContainer,
     Dependency,
-    getBaseContainer, LazyToken,
+    getBaseContainer,
+    LazyToken,
     markAsOverwrittenDefineProperty,
     plugins,
     TClass
@@ -154,16 +157,19 @@ export function createMethodDecorator(settings: IMethodDecoratorSettings): Metho
 }
 
 interface IClassDecoratorSettings {
-    constructor?: (context: ClassDecoratorContext) => void
+    customContextFactory?: (context: ClassDecoratorContext) => ApplicationContext;
+    constructor?: (context: ClassDecoratorContext) => void;
 }
 
 interface ClassDecoratorContext extends DecoratorContext {
+    Class: TClass<any>;
+    args: any[];
     callConstructor(): any;
 }
 
 class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDecoratorContext {
-    private Class: TClass<any>;
-    private args: any[];
+    public Class: TClass<any>;
+    public args: any[];
 
     constructor(instance: any, Class: TClass<any>, args: any[]) {
         super(instance);
@@ -188,11 +194,17 @@ export function createClassDecorator(settings: IClassDecoratorSettings) {
         if (settings.constructor) {
             const constructor = settings.constructor;
             const extended = function (this: any, ...args: any[]) {
-                const componentContainer = new ComponentContainer(currentContainer ?? getBaseContainer());
+                let customContainer;
+                const context = new ClassDecoratorContextImpl(this, Class, args);
+                if (settings.customContextFactory) {
+                    customContainer = settings.customContextFactory(context).getBean(Container);
+                }
+                const componentContainer = new ComponentContainer(customContainer ?? currentContainer ?? getBaseContainer());
                 Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
-                constructor(new ClassDecoratorContextImpl(this, Class, args));
+                constructor(context);
             }
 
+            Object.setPrototypeOf(extended, Class);
             extended.prototype = Class.prototype;
             extended.prototype.constructor = extended;
 

@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import {
+    ApplicationContext,
     Component,
-    ComponentContainer,
     ComponentType,
     constants,
-    currentComponentContainerAction,
+    createClassDecorator,
     currentContainer,
     Dependency,
     DependencyToken,
@@ -71,26 +71,21 @@ export function postConstruct<T>(target: T, propertyName: string) {
     Reflect.defineMetadata(constants.postConstruct, true, target, propertyName);
 }
 
-export function needScope(scope: Scope): any {
-    return function (Class: any) {
-        const extended = function (this: any, ...args: any[]) {
+export function needScope(scope: Scope) {
+    return createClassDecorator({
+        customContextFactory(context) {
             if (currentContainer === undefined) {
-                throw new Error(Component.create(Class).name +  " must be initialized via [provideScope] " + scope + ".");
+                throw new Error(Component.create(context.Class).name +  " must be initialized via [provideScope] " + scope + ".");
             }
             const container = currentContainer.getParentContainerByScope(scope);
             if (container === undefined) {
-                throw new Error(Component.create(Class).name + " initialized with different scope provided, please provide scope " + scope + ".");
+                throw new Error(Component.create(context.Class).name + " initialized with different scope provided, please provide scope " + scope + ".");
             }
 
-            const componentContainer = new ComponentContainer(container);
-            currentComponentContainerAction(componentContainer, () => Class.apply(this, args));
-            Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
+            return container.getBean(ApplicationContext);
+        },
+        constructor(context) {
+            context.callConstructor()
         }
-        Object.setPrototypeOf(extended, Class);
-
-        extended.prototype = Class.prototype;
-        extended.prototype.constructor = extended;
-
-        return extended;
-    }
+    });
 }
