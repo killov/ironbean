@@ -56,6 +56,10 @@ export abstract class Component<T = any> implements IConstructable<T> {
 
     abstract setType(type: ComponentType): void;
 
+    public isUnknownType(): boolean {
+        return false;
+    }
+
     abstract construct(container: ComponentContainer): T;
 
     abstract postConstruct(_container: ComponentContainer, _instance: T): void;
@@ -99,6 +103,10 @@ export class ClassComponent<T> extends Component<T> {
         this._Class = Class;
     }
 
+    public isUnknownType(): boolean {
+        return (this.Class as any) === Object;
+    }
+
     public getScope(): ScopeImpl {
         return Reflect.getMetadata(constants.scope, this._Class) ?? getDefaultScope();
     }
@@ -113,10 +121,13 @@ export class ClassComponent<T> extends Component<T> {
 
     private getConstructDependencyList(): Component[] {
         const Classes = Reflect.getOwnMetadata("design:paramtypes", this._Class) as any[] || [];
-        const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[] ?? []
-        const lazy = Reflect.getOwnMetadata(constants.lazy, this._Class) as any[] ?? []
+        const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[] ?? [];
+        const lazy = Reflect.getOwnMetadata(constants.lazy, this._Class) as any[] ?? [];
+        const components = ClassComponent.getComponents(Classes, objectKeys, lazy);
 
-        return ClassComponent.getComponents(Classes, objectKeys, lazy);
+        this.validateConstructorParams(components);
+
+        return components;
     }
 
     public construct(container: ComponentContainer): T {
@@ -149,6 +160,14 @@ export class ClassComponent<T> extends Component<T> {
         });
     }
 
+    private validateConstructorParams(components: Component[]) {
+        for (let i = 0; i < components.length; i++) {
+            const component = components[i];
+            if (component.isUnknownType()) {
+                throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
+            }
+        }
+    }
 
     public postConstruct(container: ComponentContainer, instance: any) {
         const Class = this._Class;

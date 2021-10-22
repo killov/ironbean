@@ -280,6 +280,18 @@ describe("test", () => {
         expect(b.a.b).toBe(20);
     })
 
+    it("missing param type", () => {
+        @component
+        class A {
+            constructor(b) {
+            }
+        }
+
+        expect(() => {
+            applicationContext.getBean(A);
+        }).toThrowError("The parameter at index 0 of constructor Class A could recognize the type.");
+    });
+
     it("lazy autowired", () => {
         @component
         class A {
