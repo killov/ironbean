@@ -8,6 +8,7 @@ import {
     Container,
     ContainerComponent,
     Dependency,
+    DependencyComponent,
     Factory,
     FunctionFactory,
     IConstructable,
@@ -69,6 +70,9 @@ export class TestContainer extends Container {
             }
             if (component instanceof ClassComponent) {
                 return this.testProvider.mockClass(component.Class as any);
+            }
+            if (component instanceof DependencyComponent) {
+                return this.testProvider.mockUnknown<T>(component.key);
             }
         }
 

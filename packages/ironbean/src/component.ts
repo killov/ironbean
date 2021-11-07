@@ -205,7 +205,7 @@ export class ClassComponent<T> extends Component<T> {
 }
 
 export class DependencyComponent<T> extends Component<T> {
-    private readonly key: DependencyToken<T>
+    public readonly key: DependencyToken<T>
 
     public static create<T>(key: DependencyToken<T>): DependencyComponent<T> {
         return new DependencyComponent<T>(key);

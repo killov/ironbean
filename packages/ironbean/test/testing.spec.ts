@@ -82,8 +82,8 @@ describe("testing", () => {
         expect(ia1).toBe(ia3);
         expect(ia1).toBe(ia4);
 
-        expect(testingContext.getBean(key)).toBe("datata");
-        expect(testingContext.getBean(key2)).toBe("datata22");
+        expect(testingContext.getBean(key)).toBe(testingContext.getBean(key));
+        expect(testingContext.getBean(key2)).toBe(testingContext.getBean(key2));
 
         testingContext.getMock(a).getText = () => "ahoja";
 
@@ -156,7 +156,7 @@ describe("testing", () => {
         const acko = DependencyToken.create<A>("acko");
         take(acko).setFactory(() => new A());
 
-        expect(testingContext.getBean(acko).getA()).toBe("a");
+        expect(testingContext.getBean(acko).getA()).toBe(undefined);
 
         destroyContext();
         testingContext = getBaseTestingContext();
@@ -168,8 +168,20 @@ describe("testing", () => {
         testingContext.disableMock(acko);
         testingContext.enableMock(acko);
 
-        expect(testingContext.getBean(acko).getA()).toBe("a");
+        expect(testingContext.getBean(acko).getA()).toBe(undefined);
     })
+
+    it("unknown dependency mock", () => {
+        interface I {
+            test(): void;
+            a: number;
+        }
+        const token = DependencyToken.create<I>("token");
+        const mock = testingContext.getBean(token);
+        mock.test();
+        mock.a = 9;
+        expect(mock.a).toBe(9);
+    });
 
     it("set Mock", () => {
         @component
