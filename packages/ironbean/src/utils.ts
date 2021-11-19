@@ -8,7 +8,7 @@ export function getAllPropertyNames(obj: object) {
 }
 
 export function cacheMap<K, V>(map: Map<K,V>, key: K, factory: () => V): V {
-    let data = map.get(this.propertyName);
+    let data = map.get(key);
 
     if (!data) {
         data = factory();
