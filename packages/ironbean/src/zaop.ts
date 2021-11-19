@@ -1,5 +1,6 @@
 import {
     ApplicationContext,
+    cacheMap,
     ComponentContainer,
     ComponentContext,
     constants,
@@ -14,6 +15,7 @@ import {
 
 interface DecoratorContext {
     componentContext: ComponentContext;
+    data: Map<any, any>;
 }
 
 interface PropertyDecoratorContext extends DecoratorContext {
@@ -23,8 +25,20 @@ interface PropertyDecoratorContext extends DecoratorContext {
 abstract class DecoratorContextImpl implements DecoratorContext {
     protected readonly instance: object;
 
-    constructor(instance: object) {
+    protected constructor(instance: object) {
         this.instance = instance;
+    }
+
+    abstract get data(): Map<any, any>;
+
+    get instanceData(): Map<any, any> {
+        let data = Reflect.getOwnMetadata(constants.componentInstanceData, this.instance);
+        if (!data) {
+            data = new Map<any, any>();
+            Reflect.defineMetadata(constants.componentInstanceData, data, this.instance);
+        }
+
+        return data;
     }
 
     get componentContext (): ComponentContext {
@@ -43,6 +57,10 @@ class PropertyDecoratorContextImpl extends DecoratorContextImpl implements Prope
 
     get type(): Dependency<any>|undefined {
         return resolveType(this.instance, this.propertyName);
+    }
+
+    get data(): Map<any, any> {
+        return cacheMap(this.instanceData, this.propertyName, () => new Map<any, any>());
     }
 }
 
@@ -127,16 +145,22 @@ interface MethodDecoratorContext extends DecoratorContext {
 
 class MethodDecoratorContextImpl extends DecoratorContextImpl implements MethodDecoratorContext {
     private readonly method: () => any;
+    private readonly propertyName: string|symbol;
     public readonly args: any[];
 
-    constructor(instance: object, method: () => any, args: any) {
+    constructor(instance: object, propertyName: string|symbol, method: () => any, args: any) {
         super(instance);
+        this.propertyName = propertyName;
         this.method = method;
         this.args = args;
     }
 
     callMethod(): any {
         return this.method();
+    }
+
+    get data(): Map<any, any> {
+        return cacheMap(this.instanceData, this.propertyName, () => new Map<any, any>());
     }
 }
 
@@ -145,7 +169,7 @@ export function createMethodDecorator(settings: IMethodDecoratorSettings): Metho
         const call = descriptor.value;
         descriptor.value = function(this: any, ...args: any[]) {
             if (settings.call) {
-                return settings.call(new MethodDecoratorContextImpl(this, () => call.apply(this, args), args))
+                return settings.call(new MethodDecoratorContextImpl(this, propertyName, () => call.apply(this, args), args))
             }
             return target[propertyName];
         };
@@ -165,6 +189,7 @@ interface ClassDecoratorContext extends DecoratorContext {
 }
 
 class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDecoratorContext {
+    private static DATA = Symbol();
     public Class: TClass<any>;
     public args: any[];
 
@@ -183,6 +208,10 @@ class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDec
 
     get componentContainer(): ComponentContainer {
         return this.componentContext.getBean(ComponentContainer);
+    }
+
+    get data(): Map<any, any> {
+        return cacheMap(this.instanceData, ClassDecoratorContextImpl.DATA, () => new Map<any, any>());
     }
 }
 
