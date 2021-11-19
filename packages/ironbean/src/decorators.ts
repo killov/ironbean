@@ -4,8 +4,8 @@ import {
     Component,
     ComponentType,
     constants,
+    containerStorage,
     createClassDecorator,
-    currentContainer,
     Dependency,
     DependencyToken,
     Scope,
@@ -74,10 +74,10 @@ export function postConstruct<T>(target: T, propertyName: string) {
 export function needScope(scope: Scope) {
     return createClassDecorator({
         customContextFactory(context) {
-            if (currentContainer === undefined) {
+            if (containerStorage.currentContainer === undefined) {
                 throw new Error(Component.create(context.Class).name +  " must be initialized via [provideScope] " + scope + ".");
             }
-            const container = currentContainer.getParentContainerByScope(scope);
+            const container = containerStorage.currentContainer.getParentContainerByScope(scope);
             if (container === undefined) {
                 throw new Error(Component.create(context.Class).name + " initialized with different scope provided, please provide scope " + scope + ".");
             }

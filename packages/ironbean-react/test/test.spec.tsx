@@ -3,12 +3,15 @@ import {
     autowired,
     component,
     destroyContext,
-    getBaseApplicationContext, Scope,
+    getBaseApplicationContext,
+    Scope,
     scope
 } from "ironbean";
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, useState} from "react";
+import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 import {ApplicationContextProvider, useBean} from "../src";
+import {act} from "react-dom/test-utils";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -54,6 +57,45 @@ describe("test", () => {
         }
 
         ReactDOMServer.renderToString(<Top />);
+        done();
+    });
+
+    it("destroy container", (done) => {
+        const elm = document.createElement("div");
+
+        @component
+        class Page {
+            @autowired context!: ApplicationContext;
+        }
+
+        let page1 = applicationContext.getBean(Page);
+        let invalidate;
+
+        const ChildComponent: FunctionComponent = () => {
+            const page = useBean(Page);
+            [, invalidate] = useState(1);
+            console.log(page);
+            expect(page).toBe(page1);
+
+            return (
+                <div></div>
+            );
+        }
+
+        const Top: FunctionComponent = () => {
+            return (
+                <ChildComponent />
+            );
+        }
+
+        act(() => {
+            ReactDOM.render(<Top />, elm);
+        });
+
+        destroyContext();
+        invalidate(2);
+        page1 = applicationContext.getBean(Page);
+
         done();
     });
 });

@@ -18,7 +18,7 @@ import {
     type
 } from "../src";
 import {Container} from "../src/container";
-import {currentComponentContainer} from "../src/containerStorage";
+import {containerStorage} from "../src/containerStorage";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -29,7 +29,7 @@ describe("test", () => {
     })
 
     afterEach(() => {
-        expect(currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
+        expect(containerStorage.currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
         destroyContext();
     });
 

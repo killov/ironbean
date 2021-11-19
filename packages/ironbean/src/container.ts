@@ -2,11 +2,13 @@ import {
     Component,
     component,
     ComponentContainer,
-    ComponentType, currentComponentContainerAction,
+    ComponentType,
+    containerStorage,
     Dependency,
     DependencyStorage,
     getDefaultScope,
-    IConstructable, Scope,
+    IConstructable,
+    Scope,
     ScopeImpl,
     ScopeType
 } from "./internals";
@@ -123,7 +125,7 @@ export class Container {
     }
 
     protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
-        return currentComponentContainerAction(componentContainer, () => {
+        return containerStorage.currentComponentContainerAction(componentContainer, () => {
             return component.construct(componentContainer)
         });
     }

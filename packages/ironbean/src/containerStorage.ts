@@ -1,53 +1,56 @@
 import {ComponentContainer, Container, TestContainer} from "./internals";
 
-let container: Container | null;
+class ContainerStorage {
+    private container: Container | null = null;
+    public currentComponentContainer: ComponentContainer | undefined;
+    public currentContainer: Container | undefined;
 
-export function getBaseContainer(): Container {
-    if (!container) {
-        container = new Container();
-        container.init();
+    getBaseContainer(): Container {
+        if (!this.container) {
+            this.container = new Container();
+            this.container.init();
+        }
+
+        return this.container;
     }
 
-    return container;
-}
+    getTestContainer(): TestContainer {
+        if (!this.container) {
+            this.container = new TestContainer();
+            this.container.init();
+        }
 
-export function getTestContainer(): TestContainer {
-    if (!container) {
-        container = new TestContainer();
-        container.init();
+        if (!(this.container instanceof TestContainer)) {
+            throw new Error("You can't get test container because another container already exists.");
+        }
+
+        return this.container;
     }
 
-    if (!(container instanceof TestContainer)) {
-        throw new Error("You can't get test container because another container already exists.");
+    destroyContainer(): void {
+        this.currentComponentContainer = undefined;
+        this.container = null;
     }
 
-    return container;
-}
+    currentComponentContainerAction<T>(componentContainer: ComponentContainer, action: () => T): T {
+        const oldComponentContainer = this.currentComponentContainer;
+        this.currentComponentContainer = componentContainer;
+        try {
+            return action();
+        } finally {
+            this.currentComponentContainer = oldComponentContainer;
+        }
+    }
 
-export function destroyContainer(): void {
-    currentComponentContainer = undefined;
-    container = null;
-}
-
-export let currentComponentContainer: ComponentContainer | undefined;
-export let currentContainer: Container | undefined;
-
-export function currentComponentContainerAction<T>(componentContainer: ComponentContainer, action: () => T): T {
-    const oldComponentContainer = currentComponentContainer;
-    currentComponentContainer = componentContainer;
-    try {
-        return action();
-    } finally {
-        currentComponentContainer = oldComponentContainer;
+    currentContainerAction<T>(container: Container, action: () => T): T {
+        const oldComponentContainer = this.currentContainer;
+        this.currentContainer = container;
+        try {
+            return action();
+        } finally {
+            this.currentContainer = oldComponentContainer;
+        }
     }
 }
 
-export function currentContainerAction<T>(container: Container, action: () => T): T {
-    const oldComponentContainer = currentContainer;
-    currentContainer = container;
-    try {
-        return action();
-    } finally {
-        currentContainer = oldComponentContainer;
-    }
-}
+export const containerStorage = new ContainerStorage();

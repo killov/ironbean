@@ -4,11 +4,8 @@ import {
     ComponentContext,
     constants,
     Container,
-    currentComponentContainer,
-    currentComponentContainerAction,
-    currentContainer,
+    containerStorage,
     Dependency,
-    getBaseContainer,
     LazyToken,
     markAsOverwrittenDefineProperty,
     plugins,
@@ -110,11 +107,11 @@ function getComponentContainerFromInstance(target: object): ComponentContainer {
         }
     }
 
-    return Reflect.getMetadata(constants.componentContainer, target) || currentComponentContainer || createAndSetComponentContainer(target);
+    return Reflect.getMetadata(constants.componentContainer, target) || containerStorage.currentComponentContainer || createAndSetComponentContainer(target);
 }
 
 function createAndSetComponentContainer(target: any) {
-    const componentContainer = new ComponentContainer(getBaseContainer());
+    const componentContainer = new ComponentContainer(containerStorage.getBaseContainer());
     Reflect.defineMetadata(constants.componentContainer, componentContainer, target);
     return componentContainer;
 }
@@ -178,7 +175,7 @@ class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDec
     }
 
     callConstructor(): any {
-        return currentComponentContainerAction(
+        return containerStorage.currentComponentContainerAction(
             this.componentContainer,
             () => this.Class.apply(this.instance, this.args)
         );
@@ -199,7 +196,7 @@ export function createClassDecorator(settings: IClassDecoratorSettings) {
                 if (settings.customContextFactory) {
                     customContainer = settings.customContextFactory(context).getBean(Container);
                 }
-                const componentContainer = new ComponentContainer(customContainer ?? currentContainer ?? getBaseContainer());
+                const componentContainer = new ComponentContainer(customContainer ?? containerStorage.currentContainer ?? containerStorage.getBaseContainer());
                 Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
                 constructor(context);
             }

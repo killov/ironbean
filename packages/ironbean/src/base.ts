@@ -3,12 +3,9 @@ import {
     component,
     ComponentType,
     Container,
-    currentContainerAction,
+    containerStorage,
     Dependency,
-    destroyContainer,
     FunctionFactory,
-    getBaseContainer,
-    getTestContainer,
     Scope,
     ScopeImpl,
     TClass,
@@ -28,7 +25,7 @@ export class ApplicationContext {
     }
 
     public provideScope<T>(action: () => T) {
-        return currentContainerAction(this.container, action);
+        return containerStorage.currentContainerAction(this.container, action);
     }
 
     public createOrGetParentContext(scope: Scope): ApplicationContext {
@@ -72,17 +69,17 @@ export class TestingContext extends ApplicationContext {
 }
 
 export function getBaseApplicationContext(): ApplicationContext {
-    const container = getBaseContainer();
+    const container = containerStorage.getBaseContainer();
     return container.getBean(ApplicationContext);
 }
 
 export function getBaseTestingContext(): TestingContext {
-    const container = getTestContainer();
+    const container = containerStorage.getTestContainer();
     return container.getBean(TestingContext);
 }
 
 export function destroyContext(): void {
-    destroyContainer();
+    containerStorage.destroyContainer();
 }
 
 export const ApplicationContextComponent = Component.create(ApplicationContext);
