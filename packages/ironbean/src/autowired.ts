@@ -1,13 +1,8 @@
-import {cacheMap, createPropertyDecorator} from "./internals";
-
-const CACHE = Symbol("CACHE");
+import {createPropertyDecorator} from "./internals";
 
 export const autowired = createPropertyDecorator({
+    isConstant: false,
     get(context) {
-        return cacheMap(
-            context.data,
-            CACHE,
-            () => context.componentContext.getBean(context.type as any)
-        );
+        return context.componentContext.getBean(context.type as any)
     }
 });

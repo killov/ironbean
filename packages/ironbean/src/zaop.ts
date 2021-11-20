@@ -5,7 +5,7 @@ import {
     ComponentContext,
     constants,
     Container,
-    containerStorage,
+    containerStorage, defineProperty,
     Dependency,
     LazyToken,
     markAsOverwrittenDefineProperty,
@@ -62,9 +62,20 @@ class PropertyDecoratorContextImpl extends DecoratorContextImpl implements Prope
     get data(): Map<any, any> {
         return cacheMap(this.instanceData, this.propertyName, () => new Map<any, any>());
     }
+
+    set value(value: any) {
+        defineProperty(this.instance, this.propertyName, {
+            value: value
+        });
+    }
+
+    get value(): any {
+        return Object.getOwnPropertyDescriptor(this.instance, this.propertyName)?.value;
+    }
 }
 
 interface IPropertyDecoratorSettings {
+    isConstant?: boolean;
     get?: (context: PropertyDecoratorContext) => void
     set?: (context: PropertyDecoratorContext, value: any) => void
 }
@@ -75,7 +86,14 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
         const get = function(this: any) {
             if (settings.get) {
                 const context = new PropertyDecoratorContextImpl(this, propertyName);
-                return settings.get(context);
+                if (context.value) {
+                    return context.value;
+                }
+                const value = settings.get(context);
+                if (settings.isConstant) {
+                    context.value = value;
+                }
+                return value;
             }
             return target[propertyName];
         };
