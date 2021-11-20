@@ -1,8 +1,8 @@
 const propOverridesSymbol = Symbol()
-const origDefineProperty = Object.defineProperty;
+export const defineProperty = Object.defineProperty;
 Object.defineProperty = function(o: any, p: string | number | symbol, attributes: PropertyDescriptor & ThisType<any>): any {
     if (!isOverwritten(o, p)) {
-        return origDefineProperty(o, p, attributes);
+        return defineProperty(o, p, attributes);
     } else {
         // just set value
         o[p] = attributes.value;
