@@ -45,6 +45,10 @@ export class TestContainer extends Container {
         }
     }
 
+    protected isConstructable<T>(component: Component<T>): boolean {
+        return this.mockFactories.has(component) || super.isConstructable(component);
+    }
+
     public setMock<T, K extends T>(dependency: Dependency<T>, factory: TClass<K>): void {
         const mockedComponent = this.getComponent(Component.create(dependency));
         const factoryComponent = Component.create(factory);

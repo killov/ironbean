@@ -207,6 +207,24 @@ describe("testing", () => {
         expect(testingContext.getBean(A)).toBe(mock);
     })
 
+    it("set Mock factory without component", () => {
+        class A {
+            a: string = "a";
+
+            getA() {
+                return "a";
+            }
+        }
+
+        class B extends A {
+
+        }
+
+        const mock = new B();
+        testingContext.setMockFactory(A, () => mock);
+        expect(testingContext.getBean(A).getA()).toBe("a");
+        expect(testingContext.getBean(A)).toBe(mock);
+    })
 
     it("custom mocks", () => {
 

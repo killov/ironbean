@@ -45,7 +45,7 @@ export class Container {
 
         if (instance === undefined) {
             if (component.getScope() === this.getScope() || component.isApplicationContext()) {
-                if (!component.isConstructable()) {
+                if (!this.isConstructable(component)) {
                     throw new Error("I can't instantiate a " + component.name + " that is not a component.");
                 }
                 const type = component.getType();
@@ -73,6 +73,10 @@ export class Container {
         }
 
         return instance as T;
+    }
+
+    protected isConstructable<T>(component: Component<T>): boolean {
+        return component.isConstructable();
     }
 
     public getContainerForScope(scope: ScopeImpl, component?: Component): Container {
