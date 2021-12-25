@@ -5,6 +5,7 @@ import {
     ComponentFactory,
     ComponentType,
     DependencyComponent,
+    DependencyToken,
     IFactory,
     LazyComponent,
     LazyToken,
@@ -34,7 +35,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
             return Component.create<T>(object.dependency).toLazy();
         }
 
-        const component = object.prototype ? ClassComponent.create<T>(object) : DependencyComponent.create<T>(object);
+        const component = object instanceof DependencyToken ? DependencyComponent.create<T>(object as any) : ClassComponent.create<T>(object);
         Reflect.defineMetadata(component$, component, object)
 
         return component;

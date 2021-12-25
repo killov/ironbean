@@ -7,7 +7,8 @@ import {
     DependencyToken,
     destroyContext,
     getBaseApplicationContext,
-    IFactory, lazy,
+    IFactory,
+    lazy,
     needScope,
     postConstruct,
     provideScope,
@@ -19,6 +20,7 @@ import {
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
+import {Component} from "../src/component";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -353,6 +355,32 @@ describe("test", () => {
         expect(b.a3.b).toBe(20);
         expect(b.a3).toBeInstanceOf(A);
         expectDependenciesCount(5);
+    })
+
+    it("autowired property in component is constant", () => {
+        @component
+        class C {
+
+        }
+
+        class B {
+            @autowired c: C;
+        }
+
+        @component
+        class A {
+            @autowired c: C;
+        }
+        const a = applicationContext.getBean(A);
+        const b = new B();
+
+        console.log(0);
+        expect(a.c).toBe(a.c);
+        expect(b.c).toBe(b.c);
+        console.log(1);
+        expect(b.c).toBe(b.c);
+        expect(Object.getOwnPropertyDescriptor(a, "c")?.value).toBe(a.c);
+        expect(Object.getOwnPropertyDescriptor(b, "c")?.value).toBe(undefined);
     })
 
     it("circular dependency", () => {

@@ -16,6 +16,7 @@ import {
 } from "./internals";
 
 interface DecoratorContext {
+    isComponent: boolean;
     componentContext: ComponentContext;
     data: Map<any, any>;
 }
@@ -46,6 +47,10 @@ abstract class DecoratorContextImpl implements DecoratorContext {
         }
 
         return data;
+    }
+
+    get isComponent(): boolean {
+        return this.component.isComponent();
     }
 
     get componentContext (): ComponentContext {
@@ -82,23 +87,26 @@ class PropertyDecoratorContextImpl extends DecoratorContextImpl implements Prope
 }
 
 interface IPropertyDecoratorSettings {
-    isConstant?: boolean;
+    isConstant?: boolean|((context: PropertyDecoratorContext) => void);
     get?: (context: PropertyDecoratorContext) => void
     set?: (context: PropertyDecoratorContext, value: any) => void
 }
 
 export function createPropertyDecorator(settings: IPropertyDecoratorSettings): PropertyDecorator {
-    const decorator = function (target: any, propertyName: string|symbol) {
+    const decorator: PropertyDecorator = function (target: any, propertyName: string|symbol) {
+        const targetComponent = Component.create(target.constructor);
         const set = () => {};
         const get = function(this: any) {
             if (settings.get) {
-                const context = new PropertyDecoratorContextImpl(Component.create(target), this, propertyName);
+                const context = new PropertyDecoratorContextImpl(targetComponent, this, propertyName);
                 if (context.value) {
                     return context.value;
                 }
                 const value = settings.get(context);
                 if (settings.isConstant) {
-                    context.value = value;
+                    if (settings.isConstant === true || (typeof settings.isConstant === "function" && settings.isConstant(context))) {
+                        context.value = value;
+                    }
                 }
                 return value;
             }
