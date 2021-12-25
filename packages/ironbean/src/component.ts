@@ -95,15 +95,6 @@ export class Factory<T> implements IConstructable<T> {
     }
 
     public construct(container: ComponentContainer): T {
-        return this.factoryConstruct(container);
-    }
-
-    private isFactoryClass(func: any): func is TClass<IFactory<T>> {
-        return typeof func === 'function'
-            && func.prototype.create !== undefined;
-    }
-
-    protected factoryConstruct(container: ComponentContainer): T {
         if (this.isFactoryClass(this.factory)) {
             const factoryClass = this.factory;
             const factory = container.getBean(factoryClass);
@@ -113,6 +104,11 @@ export class Factory<T> implements IConstructable<T> {
         }
 
         return this.factory(container.getBean(ComponentContext));
+    }
+
+    private isFactoryClass(func: any): func is TClass<IFactory<T>> {
+        return typeof func === 'function'
+            && func.prototype.create !== undefined;
     }
 
     isConstructable(): boolean {
