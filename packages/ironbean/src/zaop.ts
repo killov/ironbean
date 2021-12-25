@@ -194,7 +194,7 @@ class MethodDecoratorContextImpl extends DecoratorContextImpl implements MethodD
 }
 
 export function createMethodDecorator(settings: IMethodDecoratorSettings): MethodDecorator {
-    const decorator = function (target: any, propertyName: string|symbol, descriptor: TypedPropertyDescriptor<any>) {
+    const decorator: MethodDecorator = function (target: any, propertyName: string|symbol, descriptor: TypedPropertyDescriptor<any>) {
         const call = descriptor.value;
         descriptor.value = function(this: any, ...args: any[]) {
             if (settings.call) {
