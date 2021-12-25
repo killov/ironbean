@@ -99,9 +99,6 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
         const get = function(this: any) {
             if (settings.get) {
                 const context = new PropertyDecoratorContextImpl(targetComponent, this, propertyName);
-                if (context.value) {
-                    return context.value;
-                }
                 const value = settings.get(context);
                 if (settings.isConstant) {
                     if (settings.isConstant === true || (typeof settings.isConstant === "function" && settings.isConstant(context))) {
@@ -110,7 +107,6 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
                 }
                 return value;
             }
-            return target[propertyName];
         };
 
         if (delete target[propertyName]) {
