@@ -78,6 +78,8 @@ export abstract class Component<T = any> implements IConstructable<T> {
 
     abstract isConstructable(): boolean;
 
+    abstract isComponent(): boolean;
+
     abstract get name(): string;
 }
 

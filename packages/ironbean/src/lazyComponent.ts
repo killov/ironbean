@@ -42,4 +42,8 @@ export class LazyComponent<T> extends Component<T> {
     getComponent(): Component {
         return this.component.getComponent().toLazy();
     }
+
+    isComponent(): boolean {
+        return this.component.isComponent();
+    }
 }

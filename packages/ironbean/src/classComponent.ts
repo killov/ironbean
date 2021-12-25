@@ -122,7 +122,11 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     isConstructable(): boolean {
-        return Reflect.getOwnMetadata(constants.component, this._Class) === true || this.factory !== undefined;
+        return this.isComponent() || this.factory !== undefined;
+    }
+
+    isComponent(): boolean {
+        return Reflect.getOwnMetadata(constants.component, this._Class) === true;
     }
 
     get name(): string {

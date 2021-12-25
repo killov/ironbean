@@ -1,6 +1,7 @@
 import {
     ApplicationContext,
     cacheMap,
+    Component,
     ComponentContainer,
     ComponentContext,
     constants,
@@ -25,14 +26,19 @@ interface PropertyDecoratorContext extends DecoratorContext {
 
 abstract class DecoratorContextImpl implements DecoratorContext {
     protected readonly instance: object;
+    private component: Component;
 
-    protected constructor(instance: object) {
+    protected constructor(component: Component, instance: object) {
+        this.component = component;
         this.instance = instance;
     }
 
     abstract get data(): Map<any, any>;
 
     get instanceData(): Map<any, any> {
+        if (!this.component.isComponent()) {
+            return new Map<any, any>();
+        }
         let data = Reflect.getOwnMetadata(constants.componentInstanceData, this.instance);
         if (!data) {
             data = new Map<any, any>();
@@ -51,8 +57,8 @@ abstract class DecoratorContextImpl implements DecoratorContext {
 class PropertyDecoratorContextImpl extends DecoratorContextImpl implements PropertyDecoratorContext {
     private readonly propertyName: string | symbol;
 
-    constructor(instance: object, propertyName: string|symbol) {
-        super(instance);
+    constructor(component: Component, instance: object, propertyName: string|symbol) {
+        super(component, instance);
         this.propertyName = propertyName;
     }
 
@@ -86,7 +92,7 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
         const set = () => {};
         const get = function(this: any) {
             if (settings.get) {
-                const context = new PropertyDecoratorContextImpl(this, propertyName);
+                const context = new PropertyDecoratorContextImpl(Component.create(target), this, propertyName);
                 if (context.value) {
                     return context.value;
                 }
@@ -167,8 +173,8 @@ class MethodDecoratorContextImpl extends DecoratorContextImpl implements MethodD
     private readonly propertyName: string|symbol;
     public readonly args: any[];
 
-    constructor(instance: object, propertyName: string|symbol, method: () => any, args: any) {
-        super(instance);
+    constructor(component: Component, instance: object, propertyName: string|symbol, method: () => any, args: any) {
+        super(component, instance);
         this.propertyName = propertyName;
         this.method = method;
         this.args = args;
@@ -188,7 +194,7 @@ export function createMethodDecorator(settings: IMethodDecoratorSettings): Metho
         const call = descriptor.value;
         descriptor.value = function(this: any, ...args: any[]) {
             if (settings.call) {
-                return settings.call(new MethodDecoratorContextImpl(this, propertyName, () => call.apply(this, args), args))
+                return settings.call(new MethodDecoratorContextImpl(Component.create(target), this, propertyName, () => call.apply(this, args), args))
             }
             return target[propertyName];
         };
@@ -212,8 +218,8 @@ class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDec
     public Class: TClass<any>;
     public args: any[];
 
-    constructor(instance: any, Class: TClass<any>, args: any[]) {
-        super(instance);
+    constructor(component: Component, instance: any, Class: TClass<any>, args: any[]) {
+        super(component, instance);
         this.Class = Class;
         this.args = args;
     }
@@ -240,7 +246,7 @@ export function createClassDecorator(settings: IClassDecoratorSettings) {
             const constructor = settings.constructor;
             const extended = function (this: any, ...args: any[]) {
                 let customContainer;
-                const context = new ClassDecoratorContextImpl(this, Class, args);
+                const context = new ClassDecoratorContextImpl(Component.create(Class), this, Class, args);
                 if (settings.customContextFactory) {
                     customContainer = settings.customContextFactory(context).getBean(Container);
                 }

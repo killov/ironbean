@@ -44,4 +44,8 @@ export class DependencyComponent<T> extends Component<T> {
     get name(): string {
         return this.key.name;
     }
+
+    isComponent(): boolean {
+        return true;
+    }
 }
