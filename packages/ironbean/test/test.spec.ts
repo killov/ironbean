@@ -14,7 +14,6 @@ import {
     provideScope,
     Scope,
     scope,
-    ScopeType,
     take,
     type
 } from "../src";
@@ -666,122 +665,8 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
-    it("scopes singleton", () => {
-        @component
-        class a {
-            test = "sa";
-        }
-
-        @component
-        class b {
-            @autowired a!: a;
-        }
-
-        const ticket = Scope.create("ticket", {type: ScopeType.Singleton});
-
-
-        const key = DependencyToken.create<Object>("key3", {
-            scope: ticket
-        });
-
-        take(key).setFactory(() => new Object());
-
-        @component
-        @scope(ticket)
-        class Ticket {
-            idTicket: number = 10;
-
-            @autowired
-            applicationContext!: ApplicationContext;
-
-            @autowired
-            componentContext!: ComponentContext
-
-            @autowired
-            a!: a;
-
-            constructor(context: ApplicationContext, componentContext: ComponentContext) {
-                expect(context).not.toBe(applicationContext);
-                expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
-                expect(context.getBean(key)).toBe(context.getBean(key));
-                expect(context).toBe(this.applicationContext);
-                expect(componentContext.getBean(ApplicationContext)).toBe(this.applicationContext);
-                expect(componentContext).toBe(this.componentContext);
-            }
-
-            @postConstruct
-            post(context: ApplicationContext, componentContext: ComponentContext) {
-                expect(context).not.toBe(applicationContext);
-                expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
-                expect(context.getBean(key)).toBe(context.getBean(key));
-                expect(context).toBe(this.applicationContext);
-                expect(applicationContext.getBean(a)).toBe(this.a);
-                expect(componentContext.getBean(ApplicationContext)).toBe(this.applicationContext);
-                expect(componentContext).toBe(this.componentContext);
-            }
-        }
-
-        @component
-        @scope(ticket)
-        class TicketData {
-            name: string = "name";
-        }
-
-        expectDependenciesCount(2);
-        const ib1 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
-        const ib2 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
-        const ib3 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
-        const ib4 = applicationContext.getBean(b);
-        expectDependenciesCount(3);
-        const ia1 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
-        const ia2 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
-        const ia3 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
-        const ia4 = applicationContext.getBean(a);
-        expectDependenciesCount(4);
-        const ticket1 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
-        expectDependenciesCount(4);
-        const ticket2 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
-        expectDependenciesCount(4);
-
-        expect(ib1.a).toBe(ia1);
-        expect(ib1).toBe(ib2);
-        expect(ib1).toBe(ib3);
-        expect(ib1).toBe(ib4);
-        expect(ia1).toBe(ia2);
-        expect(ia1).toBe(ia3);
-        expect(ia1).toBe(ia4);
-
-        expect(ticket1.idTicket).toBe(10);
-        expect(ticket2.idTicket).toBe(10);
-        expect(ticket1).toBe(ticket2);
-
-        @component
-        class c {
-            constructor(a: a) {
-                expect(a).toBe(ia1);
-            }
-
-            @postConstruct
-            postConstruct(b: b, c: c) {
-                expect(b).toBe(ib1);
-                expect(c).toBe(this);
-            }
-        }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
-        const ic1 = applicationContext.getBean(c);
-
-        expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
-        expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
-    });
-
     it("scopes combo", () => {
-        const s1 = Scope.create("1", {type: ScopeType.Singleton});
+        const s1 = Scope.create("1");
         const s2 = s1.createScope("2");
 
         @component
@@ -799,10 +684,12 @@ describe("test", () => {
             }
         }
 
-        const a = applicationContext.createOrGetParentContext(s1).getBean(A);
-        const b = applicationContext.createOrGetParentContext(s2).getBean(B);
-        expect(a).toBe(applicationContext.createOrGetParentContext(s1).getBean(A));
-        expect(b.a).toBe(applicationContext.createOrGetParentContext(s1).getBean(A));
+        const context1 = applicationContext.createOrGetParentContext(s1);
+        const context2 = applicationContext.createOrGetParentContext(s2);
+        const a = context1.getBean(A);
+        const b = context2.getBean(B);
+        expect(a).toBe(context1.getBean(A));
+        expect(b.a).toBe(context2.getBean(A));
     })
 
     describe("need scope", () => {

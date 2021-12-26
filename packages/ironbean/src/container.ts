@@ -9,8 +9,7 @@ import {
     getDefaultScope,
     IConstructable,
     Scope,
-    ScopeImpl,
-    ScopeType
+    ScopeImpl
 } from "./internals";
 import {Stack} from "./stack";
 
@@ -19,7 +18,6 @@ export class Container {
     protected readonly storage: DependencyStorage = new DependencyStorage();
     protected readonly parent: Container|null;
     protected readonly scope: ScopeImpl;
-    protected readonly children: Container[] = [];
     protected readonly resolvingStack = new Stack<Component>();
 
     constructor(parent: Container|null = null, scope: ScopeImpl|null = null) {
@@ -111,18 +109,13 @@ export class Container {
             throw new Error("I can't create a container for (" + component.name + ") for scope (" + scope.toString() + "), Please use createOrGetParentContext for manual creation.");
         }
         const childScope = this.getScope().getDirectChildFor(scope);
-        const scopeId = childScope.getId();
-        const container = this.children[scopeId] ?? this.createContainer(childScope);
+        const container = this.createContainer(childScope);
 
         return container.getOrCreateContainerForScope(scope, component);
     }
 
     private createContainer(scope: ScopeImpl): Container {
         const container = new Container(this, scope);
-        const scopeId = scope.getId();
-        if (scope.getType() === ScopeType.Singleton) {
-            this.children[scopeId] = container;
-        }
         container.init();
 
         return container;

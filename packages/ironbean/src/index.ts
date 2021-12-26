@@ -1,6 +1,5 @@
 export {
     ComponentType,
-    ScopeType,
     component,
     autowired,
     type,

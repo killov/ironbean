@@ -13,8 +13,3 @@ export enum ComponentType {
     Singleton,
     Prototype
 }
-
-export enum ScopeType {
-    Singleton,
-    Prototype
-}

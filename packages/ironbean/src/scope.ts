@@ -1,31 +1,21 @@
-import {ScopeType} from "./internals";
-
-interface ISettings {
-    type?: ScopeType;
-}
-
 export abstract class Scope {
-    public static create(name: string, settings?: ISettings): Scope {
-        return defaultScope.createScope(name, settings);
+    public static create(name: string): Scope {
+        return defaultScope.createScope(name);
     }
-    abstract createScope(name: string, settings?: ISettings): Scope;
+    abstract createScope(name: string): Scope;
 }
 
 export class ScopeImpl implements Scope {
-    private static idCounter = 0;
-    private readonly id = ScopeImpl.idCounter++;
     private readonly parent: ScopeImpl|null;
     private readonly name: string;
-    private readonly type: ScopeType;
 
-    constructor(name: string, type: ScopeType, parent: ScopeImpl|null = null) {
+    constructor(name: string, parent: ScopeImpl|null = null) {
         this.parent = parent;
-        this.type = type;
         this.name = name;
     }
 
-    createScope(name: string, settings?: ISettings): Scope {
-        return new ScopeImpl(name, settings?.type ?? ScopeType.Prototype, this);
+    createScope(name: string): Scope {
+        return new ScopeImpl(name, this);
     }
 
     getParent(): ScopeImpl|null {
@@ -35,14 +25,6 @@ export class ScopeImpl implements Scope {
     getAllParents(): ScopeImpl[] {
         const parent = this.getParent();
         return parent === null ? [this] : [this, ...parent.getAllParents()];
-    }
-
-    getType(): ScopeType {
-        return this.type;
-    }
-
-    getId(): number {
-        return this.id;
     }
 
     getDirectChildFor(scope: ScopeImpl): ScopeImpl {
@@ -72,7 +54,7 @@ export class ScopeImpl implements Scope {
     }
 }
 
-const defaultScope = new ScopeImpl("DEFAULT", ScopeType.Singleton);
+const defaultScope = new ScopeImpl("DEFAULT");
 
 export function getDefaultScope(): Scope {
     return defaultScope;
