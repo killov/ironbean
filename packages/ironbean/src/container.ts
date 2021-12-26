@@ -75,7 +75,7 @@ export class Container {
         return instance as T;
     }
 
-    protected isConstructable<T>(component: Component<T>): boolean {
+    protected isConstructable<T>(component: IConstructable<T>): boolean {
         return component.isConstructable();
     }
 
@@ -107,10 +107,10 @@ export class Container {
         if (scope === this.getScope()) {
             return this;
         }
-        const childScope = this.getScope().getDirectChildFor(scope);
         if (component !== undefined) {
             throw new Error("I can't create a container for (" + component.name + ") for scope (" + scope.toString() + "), Please use createOrGetParentContext for manual creation.");
         }
+        const childScope = this.getScope().getDirectChildFor(scope);
         const scopeId = childScope.getId();
         const container = this.children[scopeId] ?? this.createContainer(childScope);
 
@@ -129,6 +129,9 @@ export class Container {
     }
 
     protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
+        if (!this.isConstructable(component)) {
+            throw new Error("I can't instantiate a " + component.name + " that is not constructable.");
+        }
         return containerStorage.currentComponentContainerAction(componentContainer, () => {
             return component.construct(componentContainer)
         });
