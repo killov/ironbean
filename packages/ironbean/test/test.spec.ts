@@ -676,6 +676,9 @@ describe("test", () => {
         const s1 = Scope.create("1");
         const s2 = s1.createScope("2");
 
+        const token = DependencyToken.create("token");
+        take(token).setFactory(() => 1);
+
         @component
         @scope(s1)
         class A {
@@ -686,8 +689,10 @@ describe("test", () => {
         @scope(s2)
         class B {
             @autowired a: A;
+            @autowired @type(token) token: number;
             constructor(a: A, context: ApplicationContext) {
                 expect(a.c).not.toBe(context);
+                expect(this.token).toBe(1);
             }
         }
 
