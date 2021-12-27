@@ -567,7 +567,7 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
-    it("scopes prototype", () => {
+    it("scopes", () => {
         @component
         class a {
             test = "sa";
@@ -579,7 +579,9 @@ describe("test", () => {
         }
 
         const ticket = Scope.create("ticket");
+        const token = DependencyToken.create<Ticket>("token", {scope: ticket});
 
+        take(token).setFactory((ctx) => ctx.getBean(Ticket));
 
         @component
         @scope(ticket)
@@ -588,6 +590,10 @@ describe("test", () => {
 
             @autowired
             applicationContext!: ApplicationContext;
+
+            @autowired
+            @type(token)
+            token!: Ticket;
 
             constructor(context: ApplicationContext) {
                 expect(context).not.toBe(applicationContext);
@@ -600,6 +606,7 @@ describe("test", () => {
                 expect(context).not.toBe(applicationContext);
                 expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
                 expect(context).toBe(this.applicationContext);
+                expect(context.getBean(Ticket)).toBe(this.token);
             }
         }
 
