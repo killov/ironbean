@@ -42,7 +42,8 @@ export class Container {
         const instance = this.storage.getInstance(component);
 
         if (instance === undefined) {
-            if (component.getScope() === this.getScope() || component.isApplicationContext()) {
+            const scope = component.getScope();
+            if (scope === undefined || scope === this.getScope()) {
                 if (!this.isConstructable(component)) {
                     throw new Error("I can't instantiate a " + component.name + " that is not a component.");
                 }
@@ -66,7 +67,7 @@ export class Container {
                 this.runPostConstruct(instance, component, componentContainer);
                 return instance;
             } else {
-                return this.getContainerForScope(component.getScope(), component).getComponentInstance(component);
+                return this.getContainerForScope(scope, component).getComponentInstance(component);
             }
         }
 

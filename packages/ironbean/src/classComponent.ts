@@ -33,7 +33,10 @@ export class ClassComponent<T> extends Component<T> {
         return (this.Class as any) === Object;
     }
 
-    public getScope(): ScopeImpl {
+    public getScope(): ScopeImpl|undefined {
+        if (this.isApplicationContext()) {
+            return undefined;
+        }
         return Reflect.getMetadata(constants.scope, this._Class) ?? getDefaultScope();
     }
 
@@ -114,7 +117,7 @@ export class ClassComponent<T> extends Component<T> {
         return container.getDependencyList(Classes);
     }
 
-    public isApplicationContext(): boolean {
+    private isApplicationContext(): boolean {
         const Class = this._Class;
 
         // @ts-ignore

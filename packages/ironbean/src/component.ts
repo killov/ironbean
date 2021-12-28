@@ -46,7 +46,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
         return this.lazy = this.lazy ?? new LazyComponent(this);
     }
 
-    abstract getScope(): ScopeImpl;
+    abstract getScope(): ScopeImpl|undefined;
 
     abstract getType(): ComponentType;
 
@@ -62,10 +62,6 @@ export abstract class Component<T = any> implements IConstructable<T> {
 
     public setFactory(factory: Factory<T>): void {
         this.factory = factory;
-    }
-
-    public isApplicationContext(): boolean {
-        return false;
     }
 
     public getComponent(): Component {

@@ -19,7 +19,7 @@ export class LazyComponent<T> extends Component<T> {
         return "Lazy " + this.component.name;
     }
 
-    getScope(): ScopeImpl {
+    getScope(): ScopeImpl|undefined {
         return this.component.getScope();
     }
 
