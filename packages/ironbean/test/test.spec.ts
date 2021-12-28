@@ -19,7 +19,6 @@ import {
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
-import {Component} from "../src/component";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -678,6 +677,7 @@ describe("test", () => {
 
         const token = DependencyToken.create("token");
         take(token).setFactory(() => 1);
+        take(token).setType(ComponentType.Singleton);
 
         @component
         @scope(s1)

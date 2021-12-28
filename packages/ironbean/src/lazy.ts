@@ -1,4 +1,4 @@
-import {Dependency} from "./componentConfig";
+import {Dependency} from "./internals";
 
 export function createLazy<T extends object>(create: () => T): T {
     return new Proxy<T>({} as any, new LazyProxyHandler<T>(create));
@@ -27,9 +27,9 @@ class LazyProxyHandler<T extends object> implements ProxyHandler<T>{
 }
 
 export class LazyToken<TDependency = any> {
-    dependency: TDependency;
+    dependency: Dependency<TDependency>;
 
-    private constructor(dependency: TDependency) {
+    private constructor(dependency: Dependency<TDependency>) {
         this.dependency = dependency;
     }
 

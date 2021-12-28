@@ -4,6 +4,7 @@ import {
     ComponentContext,
     ComponentFactory,
     ComponentType,
+    Dependency,
     DependencyComponent,
     DependencyToken,
     IFactory,
@@ -26,7 +27,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
     protected factory?: Factory<T>;
     private lazy: LazyComponent<T>|undefined;
 
-    public static create<T>(object: any): Component<T> {
+    public static create<T>(object: Dependency<T>): Component<T> {
         if (Reflect.hasOwnMetadata(component$, object)) {
             return Reflect.getOwnMetadata(component$, object);
         }
