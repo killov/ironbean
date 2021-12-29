@@ -43,6 +43,10 @@ export class LazyComponent<T> extends Component<T> {
         return this.component.getComponent().toLazy();
     }
 
+    public getCollectionComponents(): Component[] {
+        return this.component.getCollectionComponents().map(component => component.toLazy());
+    }
+
     isComponent(): boolean {
         return this.component.isComponent();
     }

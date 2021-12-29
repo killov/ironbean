@@ -6,6 +6,7 @@ export const constants = {
     componentInstanceData: "_ioc_componentInstanceData",
     types: "_ioc_keys",
     lazy: "_ioc_lazy",
+    collection: "_ioc_collection",
     scope: "_ioc_scope"
 };
 

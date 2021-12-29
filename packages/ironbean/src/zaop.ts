@@ -1,6 +1,7 @@
 import {
     ApplicationContext,
     cacheMap,
+    CollectionToken,
     Component,
     ComponentContainer,
     ComponentContext,
@@ -126,13 +127,15 @@ export function createPropertyDecorator(settings: IPropertyDecoratorSettings): P
 function resolveType(target: any, propertyName: string|symbol) {
     let type = Reflect.getMetadata(constants.types, target, propertyName);
     const isLazy = Reflect.getMetadata(constants.lazy, target, propertyName);
+    const isCollection = Reflect.getMetadata(constants.collection, target, propertyName);
 
     if (typeof type === "function") {
         type = type();
     }
 
     if (type) {
-        return isLazy ? LazyToken.create(type) : type;
+        type = isLazy ? LazyToken.create(type) : type;
+        return isCollection ? CollectionToken.create(type) : type;
     }
 
     const fromMetaData = Reflect.getMetadata("design:type", target, propertyName);

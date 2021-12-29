@@ -67,6 +67,16 @@ export function lazy(target: any, propertyName: string | symbol, parameterIndex?
     }
 }
 
+export function collection(target: any, propertyName: string | symbol, parameterIndex?: number) {
+    if (typeof parameterIndex !== "number") {
+        Reflect.defineMetadata(constants.collection, true, target, propertyName);
+    } else {
+        const methodParameters: Object[] = Reflect.getOwnMetadata(constants.collection, target, propertyName) || [];
+        methodParameters[parameterIndex] = true;
+        Reflect.defineMetadata(constants.collection, methodParameters, target, propertyName);
+    }
+}
+
 export function postConstruct<T>(target: T, propertyName: string) {
     Reflect.defineMetadata(constants.postConstruct, true, target, propertyName);
 }

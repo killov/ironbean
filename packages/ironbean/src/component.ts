@@ -1,5 +1,7 @@
 import {
     ClassComponent,
+    CollectionComponent,
+    CollectionToken,
     ComponentContainer,
     ComponentContext,
     ComponentFactory,
@@ -26,6 +28,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
     components: Component[] = [];
     protected factory?: Factory<T>;
     private lazy: LazyComponent<T>|undefined;
+    private collection: CollectionComponent<T>|undefined;
 
     public static create<T>(object: Dependency<T>): Component<T> {
         if (Reflect.hasOwnMetadata(component$, object)) {
@@ -36,6 +39,10 @@ export abstract class Component<T = any> implements IConstructable<T> {
             return Component.create<T>(object.dependency).toLazy();
         }
 
+        if (object instanceof CollectionToken) {
+            return Component.create<T>(object.dependency).toCollection();
+        }
+
         const component = object instanceof DependencyToken ? DependencyComponent.create<T>(object as any) : ClassComponent.create<T>(object);
         Reflect.defineMetadata(component$, component, object)
 
@@ -44,6 +51,10 @@ export abstract class Component<T = any> implements IConstructable<T> {
 
     public toLazy(): LazyComponent<T> {
         return this.lazy = this.lazy ?? new LazyComponent(this);
+    }
+
+    public toCollection(): CollectionComponent<T> {
+        return this.collection = this.collection ?? new CollectionComponent(this);
     }
 
     abstract getScope(): ScopeImpl|undefined;
@@ -67,6 +78,20 @@ export abstract class Component<T = any> implements IConstructable<T> {
     public getComponent(): Component {
         const last = this.components[this.components.length - 1];
         return last ? last.getComponent() : this;
+    }
+
+    public getCollectionComponents(): Component[] {
+        const last = this.components[this.components.length - 1];
+
+        if (last === undefined) {
+            return [this];
+        }
+
+        if (last.components.length === 0) {
+            return this.components;
+        }
+
+        return last.getCollectionComponents();
     }
 
     add(cmp: Component): any {

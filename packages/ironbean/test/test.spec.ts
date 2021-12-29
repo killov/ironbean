@@ -19,6 +19,7 @@ import {
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
+import {collection} from "../src/decorators";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -254,6 +255,11 @@ describe("test", () => {
 
         @component
         class B {
+            @autowired
+            @type(() => A)
+            @collection
+            lazyCollectionA: A[];
+
             constructor(@lazy public a: A, @lazy public a2: A) {
             }
         }
@@ -265,6 +271,8 @@ describe("test", () => {
         b.a.ahoj();
         expectDependenciesCount(5);
         expect((b.a as any).shit).toBe(undefined);
+
+        expect(b.lazyCollectionA.length).toBe(1);
 
         b.a2.ahoj();
         expectDependenciesCount(5);
