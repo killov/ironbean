@@ -5,6 +5,7 @@ export {
     type,
     postConstruct,
     scope,
+    collection,
     getBaseApplicationContext,
     getBaseTestingContext,
     destroyContext,

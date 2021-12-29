@@ -11,6 +11,7 @@ import {
     lazy,
     needScope,
     postConstruct,
+    collection,
     provideScope,
     Scope,
     scope,
@@ -19,7 +20,6 @@ import {
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
-import {collection} from "../src/decorators";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -362,6 +362,38 @@ describe("test", () => {
         expect(b.a3).toBeInstanceOf(A);
         expectDependenciesCount(5);
     })
+
+    it("collection autowired", () => {
+        class A {
+
+        }
+
+        @component
+        class AA extends A {
+
+        }
+
+        @component
+        class AB extends A {
+
+        }
+
+        take(A).bindTo(AA);
+        take(A).bindTo(AB);
+
+        @component
+        class B {
+            @autowired
+            @collection
+            @type(() => A)
+            public collection: A[];
+        }
+
+        const b = applicationContext.getBean(B);
+        expect(b.collection.length).toBe(2);
+        expect(b.collection[0] instanceof AA).toBe(true);
+        expect(b.collection[1] instanceof AB).toBe(true);
+    });
 
     it("autowired property in component is constant", () => {
         @component
