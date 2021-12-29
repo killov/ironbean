@@ -15,6 +15,10 @@ export class LazyComponent<T> extends Component<T> {
         return this.component.isConstructable();
     }
 
+    hasConstruct(): boolean {
+        return this.component.hasConstruct();
+    }
+
     get name(): string {
         return "Lazy " + this.component.name;
     }

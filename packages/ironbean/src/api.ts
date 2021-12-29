@@ -1,5 +1,5 @@
 export {
     TestProvider,
-    registerPlugin,
+    PluginToken,
     IPlugin
 } from "./internals";

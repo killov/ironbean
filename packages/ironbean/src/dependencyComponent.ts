@@ -41,6 +41,10 @@ export class DependencyComponent<T> extends Component<T> {
         return true;
     }
 
+    hasConstruct(): boolean {
+        return this.factory !== undefined;
+    }
+
     get name(): string {
         return this.key.name;
     }

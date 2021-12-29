@@ -125,6 +125,10 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     isConstructable(): boolean {
+        return this.hasConstruct();
+    }
+
+    hasConstruct(): boolean {
         return this.isComponent() || this.factory !== undefined;
     }
 

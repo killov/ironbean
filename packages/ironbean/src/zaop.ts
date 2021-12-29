@@ -12,7 +12,6 @@ import {
     Dependency,
     LazyToken,
     markAsOverwrittenDefineProperty,
-    plugins,
     TClass
 } from "./internals";
 
@@ -148,7 +147,7 @@ function resolveType(target: any, propertyName: string|symbol) {
 }
 
 function getComponentContainerFromInstance(target: object): ComponentContainer {
-    for (let decorator of plugins) {
+    for (let decorator of containerStorage.plugins) {
         if (decorator.getComponentContainerForClassInstance) {
             const container = decorator.getComponentContainerForClassInstance(target);
             if (container) {

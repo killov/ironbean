@@ -19,6 +19,10 @@ export class CollectionComponent<T> extends Component<T> {
         return true;
     }
 
+    hasConstruct(): boolean {
+        return true;
+    }
+
     get name(): string {
         return "Collection " + this.component.name;
     }

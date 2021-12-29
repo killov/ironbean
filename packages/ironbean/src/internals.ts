@@ -1,6 +1,5 @@
 import "reflect-metadata";
 export * from "./enums";
-export * from "./plugin";
 export * from './lazy';
 export * from './collection';
 export * from "./zaop";
@@ -26,3 +25,4 @@ export * from "./base";
 export * from "./testProvider";
 export * from "./utils";
 export * from "./types";
+export * from "./plugin";

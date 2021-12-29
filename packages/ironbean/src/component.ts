@@ -84,7 +84,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
         const last = this.components[this.components.length - 1];
 
         if (last === undefined) {
-            return [this];
+            return this.hasConstruct() ? [this] : [];
         }
 
         if (last.components.length === 0) {
@@ -100,6 +100,8 @@ export abstract class Component<T = any> implements IConstructable<T> {
     }
 
     abstract isConstructable(): boolean;
+
+    abstract hasConstruct(): boolean;
 
     abstract isComponent(): boolean;
 

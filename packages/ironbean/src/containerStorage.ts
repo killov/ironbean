@@ -1,9 +1,14 @@
-import {ComponentContainer, Container, TestContainer} from "./internals";
+import {CollectionToken, ComponentContainer, Container, IPlugin, PluginToken, TestContainer} from "./internals";
 
 class ContainerStorage {
     private container: Container | null = null;
     public currentComponentContainer: ComponentContainer | undefined;
     public currentContainer: Container | undefined;
+    private _plugins: IPlugin[]|undefined;
+
+    get plugins(): IPlugin[] {
+        return this._plugins = this._plugins ?? this.container?.getBean(CollectionToken.create(PluginToken)) as IPlugin[] ?? [];
+    }
 
     getBaseContainer(): Container {
         if (!this.container) {
