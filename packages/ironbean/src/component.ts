@@ -81,17 +81,11 @@ export abstract class Component<T = any> implements IConstructable<T> {
     }
 
     public getCollectionComponents(): Component[] {
-        const last = this.components[this.components.length - 1];
-
-        if (last === undefined) {
+        if (this.components.length === 0) {
             return this.hasConstruct() ? [this] : [];
         }
 
-        if (last.components.length === 0) {
-            return this.components;
-        }
-
-        return last.getCollectionComponents();
+        return this.components;
     }
 
     add(cmp: Component): any {

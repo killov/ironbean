@@ -398,6 +398,44 @@ describe("test", () => {
         expect(b.collection[1] instanceof AB).toBe(true);
     });
 
+    it("collection constuctor inject", () => {
+        class A {
+
+        }
+
+        @component
+        class AA extends A {
+
+        }
+
+        @component
+        class AB extends A {
+
+        }
+
+        take(A).bindTo(AA);
+        take(A).bindTo(AB);
+
+        @component
+        class B {
+
+            constructor(
+                @collection
+                @type(() => A)
+                public collection: A[]
+            ) {
+            }
+        }
+
+        expectDependenciesCount(2);
+        const b = applicationContext.getBean(B);
+        expectDependenciesCount(5);
+        expect(b.collection.length).toBe(2);
+        expectDependenciesCount(5);
+        expect(b.collection[0] instanceof AA).toBe(true);
+        expect(b.collection[1] instanceof AB).toBe(true);
+    });
+
     it("lazy collection autowired", () => {
         class A {
             ahoj() {
@@ -436,6 +474,51 @@ describe("test", () => {
         expectDependenciesCount(5);
         expect(b.collection[1] instanceof Object).toBe(true);
         expectDependenciesCount(5);
+        b.collection[0].ahoj();
+        expectDependenciesCount(6);
+        b.collection[1].ahoj();
+        expectDependenciesCount(7);
+    });
+
+    it("collection constuctor inject", () => {
+        class A {
+            ahoj() {
+
+            }
+        }
+
+        @component
+        class AA extends A {
+
+        }
+
+        @component
+        class AB extends A {
+
+        }
+
+        take(A).bindTo(AA);
+        take(A).bindTo(AB);
+
+        @component
+        class B {
+
+            constructor(
+                @collection
+                @lazy
+                @type(() => A)
+                public collection: A[]
+            ) {
+            }
+        }
+
+        expectDependenciesCount(2);
+        const b = applicationContext.getBean(B);
+        expectDependenciesCount(5);
+        expect(b.collection.length).toBe(2);
+        expectDependenciesCount(5);
+        expect(b.collection[0] instanceof Object).toBe(true);
+        expect(b.collection[1] instanceof Object).toBe(true);
         b.collection[0].ahoj();
         expectDependenciesCount(6);
         b.collection[1].ahoj();

@@ -52,7 +52,8 @@ export class ClassComponent<T> extends Component<T> {
         const Classes = Reflect.getOwnMetadata("design:paramtypes", this._Class) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[] ?? [];
         const lazy = Reflect.getOwnMetadata(constants.lazy, this._Class) as any[] ?? [];
-        const components = ClassComponent.getComponents(Classes, objectKeys, lazy);
+        const collection = Reflect.getOwnMetadata(constants.collection, this._Class) as any[] ?? [];
+        const components = ClassComponent.getComponents(Classes, objectKeys, lazy, collection);
 
         this.validateConstructorParams(components);
 
@@ -71,7 +72,7 @@ export class ClassComponent<T> extends Component<T> {
         return instance;
     }
 
-    private static getComponents(types: any[], key: any[], lazy: any[]): Component[] {
+    private static getComponents(types: any[], key: any[], lazy: any[], collection: any[]): Component[] {
         return types.map((Class, index) => {
             let component: Component;
             if (Class) {
@@ -83,6 +84,9 @@ export class ClassComponent<T> extends Component<T> {
             }
             if (lazy[index]) {
                 component = component!.toLazy();
+            }
+            if (collection[index]) {
+                component = component!.toCollection();
             }
 
             return component! as Component;
@@ -112,7 +116,8 @@ export class ClassComponent<T> extends Component<T> {
         let Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, propertyName) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, propertyName) ?? [];
         const lazy = Reflect.getOwnMetadata(constants.lazy, Class.prototype, propertyName) ?? [];
-        Classes = ClassComponent.getComponents(Classes, objectKeys, lazy);
+        const collection = Reflect.getOwnMetadata(constants.collection, Class.prototype, propertyName) ?? [];
+        Classes = ClassComponent.getComponents(Classes, objectKeys, lazy, collection);
 
         return container.getDependencyList(Classes);
     }
