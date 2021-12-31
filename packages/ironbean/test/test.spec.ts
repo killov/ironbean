@@ -1,6 +1,7 @@
 import {
     ApplicationContext,
     autowired,
+    collection,
     component,
     ComponentContext,
     ComponentType,
@@ -11,7 +12,6 @@ import {
     lazy,
     needScope,
     postConstruct,
-    collection,
     provideScope,
     Scope,
     scope,
@@ -198,6 +198,37 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(0);
         expect(applicationContext.getBean(key)).toBe(1);
         expect(applicationContext.getBean(key)).toBe(2);
+    });
+
+    it("test context for class created by factory", () => {
+        @component(ComponentType.Prototype)
+        class B {
+
+        }
+
+        @component(ComponentType.Prototype)
+        class Fa implements IFactory<A> {
+            create(): A {
+                return new A(this);
+            }
+        }
+
+        class A {
+            @autowired b: B;
+            fa: Fa;
+            @autowired fa2: Fa;
+
+            constructor(fa: Fa) {
+                this.fa = fa;
+            }
+        }
+
+        take(A).setType(ComponentType.Singleton)
+        take(A).setFactory(Fa);
+
+        expect(applicationContext.getBean(A)).toBe(applicationContext.getBean(A));
+        expect(applicationContext.getBean(A).b).toBe(applicationContext.getBean(A).b);
+        expect(applicationContext.getBean(A).fa).toBe(applicationContext.getBean(A).fa2);
     });
 
     it("inject by key prototype return  throw", () => {
@@ -977,11 +1008,23 @@ describe("test", () => {
 
         }
 
+        @component(ComponentType.Prototype)
+        class D {
+
+        }
+
+        take(D).setFactory(component(class DFactory implements IFactory<D>{
+            create(): D {
+                return new D();
+            }
+        }))
+
         @component
         class A {
             @autowired b!: B;
             @autowired c!: C;
             @autowired c2!: C;
+            @autowired d!: D;
         }
 
         @component
@@ -1028,6 +1071,7 @@ describe("test", () => {
             expect(context.getBean(AComponent).c).toBe(context.getBean(AComponent).c2);
             expect(context.getBean(AComponent).c).toBe(context.getBean(AComponent).c3);
             expect(context.getBean(AComponent).c).toBe(context.getBean(AComponent).c4);
+            expect(context.getBean(AComponent).d).toBe(context.getBean(AComponent).d);
 
             expect(context.getBean(B)).toBe(oldB);
             expect(context.getBean(AComponent).c).toBe(oldC);

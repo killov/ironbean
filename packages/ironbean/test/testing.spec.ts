@@ -4,7 +4,7 @@ import {
     type,
     destroyContext,
     postConstruct,
-    getBaseTestingContext, TestingContext, getBaseApplicationContext, DependencyToken, take
+    getBaseTestingContext, TestingContext, getBaseApplicationContext, DependencyToken, take, ComponentType, IFactory
 } from "../src";
 import {Container} from "../src/container";
 
@@ -225,6 +225,23 @@ describe("testing", () => {
         expect(testingContext.getBean(A).getA()).toBe("a");
         expect(testingContext.getBean(A)).toBe(mock);
     })
+
+    it("test context for class created by factory", () => {
+        @component(ComponentType.Prototype)
+        class B {
+
+        }
+
+        @component
+        class A {
+            @autowired b: B;
+        }
+
+        testingContext.setMockFactory(A, () => new A())
+
+        expect(testingContext.getBean(A)).toBe(testingContext.getBean(A));
+        expect(testingContext.getBean(A).b).toBe(testingContext.getBean(A).b);
+    });
 
     it("custom mocks", () => {
 

@@ -6,6 +6,7 @@ import {
     ComponentContext,
     ComponentFactory,
     ComponentType,
+    constants,
     Dependency,
     DependencyComponent,
     DependencyToken,
@@ -114,6 +115,15 @@ export class Factory<T> implements IConstructable<T> {
     }
 
     public construct(container: ComponentContainer): T {
+        const instance = this.constructInstance(container);
+        if (instance instanceof Object) {
+            Reflect.defineMetadata(constants.componentContainer, container, instance);
+        }
+
+        return instance;
+    }
+
+    private constructInstance(container: ComponentContainer): T {
         if (this.isFactoryClass(this.factory)) {
             const factoryClass = this.factory;
             const factory = container.getBean(factoryClass);
