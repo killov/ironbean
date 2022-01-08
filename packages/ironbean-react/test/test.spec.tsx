@@ -10,7 +10,7 @@ import {
 import React, {FunctionComponent, useState} from "react";
 import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
-import {ApplicationContextProvider, useBean} from "../src";
+import {ContextProvider, useBean} from "../src";
 import {act} from "react-dom/test-utils";
 
 describe("test", () => {
@@ -50,9 +50,9 @@ describe("test", () => {
 
         const Top: FunctionComponent = () => {
             return (
-                <ApplicationContextProvider context={page1.context}>
+                <ContextProvider context={page1.context}>
                     <ChildComponent />
-                </ApplicationContextProvider>
+                </ContextProvider>
             );
         }
 

@@ -15,11 +15,11 @@ export function useBean<T>(dependency: Dependency<T>): T {
 
 const reactContext = createContext<ApplicationContext|null>(null);
 
-interface IApplicationContextProviderProps {
+interface IContextProviderProps {
     context: ApplicationContext;
     children: ReactNode;
 }
 
-export const ApplicationContextProvider: FunctionComponent<IApplicationContextProviderProps> = (props) => {
+export const ContextProvider: FunctionComponent<IContextProviderProps> = (props) => {
     return createElement(reactContext.Provider, {value: props.context}, props.children);
 }
