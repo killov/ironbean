@@ -573,10 +573,8 @@ describe("test", () => {
         const a = applicationContext.getBean(A);
         const b = new B();
 
-        console.log(0);
         expect(a.c).toBe(a.c);
         expect(b.c).toBe(b.c);
-        console.log(1);
         expect(b.c).toBe(b.c);
         expect(Object.getOwnPropertyDescriptor(a, "c")?.value).toBe(a.c);
         expect(Object.getOwnPropertyDescriptor(b, "c")?.value).toBe(undefined);
