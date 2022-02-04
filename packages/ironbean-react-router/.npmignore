@@ -1,0 +1,6 @@
+src
+test
+coverage
+modules
+tsconfig.json
+karma.conf.js

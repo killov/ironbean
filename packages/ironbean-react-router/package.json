@@ -1,0 +1,41 @@
+{
+    "name": "ironbean-react-router",
+    "version": "1.0.0",
+    "description": "Dependency injection library for Typescript or Javascript.",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "typings": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "debug": "tsc --watch",
+        "test": "karma start karma.conf.js",
+        "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/killov/ironbean.git"
+    },
+    "author": "Zdeněk Mazurák",
+    "license": "MIT",
+    "keywords": [
+        "ironbean",
+        "autowired",
+        "dependency",
+        "injection",
+        "container"
+    ],
+    "dependencies": {
+        "reflect-metadata": "^0.1.13"
+    },
+    "devDependencies": {
+        "@types/jasmine": "^3.9.1",
+        "jasmine-core": "^3.9.0",
+        "karma": "^6.3.4",
+        "karma-commonjs": "^1.0.0",
+        "karma-chrome-launcher": "^3.1.0",
+        "karma-jasmine": "^4.0.1",
+        "karma-phantomjs-launcher": "^1.0.4",
+        "karma-typescript": "^5.5.2",
+        "typescript": "4.4.4"
+    }
+}
