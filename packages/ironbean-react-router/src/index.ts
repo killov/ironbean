@@ -2,8 +2,7 @@ import * as React from "react";
 import {FunctionComponentElement, ReactNode, useContext, useEffect, useState} from "react";
 import {ApplicationContext, Scope} from "ironbean";
 import {ApplicationContextProvider, useBean} from "ironbean-react";
-import {useLocation} from "react-router";
-import {useHistory} from "react-router-dom";
+import {useHistory, useLocation} from "react-router-dom";
 
 interface IRonRouteProps {
     scope: Scope;
@@ -29,13 +28,13 @@ const CacheContext = React.createContext(new Storage());
 export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
     const cache = useContext(CacheContext);
     const context = useBean(ApplicationContext);
-    let [appContext, setContext] = useState(() => context.createOrGetParentContext(props.scope))
+    let [appContext, setContext] = useState(() => context.createOrGetParentContext(props.scope));
     const location = useLocation();
     const history = useHistory();
     useEffect(() => {
         history.listen((location) => {
             console.log(location);
-            console.log(history.action);
+            console.log("action", history.action);
             if (history.action === "PUSH") {
                 console.log("create");
                 history.location.state
@@ -45,25 +44,31 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
                 appContext = context.createOrGetParentContext(props.scope);
 
                 cache.saveControl(max.toString(), location.pathname, appContext);
+                appContext["v"] = appContext["v"] ?? Math.random();
                 setContext(appContext);
             }
             if (history.action === "POP") {
                 // @ts-ignore
                 const v = location.state?.v ?? 0;
                 appContext = cache.getControl(v, location.pathname) ?? appContext;
+                appContext["v"] = appContext["v"] ?? Math.random();
                 setContext(appContext);
             }
         });
 
         // @ts-ignore
         const v = location.state?.v ?? 0;
+        appContext["v"] = appContext["v"] ?? Math.random();
         max = v;
         appContext = cache.getControl(v, location.pathname) ?? appContext;
+        cache.saveControl(v.toString(), location.pathname, appContext);
         history.replace(history.location.pathname, {v: max})
 
         setContext(appContext);
     }, []);
 
+    console.log("redner-prov")
+    console.log(appContext["v"]);
     // @ts-ignore
     return React.createElement(ApplicationContextProvider, {context: appContext, children: props.children});
 }

@@ -4,7 +4,8 @@ import {render, unmountComponentAtNode} from "react-dom";
 import {useBean} from "ironbean-react";
 import {ApplicationContext, Scope} from "ironbean";
 import {IronRouter} from "../src";
-import {BrowserRouter, Router} from "react-router-dom";
+import {BrowserRouter, Router, useHistory} from "react-router-dom";
+import * as H from "history";
 
 describe("router", () => {
     let container = null;
@@ -21,12 +22,15 @@ describe("router", () => {
         container = null;
     });
 
-    it("renders with or without a name", () => {
+    it("renders with or without a name", async () => {
         const scope = Scope.create("SCOPE");
 
         let currentContext: ApplicationContext;
+        var history: H.History;
         const Comp = () => {
             currentContext = useBean(ApplicationContext)
+            history = useHistory();
+            console.log("render");
 
             return <></>
         }
@@ -34,8 +38,30 @@ describe("router", () => {
         act(() => {
             render(<BrowserRouter><IronRouter scope={scope}><Comp /></IronRouter></BrowserRouter>, container);
         });
+        await wait();
+        const c1 = currentContext;
+        console.log("push");
+
+        history.push('/test');
+        await wait();
+        expect(currentContext).not.toBe(c1)
+        const c2 = currentContext;
+        history.goBack();
+        await wait();
+        expect(currentContext).toBe(c1)
+        history.goForward();
+        await wait();
+        expect(currentContext).toBe(c2)
 
         expect(true).toBe(true);
     });
 
 });
+
+function wait(): Promise<void> {
+    return new Promise((done) => {
+        window.setTimeout(() => {
+            done();
+        }, 1);
+    })
+}
