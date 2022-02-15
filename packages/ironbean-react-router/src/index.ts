@@ -44,21 +44,18 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
                 appContext = context.createOrGetParentContext(props.scope);
 
                 cache.saveControl(max.toString(), location.pathname, appContext);
-                appContext["v"] = appContext["v"] ?? Math.random();
                 setContext(appContext);
             }
             if (history.action === "POP") {
                 // @ts-ignore
                 const v = location.state?.v ?? 0;
                 appContext = cache.getControl(v, location.pathname) ?? appContext;
-                appContext["v"] = appContext["v"] ?? Math.random();
                 setContext(appContext);
             }
         });
 
         // @ts-ignore
         const v = location.state?.v ?? 0;
-        appContext["v"] = appContext["v"] ?? Math.random();
         max = v;
         appContext = cache.getControl(v, location.pathname) ?? appContext;
         cache.saveControl(v.toString(), location.pathname, appContext);
@@ -67,8 +64,7 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
         setContext(appContext);
     }, []);
 
-    console.log("redner-prov")
-    console.log(appContext["v"]);
+    console.log("redner-prov");
     // @ts-ignore
     return React.createElement(ApplicationContextProvider, {context: appContext, children: props.children});
 }
