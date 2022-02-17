@@ -36,7 +36,7 @@ describe("router", () => {
         }
 
         act(() => {
-            render(<BrowserRouter><IronRouter scope={scope}><Comp /></IronRouter></BrowserRouter>, container);
+            render(<BrowserRouter><IronRouter scope={scope} paths={[]}><Comp /></IronRouter></BrowserRouter>, container);
         });
         await wait();
         const c1 = currentContext;
