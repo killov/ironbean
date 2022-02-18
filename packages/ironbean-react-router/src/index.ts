@@ -51,15 +51,18 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
 
                 max++;
                 history.replace(location.pathname, {v: max})
-                appContext = resolver.getContextFromPaths(context, p1, p2);
+                appContext = resolver.getContextFromPaths(appContext, p1, p2);
 
                 cache.saveControl(max.toString(), location.pathname, appContext);
                 setContext(appContext);
             }
             if (history.action === "POP") {
+                const p1 = location.pathname;
+                const p2 = last.current;
+                last.current = location.pathname;
                 // @ts-ignore
                 const v = location.state?.v ?? 0;
-                appContext = cache.getControl(v, location.pathname) ?? appContext;
+                appContext = cache.getControl(v, location.pathname) ?? resolver.getContextFromPaths(appContext, p1, p2);
                 setContext(appContext);
             }
         });
@@ -127,7 +130,7 @@ class ResolverItem {
     }
 
     public getSuper(item: ResolverItem): ResolverItem {
-        if (this === item) {
+        if (this === item || this.isParent(item)) {
             if (this.parent === undefined) {
                 return item;
             }
@@ -138,9 +141,6 @@ class ResolverItem {
             return this;
         }
 
-        if (this.isParent(item)) {
-            return item;
-        }
         throw Error("asd");
     }
 

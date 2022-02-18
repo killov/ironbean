@@ -6,6 +6,7 @@ import {ApplicationContext, Scope} from "ironbean";
 import {IronRouter} from "../src";
 import {BrowserRouter, Router, useHistory} from "react-router-dom";
 import * as H from "history";
+import {getDefaultScope} from "ironbean/dist/scope";
 
 describe("router", () => {
     let container = null;
@@ -23,6 +24,7 @@ describe("router", () => {
     });
 
     it("renders with or without a name", async () => {
+        const defScope = getDefaultScope();
         const scope = Scope.create("SCOPE");
 
         let currentContext: ApplicationContext;
@@ -36,7 +38,15 @@ describe("router", () => {
         }
 
         act(() => {
-            render(<BrowserRouter><IronRouter scope={scope} paths={[]}><Comp /></IronRouter></BrowserRouter>, container);
+            render(<BrowserRouter>
+                <IronRouter scope={defScope}
+                    paths={[
+                        {
+                            scope: scope,
+                            path: /.+/
+                        }
+                    ]}
+            ><Comp /></IronRouter></BrowserRouter>, container);
         });
         await wait();
         const c1 = currentContext;
