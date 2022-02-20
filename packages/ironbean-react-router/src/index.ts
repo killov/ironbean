@@ -1,8 +1,8 @@
 import * as React from "react";
-import {FunctionComponentElement, ReactNode, useEffect, useRef, useState} from "react";
+import {FunctionComponentElement, ReactNode, useEffect, useState} from "react";
 import {ApplicationContext, component, Scope} from "ironbean";
 import {ApplicationContextProvider, useBean} from "ironbean-react";
-import {useHistory, useLocation} from "react-router-dom";
+import {useHistory} from "react-router-dom";
 import * as H from "history";
 import {Location} from "history";
 
@@ -24,7 +24,7 @@ let max = 0;
 class Storage {
     private map = new Map<string, any>();
     public appContext: ApplicationContext;
-    private last: string;
+    private last: string = "";
 
     constructor(appContext: ApplicationContext) {
         this.appContext = appContext;
@@ -42,7 +42,17 @@ class Storage {
         return this.getControl(v, location.pathname) ?? resolver.getContextFromPaths(appContext, path1, path2);
     }
 
-    push(history: H.History<H.LocationState>, location: Location<unknown>, resolver: Resolver): ApplicationContext {
+    listen(history: H.History<H.LocationState>, location: Location<unknown>, resolver: Resolver): ApplicationContext|undefined {
+        if (history.action === "PUSH") {
+            return this.push(history, location, resolver);
+        }
+        if (history.action === "POP") {
+            return this.pop(history, location, resolver);
+        }
+        return undefined;
+    }
+
+    private push(history: H.History<H.LocationState>, location: Location, resolver: Resolver): ApplicationContext {
         console.log("create");
         const p1 = this.last;
         const p2 = location.pathname;
@@ -57,7 +67,7 @@ class Storage {
         return this.appContext;
     }
 
-    pop(history: H.History<H.LocationState>, location: Location<unknown>, resolver: Resolver): ApplicationContext {
+    private pop(_history: H.History<H.LocationState>, location: Location, resolver: Resolver): ApplicationContext {
         const p1 = location.pathname;
         const p2 = this.last;
         this.last = location.pathname;
@@ -87,12 +97,9 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     const history = useHistory();
     useEffect(() => {
         history.listen((location) => {
-            if (history.action === "PUSH") {
-                appContext = cache.push(history, location, resolver);
-                setContext(appContext);
-            }
-            if (history.action === "POP") {
-                appContext = cache.pop(history, location, resolver);
+            const result = cache.listen(history, location, resolver);
+            if (result !== undefined) {
+                appContext = result;
                 setContext(appContext);
             }
         });
