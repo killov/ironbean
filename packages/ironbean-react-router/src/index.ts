@@ -3,6 +3,8 @@ import {FunctionComponentElement, ReactNode, useEffect, useRef, useState} from "
 import {ApplicationContext, component, Scope} from "ironbean";
 import {ApplicationContextProvider, useBean} from "ironbean-react";
 import {useHistory, useLocation} from "react-router-dom";
+import * as H from "history";
+import {Location} from "history";
 
 interface PathItem {
     scope: Scope;
@@ -21,8 +23,14 @@ let max = 0;
 @component
 class Storage {
     private map = new Map<string, any>();
+    public appContext: ApplicationContext;
+    private last: string;
 
-    saveControl(state: string, path: string, control: any) {
+    constructor(appContext: ApplicationContext) {
+        this.appContext = appContext;
+    }
+
+    private saveControl(state: string, path: string, control: any) {
         this.map.set(state + path, control)
     }
 
@@ -30,54 +38,66 @@ class Storage {
         return this.map.get(state + path);
     }
 
-    get(resolver: Resolver, v: string, appContext: ApplicationContext, path1: string, path2: string) {
+    private get(resolver: Resolver, v: string, appContext: ApplicationContext, path1: string, path2: string) {
         return this.getControl(v, location.pathname) ?? resolver.getContextFromPaths(appContext, path1, path2);
+    }
+
+    push(history: H.History<H.LocationState>, location: Location<unknown>, resolver: Resolver): ApplicationContext {
+        console.log("create");
+        const p1 = this.last;
+        const p2 = location.pathname;
+        this.last = location.pathname;
+
+        max++;
+        history.replace(location.pathname, {v: max})
+        this.appContext = resolver.getContextFromPaths(this.appContext, p1, p2);
+
+        this.saveControl(max.toString(), location.pathname, this.appContext);
+
+        return this.appContext;
+    }
+
+    pop(history: H.History<H.LocationState>, location: Location<unknown>, resolver: Resolver): ApplicationContext {
+        const p1 = location.pathname;
+        const p2 = this.last;
+        this.last = location.pathname;
+        // @ts-ignore
+        const v = location.state?.v ?? 0;
+        this.appContext = this.get(resolver, v, this.appContext, p1, p2);
+        return this.appContext;
+    }
+
+    init(history: H.History<H.LocationState>, resolver: Resolver): ApplicationContext {
+        // @ts-ignore
+        const v = history.location.state?.v ?? 0;
+        max = v;
+        this.last = history.location.pathname;
+        this.appContext = this.get(resolver, v, this.appContext, history.location.pathname, history.location.pathname);
+        this.saveControl(v.toString(), history.location.pathname, this.appContext);
+        history.replace(history.location.pathname, {v: max})
+
+        return this.appContext;
     }
 }
 
 export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
     const resolver = new Resolver(props.scope, props.paths);
     const cache = useBean(Storage);
-    const context = useBean(ApplicationContext);
-    let [appContext, setContext] = useState(() => context.createOrGetParentContext(props.scope));
-    const location = useLocation();
-    const last = useRef(location.pathname);
+    let [appContext, setContext] = useState(() => cache.appContext);
     const history = useHistory();
     useEffect(() => {
         history.listen((location) => {
-            console.log(location);
-            console.log("action", history.action);
             if (history.action === "PUSH") {
-                console.log("create");
-                const p1 = last.current;
-                const p2 = location.pathname;
-                last.current = location.pathname;
-
-                max++;
-                history.replace(location.pathname, {v: max})
-                appContext = resolver.getContextFromPaths(appContext, p1, p2);
-
-                cache.saveControl(max.toString(), location.pathname, appContext);
+                appContext = cache.push(history, location, resolver);
                 setContext(appContext);
             }
             if (history.action === "POP") {
-                const p1 = location.pathname;
-                const p2 = last.current;
-                last.current = location.pathname;
-                // @ts-ignore
-                const v = location.state?.v ?? 0;
-                appContext = cache.get(resolver, v, appContext, p1, p2);
+                appContext = cache.pop(history, location, resolver);
                 setContext(appContext);
             }
         });
 
-        // @ts-ignore
-        const v = location.state?.v ?? 0;
-        max = v;
-        appContext = cache.get(resolver, v, appContext, location.pathname, location.pathname);
-        cache.saveControl(v.toString(), location.pathname, appContext);
-        history.replace(history.location.pathname, {v: max})
-
+        appContext = cache.init(history, resolver);
         setContext(appContext);
     }, []);
 
