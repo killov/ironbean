@@ -26,8 +26,12 @@ class Storage {
         this.map.set(state + path, control)
     }
 
-    getControl(state: string, path: string): any {
+    private getControl(state: string, path: string): any {
         return this.map.get(state + path);
+    }
+
+    get(resolver: Resolver, v: string, appContext: ApplicationContext, path1: string, path2: string) {
+        return this.getControl(v, location.pathname) ?? resolver.getContextFromPaths(appContext, path1, path2);
     }
 }
 
@@ -62,7 +66,7 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
                 last.current = location.pathname;
                 // @ts-ignore
                 const v = location.state?.v ?? 0;
-                appContext = cache.getControl(v, location.pathname) ?? resolver.getContextFromPaths(appContext, p1, p2);
+                appContext = cache.get(resolver, v, appContext, p1, p2);
                 setContext(appContext);
             }
         });
@@ -70,7 +74,7 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
         // @ts-ignore
         const v = location.state?.v ?? 0;
         max = v;
-        appContext = cache.getControl(v, location.pathname) ?? appContext;
+        appContext = cache.get(resolver, v, appContext, location.pathname, location.pathname);
         cache.saveControl(v.toString(), location.pathname, appContext);
         history.replace(history.location.pathname, {v: max})
 
