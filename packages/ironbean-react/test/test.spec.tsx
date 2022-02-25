@@ -135,17 +135,29 @@ describe("test", () => {
             }
         }
         const EComp = withAutowired()(Comp);
+        let reload: () => void;
+        const App = (props: any) => {
+            const [s, setS] = useState(1);
+            reload = () => {
+                setS(s+1);
+            }
+
+            return (
+                <ContextProvider context={actCtx}>
+                    <EComp />
+                </ContextProvider>
+            )
+        }
 
         act(() => {
-            render(<ContextProvider context={actCtx}>
-                <EComp />
-            </ContextProvider>, container);
+            render(<App />, container);
         });
         await wait();
         expect(currentContext).toBe(ctx1);
         actCtx = ctx2;
+        reload();
         await wait();
-        expect(currentContext).toBe(ctx1);
+        expect(currentContext).toBe(ctx2);
 
         expect(true).toBe(true);
     });

@@ -47,10 +47,12 @@ class Plugin implements IPlugin {
         }
         if (Class[tajny2] !== Class.props[tajny]) {
             Object.defineProperty(Class, tajny2, {
-                value: Class.props[tajny]
+                value: Class.props[tajny],
+                configurable: true
             })
             Object.defineProperty(Class, tajny3, {
-                value: new ComponentContainer(Class.props[tajny].getBean(Container))
+                value: new ComponentContainer(Class.props[tajny].getBean(Container)),
+                configurable: true
             });
         }
 
