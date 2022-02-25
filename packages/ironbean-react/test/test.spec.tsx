@@ -112,7 +112,7 @@ describe("test", () => {
         container = null;
     });
 
-    it("renders with or without a name", async () => {
+    it("withAutowired", async () => {
         let currentContext: ApplicationContext;
         const scope1 = Scope.create("sc1");
 
@@ -135,6 +135,8 @@ describe("test", () => {
             }
         }
         const EComp = withAutowired()(Comp);
+
+        const ref = React.createRef<Comp>();
         let reload: () => void;
         const App = (props: any) => {
             const [s, setS] = useState(1);
@@ -144,7 +146,7 @@ describe("test", () => {
 
             return (
                 <ContextProvider context={actCtx}>
-                    <EComp />
+                    <EComp ref={ref}/>
                 </ContextProvider>
             )
         }
@@ -154,10 +156,12 @@ describe("test", () => {
         });
         await wait();
         expect(currentContext).toBe(ctx1);
+        expect(ref.current.ctx).toBe(ctx1);
         actCtx = ctx2;
         reload();
         await wait();
         expect(currentContext).toBe(ctx2);
+        expect(ref.current.ctx).toBe(ctx2);
 
         expect(true).toBe(true);
     });
