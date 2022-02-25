@@ -7,10 +7,10 @@ import {
     Scope,
     scope
 } from "ironbean";
-import React, {FunctionComponent, useState} from "react";
-import ReactDOM from 'react-dom';
+import React, {Component, FunctionComponent, useState} from "react";
+import ReactDOM, {render, unmountComponentAtNode} from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
-import {ContextProvider, useBean} from "../src";
+import {ContextProvider, useBean, withAutowired} from "../src";
 import {act} from "react-dom/test-utils";
 
 describe("test", () => {
@@ -98,4 +98,63 @@ describe("test", () => {
 
         done();
     });
+    let container = null;
+    beforeEach(() => {
+        // setup a DOM element as a render target
+        container = document.createElement("div");
+        document.body.appendChild(container);
+    });
+
+    afterEach(() => {
+        // cleanup on exiting
+        unmountComponentAtNode(container);
+        container.remove();
+        container = null;
+    });
+
+    it("renders with or without a name", async () => {
+        let currentContext: ApplicationContext;
+        const scope1 = Scope.create("sc1");
+
+
+        const ctx = getBaseApplicationContext();
+        const ctx1 = ctx.createOrGetParentContext(scope1);
+        const ctx2 = ctx.createOrGetParentContext(scope1);
+
+        let actCtx = ctx1;
+
+        class Comp extends Component<{}, {}> {
+            @autowired
+            ctx: ApplicationContext;
+
+            render () {
+                currentContext = this.ctx;
+                console.log("render");
+
+                return <></>
+            }
+        }
+        const EComp = withAutowired()(Comp);
+
+        act(() => {
+            render(<ContextProvider context={actCtx}>
+                <EComp />
+            </ContextProvider>, container);
+        });
+        await wait();
+        expect(currentContext).toBe(ctx1);
+        actCtx = ctx2;
+        await wait();
+        expect(currentContext).toBe(ctx1);
+
+        expect(true).toBe(true);
+    });
 });
+
+function wait(): Promise<void> {
+    return new Promise((done) => {
+        window.setTimeout(() => {
+            done();
+        }, 1);
+    })
+}
