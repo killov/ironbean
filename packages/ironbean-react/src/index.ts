@@ -17,10 +17,11 @@ import {Container} from "ironbean/dist/container";
 export function useBean<T>(dependency: Dependency<T>): T {
     const componentAppContext = useContext(reactContext)
     const getContext = () => componentAppContext ?? getBaseApplicationContext();
-    const [instance, setInstance] = useState<T>(() => getContext().getBean(dependency));
+    let [instance, setInstance] = useState<T>(() => getContext().getBean(dependency));
 
     useEffect(() => {
-        setInstance(getContext().getBean(dependency));
+        instance = getContext().getBean(dependency);
+        setInstance(instance);
     }, [componentAppContext])
 
     return instance;
@@ -37,29 +38,44 @@ export const ContextProvider: FunctionComponent<IContextProviderProps> = (props)
     return createElement(reactContext.Provider, {value: props.context}, props.children);
 }
 
-const tajny = "0ironbeancontext";
-const tajny2 = Symbol();
-const tajny3 = Symbol();
+const contextPropName = "0ironbeancontext";
+const contextStateSymbol = Symbol();
+
+interface ContextState {
+    context: ApplicationContext;
+    componentContext: ComponentContainer
+}
 
 class Plugin implements IPlugin {
     getComponentContainerForClassInstance(Class: any): ComponentContainer | undefined {
-        if (!Class.props || !Class.props[tajny]) {
+        if (!(Class instanceof Component)) {
             return undefined;
         }
-        if (Class[tajny2] !== Class.props[tajny]) {
-            // @ts-ignore
-            Object.defineProperty(Class, tajny2, {
-                value: Class.props[tajny],
-                configurable: true
-            })
-            // @ts-ignore
-            Object.defineProperty(Class, tajny3, {
-                value: new ComponentContainer(Class.props[tajny].getBean(Container)),
+
+        if (Class.props[contextPropName] === undefined) {
+            return undefined;
+        }
+        const state = Plugin.getState(Class as any);
+
+        return state.componentContext
+    }
+
+    private static getState(Class: Component): ContextState {
+        let state: ContextState | undefined = Class[contextStateSymbol];
+        if (state === undefined || state?.context !== Class.props[contextPropName]) {
+            const context = Class.props[contextPropName];
+            const newState: ContextState  = {
+                context: context,
+                componentContext: new ComponentContainer(context.getBean(Container))
+            }
+            Object.defineProperty(Class, contextStateSymbol, {
+                value: newState,
                 configurable: true
             });
-        }
 
-        return Class[tajny3];
+            return newState;
+        }
+        return state;
     }
 }
 
@@ -73,7 +89,7 @@ export function withAutowired(): <T extends React.ComponentClass<any>>(component
         return forwardRef((props, ref) => {
             const context = useBean(ApplicationContext);
             const p = {...props, ref} as any;
-            p[tajny] = context;
+            p[contextPropName] = context;
             return React.createElement(b as any, p);
         }) as any;
     }

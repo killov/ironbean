@@ -74,7 +74,6 @@ describe("test", () => {
         const ChildComponent: FunctionComponent = () => {
             const page = useBean(Page);
             [, invalidate] = useState(1);
-            console.log(page);
             expect(page).toBe(page1);
 
             return (
@@ -116,7 +115,6 @@ describe("test", () => {
         let currentContext: ApplicationContext;
         const scope1 = Scope.create("sc1");
 
-
         const ctx = getBaseApplicationContext();
         const ctx1 = ctx.createOrGetParentContext(scope1);
         const ctx2 = ctx.createOrGetParentContext(scope1);
@@ -129,7 +127,6 @@ describe("test", () => {
 
             render () {
                 currentContext = this.ctx;
-                console.log("render");
 
                 return <></>
             }
