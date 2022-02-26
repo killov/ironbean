@@ -61,8 +61,11 @@ class Plugin implements IPlugin {
     }
 
     private static getState(Class: Component): ContextState {
-        let state: ContextState | undefined = Class[contextStateSymbol];
+        // @ts-ignore
+        const state: ContextState | undefined = Class[contextStateSymbol];
+        // @ts-ignore
         if (state === undefined || state?.context !== Class.props[contextPropName]) {
+            // @ts-ignore
             const context = Class.props[contextPropName];
             const newState: ContextState  = {
                 context: context,
@@ -81,7 +84,7 @@ class Plugin implements IPlugin {
 
 registerPlugin(new Plugin());
 
-export function withAutowired(): <T extends React.ComponentClass<any>>(component: T) => T {
+export function withContext(): <T extends React.ComponentClass<any>>(component: T) => T {
     return <T extends React.ComponentClass<P>, P>(component: T) => {
         // @ts-ignore
         class b extends component {}

@@ -10,7 +10,7 @@ import {
 import React, {Component, FunctionComponent, useState} from "react";
 import ReactDOM, {render, unmountComponentAtNode} from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
-import {ContextProvider, useBean, withAutowired} from "../src";
+import {ContextProvider, useBean, withContext} from "../src";
 import {act} from "react-dom/test-utils";
 
 describe("test", () => {
@@ -131,7 +131,7 @@ describe("test", () => {
                 return <></>
             }
         }
-        const EComp = withAutowired()(Comp);
+        const EComp = withContext()(Comp);
 
         const ref = React.createRef<Comp>();
         let reload: () => void;
@@ -184,7 +184,7 @@ describe("test", () => {
                 return <></>
             }
         }
-        const EComp = withAutowired()(Comp);
+        const EComp = withContext()(Comp);
 
         const ref = React.createRef<Comp>();
         let reload: () => void;
