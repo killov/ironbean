@@ -1,7 +1,9 @@
-import {ComponentContainer, DependencyToken} from "./internals";
+import {ComponentContext, containerStorage} from "./internals";
 
 export interface IPlugin {
-    getComponentContainerForClassInstance?(Class: object): ComponentContainer|undefined;
+    getContextForClassInstance?(Class: object): ComponentContext|undefined;
 }
 
-export const PluginToken = DependencyToken.create<IPlugin>("plugin");
+export function registerPlugin(plugin: IPlugin): void {
+    containerStorage.registerPlugin(plugin);
+}

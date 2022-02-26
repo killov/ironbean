@@ -1,13 +1,17 @@
-import {CollectionToken, ComponentContainer, Container, IPlugin, PluginToken, TestContainer} from "./internals";
+import {ComponentContainer, Container, IPlugin, TestContainer} from "./internals";
 
 class ContainerStorage {
     private container: Container | null = null;
     public currentComponentContainer: ComponentContainer | undefined;
     public currentContainer: Container | undefined;
-    private _plugins: IPlugin[]|undefined;
+    private _plugins: IPlugin[] = [];
 
     get plugins(): IPlugin[] {
-        return this._plugins = this._plugins ?? this.container?.getBean(CollectionToken.create(PluginToken)) as IPlugin[] ?? [];
+        return this._plugins;
+    }
+
+    registerPlugin(plugin: IPlugin): void {
+        this._plugins.push(plugin);
     }
 
     getBaseContainer(): Container {
@@ -56,6 +60,10 @@ class ContainerStorage {
             this.currentContainer = oldComponentContainer;
         }
     }
+
+    dispose(): void {
+        containerStorage = new ContainerStorage();
+    }
 }
 
-export const containerStorage = new ContainerStorage();
+export let containerStorage = new ContainerStorage();

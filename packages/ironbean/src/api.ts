@@ -1,6 +1,6 @@
 export {
     TestProvider,
-    PluginToken,
     IPlugin,
+    registerPlugin,
     createComponentContext
 } from "./internals";

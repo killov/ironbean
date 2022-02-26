@@ -54,8 +54,7 @@ abstract class DecoratorContextImpl implements DecoratorContext {
     }
 
     get componentContext (): ComponentContext {
-        const container = getComponentContainerFromInstance(this.instance);
-        return container.getBean(ComponentContext);
+        return getComponentContextFromInstance(this.instance);
     }
 }
 
@@ -146,16 +145,20 @@ function resolveType(target: any, propertyName: string|symbol) {
     return isLazy ? LazyToken.create(fromMetaData) : fromMetaData;
 }
 
-function getComponentContainerFromInstance(target: object): ComponentContainer {
-    for (let decorator of containerStorage.plugins) {
-        if (decorator.getComponentContainerForClassInstance) {
-            const container = decorator.getComponentContainerForClassInstance(target);
-            if (container) {
-                return container;
+function getComponentContextFromInstance(target: object): ComponentContext {
+    for (let plugin of containerStorage.plugins) {
+        if (plugin.getContextForClassInstance) {
+            const context = plugin.getContextForClassInstance(target);
+            if (context) {
+                return context;
             }
         }
     }
 
+    return getComponentContainerFromInstance(target).getBean(ComponentContext);
+}
+
+function getComponentContainerFromInstance(target: object): ComponentContainer {
     return Reflect.getMetadata(constants.componentContainer, target) || containerStorage.currentComponentContainer || createAndSetComponentContainer(target);
 }
 
