@@ -1,4 +1,4 @@
-import {ApplicationContext, component, ComponentContainer, ComponentType, Dependency} from "./internals";
+import {ApplicationContext, component, ComponentContainer, ComponentType, Container, Dependency} from "./internals";
 
 @component(ComponentType.Prototype)
 export class ComponentContext {
@@ -15,4 +15,11 @@ export class ComponentContext {
     public provideScope<T>(action: () => T) {
         return this.getBean(ApplicationContext).provideScope(action);
     }
+}
+
+export function createComponentContext(context: ApplicationContext): ComponentContext {
+    const container = context.getBean(Container);
+    const componentContainer = new ComponentContainer(container);
+
+    return componentContainer.getBean(ComponentContext);
 }
