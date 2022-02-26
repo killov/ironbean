@@ -1,4 +1,5 @@
 import React, {
+    Component,
     createContext,
     createElement,
     forwardRef,
@@ -36,20 +37,22 @@ export const ContextProvider: FunctionComponent<IContextProviderProps> = (props)
     return createElement(reactContext.Provider, {value: props.context}, props.children);
 }
 
-const tajny = "sadasdassdnhasdnhasdhasbdhbsahdbashbdhsabddsadsad";
+const tajny = "0ironbeancontext";
 const tajny2 = Symbol();
 const tajny3 = Symbol();
 
 class Plugin implements IPlugin {
     getComponentContainerForClassInstance(Class: any): ComponentContainer | undefined {
-        if (!Class[tajny2]) {
+        if (!Class.props || !Class.props[tajny]) {
             return undefined;
         }
         if (Class[tajny2] !== Class.props[tajny]) {
+            // @ts-ignore
             Object.defineProperty(Class, tajny2, {
                 value: Class.props[tajny],
                 configurable: true
             })
+            // @ts-ignore
             Object.defineProperty(Class, tajny3, {
                 value: new ComponentContainer(Class.props[tajny].getBean(Container)),
                 configurable: true
@@ -66,10 +69,6 @@ export function withAutowired(): <T extends React.ComponentClass<any>>(component
     return <T extends React.ComponentClass<P>, P>(component: T) => {
         // @ts-ignore
         class b extends component {}
-
-        Object.defineProperty(b.prototype, tajny2, {
-            value: true
-        })
 
         return forwardRef((props, ref) => {
             const context = useBean(ApplicationContext);

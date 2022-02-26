@@ -165,6 +165,59 @@ describe("test", () => {
 
         expect(true).toBe(true);
     });
+
+    it("withAutowired composite", async () => {
+        let currentContext: ApplicationContext;
+        const scope1 = Scope.create("sc1");
+
+        const ctx = getBaseApplicationContext();
+        const ctx1 = ctx.createOrGetParentContext(scope1);
+        const ctx2 = ctx.createOrGetParentContext(scope1);
+
+        let actCtx = ctx1;
+
+        @compositeHOC
+        class Comp extends Component<{}, {}> {
+            @autowired
+            ctx: ApplicationContext;
+
+            render () {
+                currentContext = this.ctx;
+
+                return <></>
+            }
+        }
+        const EComp = withAutowired()(Comp);
+
+        const ref = React.createRef<Comp>();
+        let reload: () => void;
+        const App = (props: any) => {
+            const [s, setS] = useState(1);
+            reload = () => {
+                setS(s+1);
+            }
+
+            return (
+                <ContextProvider context={actCtx}>
+                    <EComp ref={ref}/>
+                </ContextProvider>
+            )
+        }
+
+        act(() => {
+            render(<App />, container);
+        });
+        await wait();
+        expect(currentContext).toBe(ctx1);
+        //expect(ref.current.ctx).toBe(ctx1);
+        actCtx = ctx2;
+        reload();
+        await wait();
+        expect(currentContext).toBe(ctx2);
+        //expect(ref.current.ctx).toBe(ctx2);
+
+        expect(true).toBe(true);
+    });
 });
 
 function wait(): Promise<void> {
@@ -173,4 +226,13 @@ function wait(): Promise<void> {
             done();
         }, 1);
     })
+}
+
+function compositeHOC<T extends React.ComponentClass<any>>(Comp: T): T {
+    class Cp extends Component<any, any> {
+        render() {
+            return <Comp {...this.props} />;
+        }
+    }
+    return Cp as any;
 }
