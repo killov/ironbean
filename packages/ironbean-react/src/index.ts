@@ -9,10 +9,8 @@ import React, {
     useEffect,
     useState
 } from "react";
-import {ApplicationContext, Dependency, getBaseApplicationContext} from "ironbean";
-import {IPlugin, registerPlugin} from "ironbean/dist/api";
-import {ComponentContainer} from "ironbean/dist/componentContainer";
-import {Container} from "ironbean/dist/container";
+import {ApplicationContext, component, ComponentContext, Dependency, getBaseApplicationContext} from "ironbean";
+import {createComponentContext, IPlugin, registerPlugin} from "ironbean/dist/api";
 
 export function useBean<T>(dependency: Dependency<T>): T {
     const componentAppContext = useContext(reactContext)
@@ -43,11 +41,12 @@ const contextStateSymbol = Symbol();
 
 interface ContextState {
     context: ApplicationContext;
-    componentContext: ComponentContainer
+    componentContext: ComponentContext
 }
 
+@component
 class Plugin implements IPlugin {
-    getComponentContainerForClassInstance(Class: any): ComponentContainer | undefined {
+    getContextForClassInstance(Class: object): ComponentContext | undefined {
         if (!(Class instanceof Component)) {
             return undefined;
         }
@@ -69,7 +68,7 @@ class Plugin implements IPlugin {
             const context = Class.props[contextPropName];
             const newState: ContextState  = {
                 context: context,
-                componentContext: new ComponentContainer(context.getBean(Container))
+                componentContext: createComponentContext(context)
             }
             Object.defineProperty(Class, contextStateSymbol, {
                 value: newState,
@@ -82,7 +81,7 @@ class Plugin implements IPlugin {
     }
 }
 
-registerPlugin(new Plugin());
+registerPlugin(Plugin);
 
 export function withContext(): <T extends React.ComponentClass<any>>(component: T) => T {
     return <T extends React.ComponentClass<P>, P>(component: T) => {
