@@ -22,6 +22,10 @@ class Take<TDependency> {
     public setType(componentType: ComponentType): void {
         this.takenComponent.setType(componentType);
     }
+
+    public clear(): void {
+        this.takenComponent.clear();
+    }
 }
 
 export function take<TDependency>(dependency: Dependency<TDependency>): Take<TDependency> {

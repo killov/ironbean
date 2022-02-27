@@ -48,13 +48,14 @@ describe("api", () => {
 
     it("plugin getContextForClassInstance", () => {
         const componentContext = createComponentContext(applicationContext);
+        @component
         class Plugin implements IPlugin {
             getContextForClassInstance(Class: object): ComponentContext | undefined {
                 return componentContext;
             }
         }
 
-        registerPlugin(new Plugin());
+        registerPlugin(Plugin);
 
         @component(ComponentType.Prototype)
         class a {

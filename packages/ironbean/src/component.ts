@@ -76,6 +76,11 @@ export abstract class Component<T = any> implements IConstructable<T> {
         this.factory = factory;
     }
 
+    public clear() {
+        this.factory = undefined;
+        this.components = [];
+    }
+
     public getComponent(): Component {
         const last = this.components[this.components.length - 1];
         return last ? last.getComponent() : this;

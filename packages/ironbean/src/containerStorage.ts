@@ -1,4 +1,4 @@
-import {ComponentContainer, Container, IPlugin, TestContainer} from "./internals";
+import {CollectionToken, ComponentContainer, Container, IPlugin, PluginToken, take, TestContainer} from "./internals";
 
 class ContainerStorage {
     private container: Container | null = null;
@@ -10,14 +10,14 @@ class ContainerStorage {
         return this._plugins;
     }
 
-    registerPlugin(plugin: IPlugin): void {
-        this._plugins.push(plugin);
+    reloadPlugins(): void {
+        this._plugins = this.container?.getBean(CollectionToken.create(PluginToken)) as IPlugin[] ?? [];
     }
 
     getBaseContainer(): Container {
         if (!this.container) {
             this.container = new Container();
-            this.container.init();
+            this.initContainer(this.container);
         }
 
         return this.container;
@@ -26,7 +26,7 @@ class ContainerStorage {
     getTestContainer(): TestContainer {
         if (!this.container) {
             this.container = new TestContainer();
-            this.container.init();
+            this.initContainer(this.container);
         }
 
         if (!(this.container instanceof TestContainer)) {
@@ -34,6 +34,11 @@ class ContainerStorage {
         }
 
         return this.container;
+    }
+
+    private initContainer(container: Container) {
+        container.init();
+        this.reloadPlugins();
     }
 
     destroyContainer(): void {
@@ -62,6 +67,7 @@ class ContainerStorage {
     }
 
     dispose(): void {
+        take(PluginToken).clear();
         containerStorage = new ContainerStorage();
     }
 }
