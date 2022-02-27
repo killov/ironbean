@@ -1,5 +1,10 @@
 # ironbean
 
+## 1.0.6
+- API - registerPlugin
+- API - createComponentContext
+- take clear method
+
 ## 1.0.5
 - storing data only for component
 - scope type removed
