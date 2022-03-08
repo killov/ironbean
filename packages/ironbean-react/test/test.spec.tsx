@@ -226,7 +226,8 @@ describe("test", () => {
 
         let actCtx = ctx1;
 
-        const Comp = () => {
+        const Comp: React.FC<{a: number}> = (props) => {
+            expect(props.a).toBe(2);
             currentContext = useBean(ApplicationContext);
 
             return <></>
@@ -242,7 +243,7 @@ describe("test", () => {
 
             return (
                 <ContextProvider context={actCtx}>
-                    <EComp />
+                    <EComp a={2} />
                 </ContextProvider>
             )
         }
