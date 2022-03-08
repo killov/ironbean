@@ -215,6 +215,50 @@ describe("test", () => {
 
         expect(true).toBe(true);
     });
+
+    it("withAutowired function component", async () => {
+        let currentContext: ApplicationContext;
+        const scope1 = Scope.create("sc1");
+
+        const ctx = getBaseApplicationContext();
+        const ctx1 = ctx.createOrGetParentContext(scope1);
+        const ctx2 = ctx.createOrGetParentContext(scope1);
+
+        let actCtx = ctx1;
+
+        const Comp = () => {
+            currentContext = useBean(ApplicationContext);
+
+            return <></>
+        }
+        const EComp = withContext()(Comp);
+
+        let reload: () => void;
+        const App = (props: any) => {
+            const [s, setS] = useState(1);
+            reload = () => {
+                setS(s+1);
+            }
+
+            return (
+                <ContextProvider context={actCtx}>
+                    <EComp />
+                </ContextProvider>
+            )
+        }
+
+        act(() => {
+            render(<App />, container);
+        });
+        await wait();
+        expect(currentContext).toBe(ctx1);
+        actCtx = ctx2;
+        reload();
+        await wait();
+        expect(currentContext).toBe(ctx2);
+
+        expect(true).toBe(true);
+    });
 });
 
 function wait(): Promise<void> {

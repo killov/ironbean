@@ -83,17 +83,21 @@ class Plugin implements IPlugin {
 
 registerPlugin(Plugin);
 
-export function withContext(): <T extends React.ComponentClass<any>>(component: T) => T {
-    return <T extends React.ComponentClass<P>, P>(component: T) => {
-        // @ts-ignore
-        class b extends component {}
+export function withContext(): <T extends (React.ComponentClass<any>|React.FunctionComponent<any>)>(component: T) => T {
+    return <T extends (React.ComponentClass<P>|React.FunctionComponent<P>), P>(component: T) => {
+        if (typeof component === "function" && component.prototype && component.prototype.render) {
+            // @ts-ignore
+            class b extends component {}
 
-        return forwardRef((props, ref) => {
-            const context = useBean(ApplicationContext);
-            const p = {...props, ref} as any;
-            p[contextPropName] = context;
-            return React.createElement(b as any, p);
-        }) as any;
+            return forwardRef((props, ref) => {
+                const context = useBean(ApplicationContext);
+                const p = {...props, ref} as any;
+                p[contextPropName] = context;
+                return React.createElement(b as any, p);
+            }) as any;
+        }
+
+        return component;
     }
 }
 
