@@ -1,6 +1,6 @@
 {
     "name": "ironbean-react-router",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "Dependency injection library for Typescript or Javascript.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
