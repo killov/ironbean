@@ -3,8 +3,8 @@ import logo from './logo.svg';
 import './App.css';
 import {useBean} from "ironbean-react";
 import {ApplicationContext, autowired, component, scope, Scope} from "ironbean";
-import {BrowserRouter, Link, Route} from "react-router-dom";
-import {makeObservable, observable} from "mobx";
+import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
+import {makeObservable, observable, runInAction} from "mobx";
 import {observer} from "mobx-react";
 import {getDefaultScope} from "ironbean/dist/scope";
 import {IronRouter} from "ironbean-react-router";
@@ -15,6 +15,21 @@ const PAGE = Scope.create("PAGE");
 @scope(PAGE)
 class A {
     g = 1011;
+
+    @observable
+    items: string[] = [];
+
+    constructor() {
+        makeObservable(this);
+        window.setTimeout(() => {
+            runInAction(() => {
+                for (let i = 0; i < 30; i++) {
+                    this.items.push(i.toString())
+                }
+            });
+
+        }, 3000)
+    }
 }
 
 @component
@@ -45,9 +60,10 @@ const App = () => {
           <Link to={"/"}>homepage</Link>
           <Link to={"/first"}>first</Link>
         <div className="App">
-
-                <Route path="/" component={HomePage}/>
+            <Switch>
                 <Route path="/first" component={FirstPage}/>
+                <Route path="/" component={HomePage}/>
+            </Switch>
 
 
         </div>
@@ -57,27 +73,17 @@ const App = () => {
 }
 
 const HomePage: React.FC = observer(() => {
-    const b = useBean(ApplicationContext);
-    console.log(b)
+    const a = useBean(A);
     return (
-        <>
-            <img src={logo} className="App-logo" alt="logo" />
-            <p>
-
-                Edit <code>src/App.tsx</code> and save to reload.
-            </p>
-            <div className="exampleContainer">
-
-            </div>
-            <a
-                className="App-link"
-                href="https://reactjs.org"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                Learn React
-            </a>
-        </>
+        <div>
+            <table>
+                <tbody>
+                    {a.items.map((i) => <tr key={i} style={{height: 200}}>
+                        <td><Link to={"/items/" + i} >{i}</Link></td>
+                    </tr>)}
+                </tbody>
+            </table>
+        </div>
     );
 });
 

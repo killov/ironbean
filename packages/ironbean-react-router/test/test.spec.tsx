@@ -67,6 +67,10 @@ describe("router", () => {
         history.goForward();
         await wait();
         expect(currentContext).toBe(c2)
+        expect(history.location.pathname).toBe("/test")
+        history.push('/test');
+        await wait();
+        expect(currentContext).not.toBe(c2)
 
         expect(true).toBe(true);
     });
