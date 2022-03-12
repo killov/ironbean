@@ -5,6 +5,7 @@ import {ApplicationContextProvider, useBean} from "ironbean-react";
 import * as H from "history";
 import {Location} from "history";
 import {UNSAFE_NavigationContext} from "react-router";
+import {Scroll} from "./scroll";
 
 interface PathItem {
     scope: Scope;
@@ -25,9 +26,13 @@ class Storage {
     private map = new Map<string, any>();
     public appContext: ApplicationContext;
     private last: string = "";
+    private scroll = new Scroll();
+    private scrollMap = new Map<number, number>();
+    private currentNumber = 0;
 
     constructor(appContext: ApplicationContext) {
         this.appContext = appContext;
+        window.history.scrollRestoration = "manual"
     }
 
     private saveControl(state: string, path: string, control: any) {
@@ -52,17 +57,27 @@ class Storage {
         return undefined;
     }
 
+    restoreScroll(location: Location) {
+        // @ts-ignore
+        const v = location.state?.v ?? 0;
+        console.log("restore " + v  + " " + this.scrollMap.get(v) ?? 0)
+        this.scroll.set(this.scrollMap.get(v) ?? 0);
+    }
+
     private push(history: H.History, location: Location, resolver: Resolver): ApplicationContext {
         console.log("create");
         const p1 = this.last;
         const p2 = location.pathname;
         this.last = location.pathname;
 
+        this.save();
         max++;
+        this.scroll.scrollTop();
         history.replace(location.pathname, {v: max})
         this.appContext = resolver.getContextFromPaths(this.appContext, p1, p2);
 
         this.saveControl(max.toString(), location.pathname, this.appContext);
+        this.currentNumber = max;
 
         return this.appContext;
     }
@@ -71,10 +86,20 @@ class Storage {
         const p1 = location.pathname;
         const p2 = this.last;
         this.last = location.pathname;
+        this.save();
         // @ts-ignore
         const v = location.state?.v ?? 0;
         this.appContext = this.get(resolver, v, this.appContext, p1, p2);
+        this.restoreScroll(location)
+        this.currentNumber = v;
         return this.appContext;
+    }
+
+    private save() {
+        // @ts-ignore
+        const currentv = this.currentNumber;
+        console.log("save " + currentv + " " + this.scroll.get())
+        this.scrollMap.set(currentv, this.scroll.get());
     }
 
     init(history: H.History, resolver: Resolver): ApplicationContext {
@@ -85,6 +110,7 @@ class Storage {
         this.appContext = this.get(resolver, v, this.appContext, history.location.pathname, history.location.pathname);
         this.saveControl(v.toString(), history.location.pathname, this.appContext);
         history.replace(history.location.pathname, {v: max})
+        this.currentNumber = max;
 
         return this.appContext;
     }
