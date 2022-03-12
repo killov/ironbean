@@ -57,9 +57,9 @@ class Storage {
         return undefined;
     }
 
-    restoreScroll(location: Location) {
+    restoreScroll() {
         // @ts-ignore
-        const v = location.state?.v ?? 0;
+        const v = this.currentNumber;
         console.log("restore " + v  + " " + this.scrollMap.get(v) ?? 0)
         this.scroll.set(this.scrollMap.get(v) ?? 0);
     }
@@ -90,7 +90,6 @@ class Storage {
         // @ts-ignore
         const v = location.state?.v ?? 0;
         this.appContext = this.get(resolver, v, this.appContext, p1, p2);
-        this.restoreScroll(location)
         this.currentNumber = v;
         return this.appContext;
     }
@@ -137,6 +136,10 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
             unSub();
         }
     }, []);
+
+    useEffect(() => {
+        cache.restoreScroll();
+    }, [appContext]);
 
     // @ts-ignore
     return React.createElement(ApplicationContextProvider, {context: appContext, children: props.children});

@@ -14,7 +14,7 @@ describe("router", () => {
     beforeEach(() => {
         // setup a DOM element as a render target
         container = document.createElement("div");
-        container.style.height = "20000px";
+        //container.style.height = "20000px";
         document.body.appendChild(container);
     });
 
@@ -38,7 +38,7 @@ describe("router", () => {
             expect(currentContext).not.toBe(rootContext)
             history = useHistory();
 
-            return <></>
+            return <div style={{height: 2000}}></div>
         }
         scroll.set(0);
         expect(scroll.get()).toBe(0);
