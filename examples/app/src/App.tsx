@@ -1,9 +1,8 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import {useBean} from "ironbean-react";
-import {ApplicationContext, autowired, component, scope, Scope} from "ironbean";
-import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
+import {autowired, component, scope, Scope} from "ironbean";
+import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
 import {makeObservable, observable, runInAction} from "mobx";
 import {observer} from "mobx-react";
 import {getDefaultScope} from "ironbean/dist/scope";
@@ -60,10 +59,10 @@ const App = () => {
           <Link to={"/"}>homepage</Link>
           <Link to={"/first"}>first</Link>
         <div className="App">
-            <Switch>
-                <Route path="/first" component={FirstPage}/>
-                <Route path="/" component={HomePage}/>
-            </Switch>
+            <Routes>
+                <Route path="/first" element={<FirstPage />}/>
+                <Route path="/" element={<HomePage />}/>
+            </Routes>
 
 
         </div>
