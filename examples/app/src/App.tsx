@@ -2,44 +2,67 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import {useBean} from "ironbean-react";
-import {autowired, component} from "ironbean";
-import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
+import {autowired, component, scope, Scope} from "ironbean";
+import {BrowserRouter, Link, Route} from "react-router-dom";
+import {makeObservable, observable} from "mobx";
+import {observer} from "mobx-react";
+import {getDefaultScope} from "ironbean/dist/scope";
+import {IronRouter} from "ironbean-react-router";
+
+const PAGE = Scope.create("PAGE");
 
 @component
+@scope(PAGE)
 class A {
     g = 1011;
 }
 
 @component
+@scope(PAGE)
 class B {
     @autowired  a!: A;
 
+    @observable
     text: string = "";
+
     c = 10;
+
+    constructor() {
+        makeObservable(this);
+    }
 }
 
 const App = () => {
-    const b = useBean(B);
   return (
       <BrowserRouter>
-          <Link to={"first"}>firts</Link>
+          <IronRouter scope={getDefaultScope()}
+                      paths={[
+                          {
+                              scope: PAGE,
+                              path: /.+/
+                          }
+                      ]}>
+          <Link to={"/"}>homepage</Link>
+          <Link to={"/first"}>first</Link>
         <div className="App">
-            <Routes>
-                <Route path="/" element={<HomePage />}/>
-            </Routes>
+
+                <Route path="/" component={HomePage}/>
+                <Route path="/first" component={FirstPage}/>
+
 
         </div>
+          </IronRouter>
       </BrowserRouter>
   );
 }
 
-const HomePage: React.FC<{}> = () => {
-    const b = useBean(B);
+const HomePage: React.FC = observer(() => {
+    //const b = useBean(B);
     return (
         <>
             <img src={logo} className="App-logo" alt="logo" />
             <p>
-                {b.a.g}
+
                 Edit <code>src/App.tsx</code> and save to reload.
             </p>
             <div className="exampleContainer">
@@ -55,9 +78,9 @@ const HomePage: React.FC<{}> = () => {
             </a>
         </>
     );
-}
+});
 
-const FirstPage: React.FC = () => {
+const FirstPage: React.FC = observer(() => {
     const b = useBean(B);
     return (
         <>
@@ -67,7 +90,7 @@ const FirstPage: React.FC = () => {
             }}/>
         </>
     );
-}
+});
 
 
 export default App;
