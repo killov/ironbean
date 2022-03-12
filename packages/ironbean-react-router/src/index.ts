@@ -138,7 +138,9 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     }, []);
 
     useEffect(() => {
-        cache.restoreScroll();
+        window.setTimeout(() => {
+            cache.restoreScroll();
+        }, 100);
     }, [appContext]);
 
     // @ts-ignore

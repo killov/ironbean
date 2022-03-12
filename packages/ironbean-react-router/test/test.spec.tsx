@@ -15,6 +15,7 @@ describe("router", () => {
         // setup a DOM element as a render target
         container = document.createElement("div");
         //container.style.height = "20000px";
+        container.ad
         document.body.appendChild(container);
     });
 

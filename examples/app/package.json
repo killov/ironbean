@@ -18,7 +18,7 @@
     "react-router-dom": "^6.2.2",
     "mobx": "6.4.2",
     "mobx-react": "^7.3.0",
-    "ironbean-react-router": "0.0.4"
+    "ironbean-react-router": "0.0.7"
   },
   "scripts": {
     "start": "react-scripts start",
