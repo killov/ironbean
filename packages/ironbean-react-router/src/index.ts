@@ -93,22 +93,20 @@ class Storage {
 export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
     const resolver = new Resolver(props.scope, props.paths);
     const cache = useBean(Storage);
-    let [appContext, setContext] = useState(() => cache.appContext);
     const history = useHistory();
+    const [appContext, setContext] = useState(() => cache.init(history, resolver));
     useEffect(() => {
-        history.listen((location) => {
+        const unSub = history.listen((location) => {
             const result = cache.listen(history, location, resolver);
             if (result !== undefined) {
-                appContext = result;
-                setContext(appContext);
+                setContext(result);
             }
         });
-
-        appContext = cache.init(history, resolver);
-        setContext(appContext);
+        return () => {
+            unSub();
+        }
     }, []);
 
-    console.log("redner-prov");
     // @ts-ignore
     return React.createElement(ApplicationContextProvider, {context: appContext, children: props.children});
 }

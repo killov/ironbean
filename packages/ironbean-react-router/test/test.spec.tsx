@@ -2,7 +2,7 @@ import { act } from "react-dom/test-utils";
 import * as React from "react";
 import {render, unmountComponentAtNode} from "react-dom";
 import {useBean} from "ironbean-react";
-import {ApplicationContext, Scope} from "ironbean";
+import {ApplicationContext, getBaseApplicationContext, Scope} from "ironbean";
 import {IronRouter} from "../src";
 import {BrowserRouter, Router, useHistory} from "react-router-dom";
 import * as H from "history";
@@ -26,13 +26,18 @@ describe("router", () => {
     it("renders with or without a name", async () => {
         const defScope = getDefaultScope();
         const scope = Scope.create("SCOPE");
+        const rootContext = getBaseApplicationContext();
 
         let currentContext: ApplicationContext;
         var history: H.History;
         const Comp = () => {
             currentContext = useBean(ApplicationContext)
-            history = useHistory();
             console.log("render");
+            if (currentContext === rootContext) {
+                console.log("shit");
+            }
+            expect(currentContext).not.toBe(rootContext)
+            history = useHistory();
 
             return <></>
         }

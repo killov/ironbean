@@ -2,7 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import {useBean} from "ironbean-react";
-import {autowired, component, scope, Scope} from "ironbean";
+import {ApplicationContext, autowired, component, scope, Scope} from "ironbean";
 import {BrowserRouter, Link, Route} from "react-router-dom";
 import {makeObservable, observable} from "mobx";
 import {observer} from "mobx-react";
@@ -57,7 +57,8 @@ const App = () => {
 }
 
 const HomePage: React.FC = observer(() => {
-    //const b = useBean(B);
+    const b = useBean(ApplicationContext);
+    console.log(b)
     return (
         <>
             <img src={logo} className="App-logo" alt="logo" />
