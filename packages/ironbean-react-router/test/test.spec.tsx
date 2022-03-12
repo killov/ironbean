@@ -3,8 +3,8 @@ import * as React from "react";
 import {render, unmountComponentAtNode} from "react-dom";
 import {useBean} from "ironbean-react";
 import {ApplicationContext, getBaseApplicationContext, Scope} from "ironbean";
-import {IronRouter} from "../src";
-import {BrowserRouter, Router, useHistory} from "react-router-dom";
+import {IronRouter, useHistory} from "../src";
+import {BrowserRouter, Router} from "react-router-dom";
 import * as H from "history";
 import {getDefaultScope} from "ironbean/dist/scope";
 
@@ -61,10 +61,10 @@ describe("router", () => {
         await wait();
         expect(currentContext).not.toBe(c1)
         const c2 = currentContext;
-        history.goBack();
+        history.back();
         await wait();
         expect(currentContext).toBe(c1)
-        history.goForward();
+        history.forward();
         await wait();
         expect(currentContext).toBe(c2)
         expect(history.location.pathname).toBe("/test")

@@ -1,10 +1,10 @@
 import * as React from "react";
-import {FunctionComponentElement, ReactNode, useEffect, useState} from "react";
+import {FunctionComponentElement, ReactNode, useContext, useEffect, useState} from "react";
 import {ApplicationContext, component, Scope} from "ironbean";
 import {ApplicationContextProvider, useBean} from "ironbean-react";
-import {useHistory} from "react-router-dom";
 import * as H from "history";
 import {Location} from "history";
+import {UNSAFE_NavigationContext} from "react-router";
 
 interface PathItem {
     scope: Scope;
@@ -42,7 +42,7 @@ class Storage {
         return this.getControl(v, location.pathname) ?? resolver.getContextFromPaths(appContext, path1, path2);
     }
 
-    listen(history: H.History<H.LocationState>, location: Location<unknown>, resolver: Resolver): ApplicationContext|undefined {
+    listen(history: H.History, location: Location, resolver: Resolver): ApplicationContext|undefined {
         if (history.action === "PUSH") {
             return this.push(history, location, resolver);
         }
@@ -52,7 +52,7 @@ class Storage {
         return undefined;
     }
 
-    private push(history: H.History<H.LocationState>, location: Location, resolver: Resolver): ApplicationContext {
+    private push(history: H.History, location: Location, resolver: Resolver): ApplicationContext {
         console.log("create");
         const p1 = this.last;
         const p2 = location.pathname;
@@ -67,7 +67,7 @@ class Storage {
         return this.appContext;
     }
 
-    private pop(_history: H.History<H.LocationState>, location: Location, resolver: Resolver): ApplicationContext {
+    private pop(_history: H.History, location: Location, resolver: Resolver): ApplicationContext {
         const p1 = location.pathname;
         const p2 = this.last;
         this.last = location.pathname;
@@ -77,7 +77,7 @@ class Storage {
         return this.appContext;
     }
 
-    init(history: H.History<H.LocationState>, resolver: Resolver): ApplicationContext {
+    init(history: H.History, resolver: Resolver): ApplicationContext {
         // @ts-ignore
         const v = history.location.state?.v ?? 0;
         max = v;
@@ -90,13 +90,18 @@ class Storage {
     }
 }
 
+export function useHistory(): H.History {
+    const nav = useContext(UNSAFE_NavigationContext);
+    return nav.navigator as any as H.History;
+}
+
 export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
     const resolver = new Resolver(props.scope, props.paths);
     const cache = useBean(Storage);
     const history = useHistory();
     const [appContext, setContext] = useState(() => cache.init(history, resolver));
     useEffect(() => {
-        const unSub = history.listen((location) => {
+        const unSub = history.listen(({location}) => {
             const result = cache.listen(history, location, resolver);
             if (result !== undefined) {
                 setContext(result);
