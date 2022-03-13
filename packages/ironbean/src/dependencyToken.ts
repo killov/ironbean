@@ -1,4 +1,4 @@
-import {ComponentType, getDefaultScope, Scope} from "./internals";
+import {ComponentType, Scope} from "./internals";
 
 interface ISettings {
     componentType?: ComponentType;
@@ -9,8 +9,8 @@ export class DependencyToken<TDependency> {
     // @ts-ignore
     a: TDependency;
     private _componentType: ComponentType;
-    private _scope: Scope;
-    private _name: string;
+    private readonly _scope: Scope;
+    private readonly _name: string;
 
     private constructor(name: string, componentType: ComponentType, scope: Scope) {
         this._name = name;
@@ -19,7 +19,7 @@ export class DependencyToken<TDependency> {
     }
 
     public static create<TDependency>(name: string, settings: ISettings = {}) {
-        return new DependencyToken<TDependency>(name, settings.componentType || ComponentType.Singleton, settings.scope || getDefaultScope());
+        return new DependencyToken<TDependency>(name, settings.componentType || ComponentType.Singleton, settings.scope || Scope.getDefault());
     }
 
     get componentType(): ComponentType {

@@ -870,6 +870,24 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
+    it("scope isParent", () => {
+        const def = Scope.getDefault();
+        const a = Scope.create("a");
+        const b = a.createScope("b");
+
+        expect(def.isParent(a)).toBe(false);
+        expect(def.isParent(b)).toBe(false);
+        expect(def.isParent(def)).toBe(false);
+
+        expect(a.isParent(a)).toBe(false);
+        expect(a.isParent(b)).toBe(false);
+        expect(a.isParent(def)).toBe(true);
+
+        expect(b.isParent(a)).toBe(true);
+        expect(b.isParent(b)).toBe(false);
+        expect(b.isParent(def)).toBe(true);
+    });
+
     it("scopes combo", () => {
         const s1 = Scope.create("1");
         const s2 = s1.createScope("2");

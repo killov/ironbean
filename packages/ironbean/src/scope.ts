@@ -3,13 +3,22 @@ export abstract class Scope {
         return defaultScope.createScope(name);
     }
     abstract createScope(name: string): Scope;
+
+    abstract getParent(): Scope|null;
+
+    abstract isParent(scope: Scope): boolean;
+
+    static getDefault(): Scope {
+        return defaultScope;
+    }
 }
 
-export class ScopeImpl implements Scope {
+export class ScopeImpl extends Scope {
     private readonly parent: ScopeImpl|null;
     private readonly name: string;
 
     constructor(name: string, parent: ScopeImpl|null = null) {
+        super();
         this.parent = parent;
         this.name = name;
     }
@@ -20,6 +29,10 @@ export class ScopeImpl implements Scope {
 
     getParent(): ScopeImpl|null {
         return this.parent;
+    }
+
+    isParent(scope: ScopeImpl): boolean {
+        return this.parent === scope || (this.parent?.isParent(scope) ?? false);
     }
 
     getAllParents(): ScopeImpl[] {
@@ -52,10 +65,10 @@ export class ScopeImpl implements Scope {
 
         throw new Error();
     }
+
+    static getDefault(): ScopeImpl {
+        return defaultScope;
+    }
 }
 
 const defaultScope = new ScopeImpl("DEFAULT");
-
-export function getDefaultScope(): Scope {
-    return defaultScope;
-}

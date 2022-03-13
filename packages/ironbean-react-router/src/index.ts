@@ -49,7 +49,7 @@ class Storage {
     }
 
     listen(history: H.History, location: Location, resolver: Resolver): ApplicationContext|undefined {
-        if (history.action === "PUSH") {
+        if (history.action === "PUSH" || history.action === "REPLACE") {
             return this.push(location, resolver);
         }
         if (history.action === "POP") {

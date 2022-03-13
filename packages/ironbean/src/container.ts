@@ -6,7 +6,6 @@ import {
     containerStorage,
     Dependency,
     DependencyStorage,
-    getDefaultScope,
     IConstructable,
     Scope,
     ScopeImpl
@@ -22,7 +21,7 @@ export class Container {
 
     constructor(parent: Container|null = null, scope: ScopeImpl|null = null) {
         this.parent = parent;
-        this.scope = scope ? scope : getDefaultScope() as ScopeImpl;
+        this.scope = scope ? scope : ScopeImpl.getDefault();
     }
 
     init() {

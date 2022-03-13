@@ -1,5 +1,9 @@
 # ironbean
 
+## 1.0.7
+- Scope.getDefault()
+- Scope.isParent(scope: Scope)
+
 ## 1.0.6
 - API - registerPlugin
 - API - createComponentContext

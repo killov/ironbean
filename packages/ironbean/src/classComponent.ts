@@ -6,7 +6,7 @@ import {
     constants,
     Container,
     getAllPropertyNames,
-    getDefaultScope,
+    Scope,
     ScopeImpl,
     TClass,
     TestContainer,
@@ -37,7 +37,7 @@ export class ClassComponent<T> extends Component<T> {
         if (this.isApplicationContext()) {
             return undefined;
         }
-        return Reflect.getMetadata(constants.scope, this._Class) ?? getDefaultScope();
+        return Reflect.getMetadata(constants.scope, this._Class) ?? Scope.getDefault();
     }
 
     public getType(): ComponentType {
