@@ -95,6 +95,6 @@ function wait(): Promise<void> {
     return new Promise((done) => {
         window.setTimeout(() => {
             done();
-        }, 1);
+        }, 150);
     })
 }

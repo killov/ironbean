@@ -4,7 +4,7 @@ import {ApplicationContext, component, Scope} from "ironbean";
 import {ApplicationContextProvider, useBean} from "ironbean-react";
 import * as H from "history";
 import {Location} from "history";
-import {UNSAFE_NavigationContext} from "react-router";
+import {UNSAFE_NavigationContext, useLocation} from "react-router";
 import {Scroll} from "./scroll";
 
 interface PathItem {
@@ -124,18 +124,14 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     const resolver = new Resolver(props.scope, props.paths);
     const cache = useBean(Storage);
     const history = useHistory();
+    const location = useLocation();
     const [appContext, setContext] = useState(() => cache.init(history, resolver));
     useEffect(() => {
-        const unSub = history.listen(({location}) => {
-            const result = cache.listen(history, location, resolver);
-            if (result !== undefined) {
-                setContext(result);
-            }
-        });
-        return () => {
-            unSub();
+        const result = cache.listen(history, location, resolver);
+        if (result !== undefined) {
+            setContext(result);
         }
-    }, []);
+    }, [location.pathname, (location.state as any)?.v ?? 0])
 
     useEffect(() => {
         window.setTimeout(() => {
