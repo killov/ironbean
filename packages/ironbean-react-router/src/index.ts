@@ -18,8 +18,10 @@ interface IRonRouteProps {
     paths: PathItem[]
     children: ReactNode;
 }
-
-let max = 0;
+function getVersion(location: Location) {
+    // @ts-ignore
+    return location.state?.v ?? Date.now();
+}
 
 @component
 class Storage {
@@ -58,7 +60,6 @@ class Storage {
     }
 
     restoreScroll() {
-        // @ts-ignore
         const v = this.currentNumber;
         console.log("restore " + v  + " " + this.scrollMap.get(v) ?? 0)
         this.scroll.set(this.scrollMap.get(v) ?? 0);
@@ -71,13 +72,14 @@ class Storage {
         this.last = location.pathname;
 
         this.save();
-        max++;
+
         this.scroll.scrollTop();
-        history.replace(location.pathname, {v: max})
+        const v = getVersion(location);
+        history.replace(location.pathname, {v: v})
         this.appContext = resolver.getContextFromPaths(this.appContext, p1, p2);
 
-        this.saveControl(max.toString(), location.pathname, this.appContext);
-        this.currentNumber = max;
+        this.saveControl(v.toString(), location.pathname, this.appContext);
+        this.currentNumber = v;
 
         return this.appContext;
     }
@@ -87,8 +89,7 @@ class Storage {
         const p2 = this.last;
         this.last = location.pathname;
         this.save();
-        // @ts-ignore
-        const v = location.state?.v ?? 0;
+        const v = getVersion(location);
         this.appContext = this.get(resolver, v, this.appContext, p1, p2);
         this.currentNumber = v;
         return this.appContext;
@@ -102,14 +103,12 @@ class Storage {
     }
 
     init(history: H.History, resolver: Resolver): ApplicationContext {
-        // @ts-ignore
-        const v = history.location.state?.v ?? 0;
-        max = v;
+        const v = getVersion(history.location);
         this.last = history.location.pathname;
         this.appContext = this.get(resolver, v, this.appContext, history.location.pathname, history.location.pathname);
         this.saveControl(v.toString(), history.location.pathname, this.appContext);
-        history.replace(history.location.pathname, {v: max})
-        this.currentNumber = max;
+        history.replace(history.location.pathname, {v: v})
+        this.currentNumber = v;
 
         return this.appContext;
     }
@@ -131,7 +130,7 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
         if (result !== undefined) {
             setContext(result);
         }
-    }, [location.pathname, (location.state as any)?.v ?? 0])
+    }, [location.pathname, getVersion(location)])
 
     useEffect(() => {
         window.setTimeout(() => {
