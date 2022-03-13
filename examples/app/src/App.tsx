@@ -74,7 +74,7 @@ const App = () => {
 const HomePage: React.FC = observer(() => {
     const loc = useLocation()
     const c = useBean(ApplicationContext);
-    console.log("render " + loc.pathname, c);
+    console.log("render " + loc.pathname, c, loc);
     const a = useBean(A);
     return (
         <div>
@@ -92,7 +92,7 @@ const HomePage: React.FC = observer(() => {
 const FirstPage: React.FC = observer(() => {
     const loc = useLocation()
     const c = useBean(ApplicationContext);
-    console.log("render " + loc.pathname, c);
+    console.log("render " + loc.pathname, c, loc);
     const b = useBean(B);
     return (
         <>

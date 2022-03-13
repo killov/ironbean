@@ -19,8 +19,7 @@ interface IRonRouteProps {
     children: ReactNode;
 }
 function getVersion(location: Location) {
-    // @ts-ignore
-    return location.state?.v ?? Date.now();
+    return location.key;
 }
 
 @component
@@ -29,8 +28,8 @@ class Storage {
     public appContext: ApplicationContext;
     private last: string = "";
     private scroll = new Scroll();
-    private scrollMap = new Map<number, number>();
-    private currentNumber = 0;
+    private scrollMap = new Map<string, number>();
+    private currentNumber = "";
 
     constructor(appContext: ApplicationContext) {
         this.appContext = appContext;
@@ -65,7 +64,7 @@ class Storage {
         this.scroll.set(this.scrollMap.get(v) ?? 0);
     }
 
-    private push(history: H.History, location: Location, resolver: Resolver): ApplicationContext {
+    private push(_history: H.History, location: Location, resolver: Resolver): ApplicationContext {
         console.log("create");
         const p1 = this.last;
         const p2 = location.pathname;
@@ -75,7 +74,6 @@ class Storage {
 
         this.scroll.scrollTop();
         const v = getVersion(location);
-        history.replace(location.pathname, {v: v})
         this.appContext = resolver.getContextFromPaths(this.appContext, p1, p2);
 
         this.saveControl(v.toString(), location.pathname, this.appContext);
@@ -107,7 +105,6 @@ class Storage {
         this.last = history.location.pathname;
         this.appContext = this.get(resolver, v, this.appContext, history.location.pathname, history.location.pathname);
         this.saveControl(v.toString(), history.location.pathname, this.appContext);
-        history.replace(history.location.pathname, {v: v})
         this.currentNumber = v;
 
         return this.appContext;
