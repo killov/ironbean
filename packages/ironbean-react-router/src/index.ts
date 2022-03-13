@@ -1,5 +1,5 @@
 import * as React from "react";
-import {FunctionComponentElement, ReactNode, useContext, useEffect, useState} from "react";
+import {FunctionComponentElement, ReactNode, useContext, useEffect, useRef} from "react";
 import {ApplicationContext, component, Scope} from "ironbean";
 import {ApplicationContextProvider, useBean} from "ironbean-react";
 import * as H from "history";
@@ -116,27 +116,48 @@ export function useHistory(): H.History {
     return nav.navigator as any as H.History;
 }
 
-export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
-    const resolver = new Resolver(props.scope, props.paths);
+function useContextByLocation(resolver: Resolver): ApplicationContext {
+    const info = useRef<Info>({
+        ctx: null,
+        version: null
+    })
     const cache = useBean(Storage);
     const history = useHistory();
     const location = useLocation();
-    const [appContext, setContext] = useState(() => cache.init(history, resolver));
-    useEffect(() => {
-        const result = cache.listen(history, location, resolver);
-        if (result !== undefined) {
-            setContext(result);
+
+    if (info.current.ctx === null) {
+        info.current.ctx = cache.init(history, resolver);
+    }
+
+    if (info.current.version !== getVersion(location)) {
+        info.current.version = getVersion(location);
+        const ctx = cache.listen(history, location, resolver);
+        if (ctx !== undefined) {
+            info.current.ctx = ctx;
         }
-    }, [location.pathname, getVersion(location)])
+    }
+    return info.current.ctx;
+}
+
+interface Info {
+    ctx: ApplicationContext|null,
+    version: string|null;
+}
+
+export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
+    console.log("render root")
+    const resolver = new Resolver(props.scope, props.paths);
+    const cache = useBean(Storage);
+    const ctx = useContextByLocation(resolver);
 
     useEffect(() => {
         window.setTimeout(() => {
             cache.restoreScroll();
         }, 100);
-    }, [appContext]);
+    }, [ctx]);
 
     // @ts-ignore
-    return React.createElement(ApplicationContextProvider, {context: appContext, children: props.children});
+    return React.createElement(ApplicationContextProvider, {context: ctx, children: props.children});
 }
 
 class Resolver {
