@@ -1,8 +1,8 @@
 import React from 'react';
 import './App.css';
 import {useBean} from "ironbean-react";
-import {autowired, component, scope, Scope} from "ironbean";
-import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
+import {ApplicationContext, autowired, component, scope, Scope} from "ironbean";
+import {BrowserRouter, Link, Route, Routes, useLocation} from "react-router-dom";
 import {makeObservable, observable, runInAction} from "mobx";
 import {observer} from "mobx-react";
 import {getDefaultScope} from "ironbean/dist/scope";
@@ -72,6 +72,9 @@ const App = () => {
 }
 
 const HomePage: React.FC = observer(() => {
+    const loc = useLocation()
+    const c = useBean(ApplicationContext);
+    console.log("render " + loc.pathname, c);
     const a = useBean(A);
     return (
         <div>
@@ -87,6 +90,9 @@ const HomePage: React.FC = observer(() => {
 });
 
 const FirstPage: React.FC = observer(() => {
+    const loc = useLocation()
+    const c = useBean(ApplicationContext);
+    console.log("render " + loc.pathname, c);
     const b = useBean(B);
     return (
         <>
