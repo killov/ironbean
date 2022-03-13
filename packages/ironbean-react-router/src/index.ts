@@ -50,10 +50,10 @@ class Storage {
 
     listen(history: H.History, location: Location, resolver: Resolver): ApplicationContext|undefined {
         if (history.action === "PUSH") {
-            return this.push(history, location, resolver);
+            return this.push(location, resolver);
         }
         if (history.action === "POP") {
-            return this.pop(history, location, resolver);
+            return this.pop(location, resolver);
         }
         return undefined;
     }
@@ -64,7 +64,7 @@ class Storage {
         this.scroll.set(this.scrollMap.get(v) ?? 0);
     }
 
-    private push(_history: H.History, location: Location, resolver: Resolver): ApplicationContext {
+    private push(location: Location, resolver: Resolver): ApplicationContext {
         console.log("create");
         const p1 = this.last;
         const p2 = location.pathname;
@@ -82,7 +82,7 @@ class Storage {
         return this.appContext;
     }
 
-    private pop(_history: H.History, location: Location, resolver: Resolver): ApplicationContext {
+    private pop(location: Location, resolver: Resolver): ApplicationContext {
         const p1 = location.pathname;
         const p2 = this.last;
         this.last = location.pathname;
@@ -153,7 +153,7 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     useEffect(() => {
         window.setTimeout(() => {
             cache.restoreScroll();
-        }, 100);
+        }, 10);
     }, [ctx]);
 
     // @ts-ignore
@@ -166,7 +166,7 @@ class Resolver {
         this.item = ResolverItem.from(scope, paths)
     }
 
-    resolve(path: string): ResolverItem {
+    private resolve(path: string): ResolverItem {
         return this.resolveInternal(path, this.item.items, this.item);
     }
 
