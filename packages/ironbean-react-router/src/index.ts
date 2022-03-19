@@ -210,15 +210,24 @@ export class RouterResolver implements IRouterResolver {
         return new RouterResolver(items);
     }
 
-    getSettingsForPath(path: string): PathSettings {
-        for (let p of this.paths) {
+    private resolveInternal(path: string, items: ResolverItem[], item: ResolverItem|undefined): ResolverItem|undefined {
+        for (let p of items) {
             if (path.search(p.path) === 0) {
-                return {
-                    scope: p.scope,
-                    stateHandler: p.stateHandler
-                }
+                return this.resolveInternal(path.replace(p.path, ""), [], p)
             }
         }
+        return item;
+    }
+
+    getSettingsForPath(path: string): PathSettings {
+        const item = this.resolveInternal(path, this.paths, undefined)
+        if (item !== undefined) {
+            return {
+                scope: item.scope,
+                stateHandler: item.stateHandler
+            }
+        }
+
         return {
             scope: Scope.getDefault()
         }
