@@ -236,18 +236,18 @@ class Resolver {
     }
 
     public getSuper(scope1: Scope, scope2: Scope): Scope {
-        if (scope1 === scope2 || scope1.isParent(scope2)) {
-            if (scope1 === Scope.getDefault()) {
-                return scope2;
-            }
-            return scope1.getParent()!;
+        const s1 = scope1.getParent() ?? Scope.getDefault();
+        const s2 = scope2.getParent() ?? Scope.getDefault();
+
+        if (s1 === s2) {
+            return s1;
         }
 
-        if (scope2.isParent(scope1)) {
-            return scope1;
+        if (s1.isParent(s2)) {
+            return s1;
         }
 
-        throw Error("asd");
+        throw s2;
     }
 
     getContextFromPaths(context: PathContext, path1: string, path2: string): PathContext {
