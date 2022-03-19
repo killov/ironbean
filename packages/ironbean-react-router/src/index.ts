@@ -146,7 +146,7 @@ interface Info {
 
 export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
     console.log("render root")
-    const resolver = new Resolver(props.scope, props.paths);
+    const resolver = new Resolver(props.paths);
     const cache = useBean(Storage);
     const ctx = useContextByLocation(resolver);
 
@@ -162,7 +162,7 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
 
 class Resolver {
     paths: ResolverItem[];
-    constructor(scope: Scope, paths: PathItem[]) {
+    constructor(paths: PathItem[]) {
         this.paths = paths.map(e => ResolverItem.from(e.scope, e.path));
     }
 
@@ -189,7 +189,6 @@ class Resolver {
 }
 
 class ResolverItem {
-    private parent?: ResolverItem;
     public scope: Scope;
     public path: RegExp;
     constructor(scope: Scope, path: RegExp) {
