@@ -23,7 +23,25 @@ function getVersion(location: Location) {
 
 interface PathContext {
     context: ApplicationContext,
-    stateHandler?: StateHandler
+    state: PathContextState
+}
+
+class PathContextState {
+    private isInitialized = false;
+    private readonly handler?: StateHandler;
+
+    constructor(handler?: StateHandler) {
+        this.handler = handler;
+    }
+
+    load() {
+        if (this.handler !== undefined) {
+            if (!this.isInitialized && this.handler.init !== undefined) {
+                this.handler.init();
+                this.isInitialized = true;
+            }
+        }
+    }
 }
 
 @component
@@ -37,7 +55,8 @@ class Storage {
 
     constructor(appContext: ApplicationContext) {
         this.appContext = {
-            context: appContext
+            context: appContext,
+            state: new PathContextState()
         };
     }
 
@@ -131,6 +150,8 @@ function useContextByLocation(resolver: Resolver): PathContext {
 
     if (info.current.ctx === null) {
         info.current.ctx = cache.init(history, resolver);
+        info.current.version = getVersion(location);
+        info.current.ctx.state.load();
     }
 
     if (info.current.version !== getVersion(location)) {
@@ -139,6 +160,7 @@ function useContextByLocation(resolver: Resolver): PathContext {
         if (ctx !== undefined) {
             info.current.ctx = ctx;
         }
+        info.current.ctx.state.load();
     }
     return info.current.ctx;
 }
@@ -153,16 +175,16 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     useScrollRestoreManual();
     const resolver = new Resolver(props.resolver);
     const cache = useBean(Storage);
-    const ctx = useContextByLocation(resolver).context;
+    const ctx = useContextByLocation(resolver)
 
     useEffect(() => {
         window.setTimeout(() => {
             cache.restoreScroll();
         }, 10);
-    }, [ctx]);
+    }, [ctx.context]);
 
     // @ts-ignore
-    return React.createElement(ApplicationContextProvider, {context: ctx, children: props.children});
+    return React.createElement(ApplicationContextProvider, {context: ctx.context, children: props.children});
 }
 
 interface StateHandler {
@@ -233,8 +255,12 @@ class Resolver {
         const nI = this.resolve(path2);
         const scope = this.getSuper(lastI, nI.scope);
 
+        const newContext = context.context.createOrGetParentContext(scope).createOrGetParentContext(nI.scope)
+        const handler = nI.stateHandler !== undefined ? newContext.getBean(nI.stateHandler) : undefined
+
         return {
-            context: context.context.createOrGetParentContext(scope).createOrGetParentContext(nI.scope)
+            context: newContext,
+            state: new PathContextState(handler)
         };
     }
 
