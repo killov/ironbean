@@ -247,7 +247,7 @@ class Resolver {
             return s1;
         }
 
-        throw s2;
+        return s2;
     }
 
     getContextFromPaths(context: PathContext, path1: string, path2: string): PathContext {
