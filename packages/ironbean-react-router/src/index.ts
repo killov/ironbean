@@ -159,8 +159,12 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     return React.createElement(ApplicationContextProvider, {context: ctx, children: props.children});
 }
 
-interface IRouterResolver {
-    getScopeForPath(path: string): Scope;
+interface PathSettings {
+    scope: Scope;
+}
+
+export interface IRouterResolver {
+    getSettingsForPath(path: string): PathSettings;
 }
 
 export class RouterResolver implements IRouterResolver {
@@ -173,13 +177,17 @@ export class RouterResolver implements IRouterResolver {
         return new RouterResolver(items);
     }
 
-    getScopeForPath(path: string): Scope {
+    getSettingsForPath(path: string): PathSettings {
         for (let p of this.paths) {
             if (path.search(p.path) === 0) {
-                return p.scope;
+                return {
+                    scope: p.scope
+                }
             }
         }
-        return Scope.getDefault();
+        return {
+            scope: Scope.getDefault()
+        }
     }
 }
 
@@ -190,7 +198,7 @@ class Resolver {
     }
 
     private resolve(path: string): Scope {
-        return this.resolver.getScopeForPath(path);
+        return this.resolver.getSettingsForPath(path).scope;
     }
 
     public getSuper(scope1: Scope, scope2: Scope): Scope {
