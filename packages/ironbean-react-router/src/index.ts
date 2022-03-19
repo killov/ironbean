@@ -1,6 +1,6 @@
 import * as React from "react";
 import {FunctionComponentElement, ReactNode, useContext, useEffect, useRef} from "react";
-import {ApplicationContext, component, Scope} from "ironbean";
+import {ApplicationContext, component, Dependency, Scope} from "ironbean";
 import {ApplicationContextProvider, useBean} from "ironbean-react";
 import * as H from "history";
 import {Location} from "history";
@@ -10,6 +10,7 @@ import {Scroll, useScrollRestoreManual} from "./scroll";
 interface PathItem {
     scope: Scope;
     path: RegExp;
+    handler?: Dependency<StateHandler>
 }
 
 interface IRonRouteProps {
@@ -20,32 +21,39 @@ function getVersion(location: Location) {
     return location.key;
 }
 
+interface PathContext {
+    context: ApplicationContext,
+    stateHandler?: StateHandler
+}
+
 @component
 class Storage {
-    private map = new Map<string, ApplicationContext>();
-    public appContext: ApplicationContext;
+    private map = new Map<string, PathContext>();
+    public appContext: PathContext;
     private last: string = "";
     private scroll = new Scroll();
     private scrollMap = new Map<string, number>();
     private currentNumber = "";
 
     constructor(appContext: ApplicationContext) {
-        this.appContext = appContext;
+        this.appContext = {
+            context: appContext
+        };
     }
 
     private saveControl(state: string, path: string, control: any) {
         this.map.set(state + path, control)
     }
 
-    private getControl(state: string, path: string): ApplicationContext|undefined {
+    private getControl(state: string, path: string): PathContext|undefined {
         return this.map.get(state + path);
     }
 
-    private get(resolver: Resolver, v: string, appContext: ApplicationContext, path1: string, path2: string) {
+    private get(resolver: Resolver, v: string, appContext: PathContext, path1: string, path2: string) {
         return this.getControl(v, path1) ?? resolver.getContextFromPaths(appContext, path1, path2);
     }
 
-    listen(history: H.History, location: Location, resolver: Resolver): ApplicationContext|undefined {
+    listen(history: H.History, location: Location, resolver: Resolver): PathContext|undefined {
         if (history.action === "PUSH" || history.action === "REPLACE") {
             return this.push(location, resolver);
         }
@@ -61,7 +69,7 @@ class Storage {
         this.scroll.set(this.scrollMap.get(v) ?? 0);
     }
 
-    private push(location: Location, resolver: Resolver): ApplicationContext {
+    private push(location: Location, resolver: Resolver): PathContext {
         console.log("create");
         const p1 = this.last;
         const p2 = location.pathname;
@@ -79,7 +87,7 @@ class Storage {
         return this.appContext;
     }
 
-    private pop(location: Location, resolver: Resolver): ApplicationContext {
+    private pop(location: Location, resolver: Resolver): PathContext {
         const p1 = location.pathname;
         const p2 = this.last;
         this.last = location.pathname;
@@ -96,7 +104,7 @@ class Storage {
         this.scrollMap.set(currentv, this.scroll.get());
     }
 
-    init(history: H.History, resolver: Resolver): ApplicationContext {
+    init(history: H.History, resolver: Resolver): PathContext {
         const v = getVersion(history.location);
         this.last = history.location.pathname;
         this.appContext = this.get(resolver, v, this.appContext, history.location.pathname, history.location.pathname);
@@ -112,7 +120,7 @@ export function useHistory(): H.History {
     return nav.navigator as any as H.History;
 }
 
-function useContextByLocation(resolver: Resolver): ApplicationContext {
+function useContextByLocation(resolver: Resolver): PathContext {
     const info = useRef<Info>({
         ctx: null,
         version: null
@@ -136,7 +144,7 @@ function useContextByLocation(resolver: Resolver): ApplicationContext {
 }
 
 interface Info {
-    ctx: ApplicationContext|null,
+    ctx: PathContext|null,
     version: string|null;
 }
 
@@ -145,7 +153,7 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     useScrollRestoreManual();
     const resolver = new Resolver(props.resolver);
     const cache = useBean(Storage);
-    const ctx = useContextByLocation(resolver);
+    const ctx = useContextByLocation(resolver).context;
 
     useEffect(() => {
         window.setTimeout(() => {
@@ -157,8 +165,13 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     return React.createElement(ApplicationContextProvider, {context: ctx, children: props.children});
 }
 
+interface StateHandler {
+    init?(): void;
+}
+
 interface PathSettings {
     scope: Scope;
+    stateHandler?: Dependency<StateHandler>
 }
 
 export interface IRouterResolver {
@@ -168,7 +181,7 @@ export interface IRouterResolver {
 export class RouterResolver implements IRouterResolver {
     paths: ResolverItem[];
     private constructor(paths: PathItem[]) {
-        this.paths = paths.map(e => ResolverItem.from(e.scope, e.path));
+        this.paths = paths.map(e => new ResolverItem(e.scope, e.path, undefined));
     }
 
     public static create(items: PathItem[]) {
@@ -179,7 +192,8 @@ export class RouterResolver implements IRouterResolver {
         for (let p of this.paths) {
             if (path.search(p.path) === 0) {
                 return {
-                    scope: p.scope
+                    scope: p.scope,
+                    stateHandler: p.stateHandler
                 }
             }
         }
@@ -195,8 +209,8 @@ class Resolver {
         this.resolver = resolver;
     }
 
-    private resolve(path: string): Scope {
-        return this.resolver.getSettingsForPath(path).scope;
+    private resolve(path: string): PathSettings {
+        return this.resolver.getSettingsForPath(path);
     }
 
     public getSuper(scope1: Scope, scope2: Scope): Scope {
@@ -214,12 +228,14 @@ class Resolver {
         throw Error("asd");
     }
 
-    getContextFromPaths(context: ApplicationContext, path1: string, path2: string): ApplicationContext {
-        const lastI = this.resolve(path1);
+    getContextFromPaths(context: PathContext, path1: string, path2: string): PathContext {
+        const lastI = this.resolve(path1).scope;
         const nI = this.resolve(path2);
-        const scope = this.getSuper(lastI, nI);
+        const scope = this.getSuper(lastI, nI.scope);
 
-        return context.createOrGetParentContext(scope).createOrGetParentContext(nI);
+        return {
+            context: context.context.createOrGetParentContext(scope).createOrGetParentContext(nI.scope)
+        };
     }
 
 }
@@ -227,12 +243,10 @@ class Resolver {
 class ResolverItem {
     public scope: Scope;
     public path: RegExp;
-    constructor(scope: Scope, path: RegExp) {
+    public stateHandler: Dependency<StateHandler>|undefined;
+    constructor(scope: Scope, path: RegExp, stateHandler: Dependency<StateHandler>|undefined) {
+        this.stateHandler = stateHandler;
         this.scope = scope;
         this.path = path;
-    }
-
-    public static from(scope: Scope, path: RegExp = new RegExp("")): ResolverItem {
-        return new ResolverItem(scope, path);
     }
 }
