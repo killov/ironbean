@@ -3,7 +3,7 @@ import * as React from "react";
 import {render, unmountComponentAtNode} from "react-dom";
 import {useBean} from "ironbean-react";
 import {ApplicationContext, getBaseApplicationContext, Scope} from "ironbean";
-import {IronRouter, useHistory} from "../src";
+import {IronRouter, RouterResolver, useHistory} from "../src";
 import {BrowserRouter, Router} from "react-router-dom";
 import * as H from "history";
 import {Scroll} from "../src/scroll";
@@ -44,13 +44,13 @@ describe("router", () => {
         expect(scroll.get()).toBe(0);
         act(() => {
             render(<BrowserRouter>
-                <IronRouter scope={defScope}
-                    paths={[
+                <IronRouter
+                    resolver={RouterResolver.create([
                         {
                             scope: scope,
                             path: /.+/
                         }
-                    ]}
+                    ])}
             ><Comp /></IronRouter></BrowserRouter>, container);
         });
         await wait();

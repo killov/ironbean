@@ -14,8 +14,7 @@ interface PathItem {
 }
 
 interface IRonRouteProps {
-    scope: Scope;
-    paths: PathItem[]
+    resolver: IRouterResolver;
     children: ReactNode;
 }
 function getVersion(location: Location) {
@@ -146,7 +145,7 @@ interface Info {
 
 export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
     console.log("render root")
-    const resolver = new Resolver(props.paths);
+    const resolver = new Resolver(props.resolver);
     const cache = useBean(Storage);
     const ctx = useContextByLocation(resolver);
 
@@ -160,14 +159,38 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
     return React.createElement(ApplicationContextProvider, {context: ctx, children: props.children});
 }
 
-class Resolver {
+interface IRouterResolver {
+    getScopeForPath(path: string): Scope;
+}
+
+export class RouterResolver implements IRouterResolver {
     paths: ResolverItem[];
-    constructor(paths: PathItem[]) {
+    private constructor(paths: PathItem[]) {
         this.paths = paths.map(e => ResolverItem.from(e.scope, e.path));
     }
 
+    public static create(items: PathItem[]) {
+        return new RouterResolver(items);
+    }
+
+    getScopeForPath(path: string): Scope {
+        for (let p of this.paths) {
+            if (path.search(p.path) === 0) {
+                return p.scope;
+            }
+        }
+        return Scope.getDefault();
+    }
+}
+
+class Resolver {
+    private resolver: IRouterResolver;
+    constructor(resolver: IRouterResolver) {
+        this.resolver = resolver;
+    }
+
     private resolve(path: string): Scope {
-        return this.resolveInternal(path);
+        return this.resolver.getScopeForPath(path);
     }
 
     public getSuper(scope1: Scope, scope2: Scope): Scope {
@@ -193,14 +216,6 @@ class Resolver {
         return context.createOrGetParentContext(scope).createOrGetParentContext(nI);
     }
 
-    private resolveInternal(path: string): Scope {
-        for (let p of this.paths) {
-            if (path.search(p.path) === 0) {
-                return p.scope;
-            }
-        }
-        return Scope.getDefault();
-    }
 }
 
 class ResolverItem {
