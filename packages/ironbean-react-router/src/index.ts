@@ -170,10 +170,25 @@ class Resolver {
         return this.resolveInternal(path);
     }
 
+    public getSuper(scope1: Scope, scope2: Scope): Scope {
+        if (scope1 === scope2 || scope1.isParent(scope2)) {
+            if (scope1 === Scope.getDefault()) {
+                return scope2;
+            }
+            return scope1.getParent()!;
+        }
+
+        if (scope2.isParent(scope1)) {
+            return scope1;
+        }
+
+        throw Error("asd");
+    }
+
     getContextFromPaths(context: ApplicationContext, path1: string, path2: string): ApplicationContext {
         const lastI = this.resolve(path1);
         const nI = this.resolve(path2);
-        const scope = lastI.getSuper(nI).scope
+        const scope = this.getSuper(lastI.scope, nI.scope);
 
         return context.createOrGetParentContext(scope).createOrGetParentContext(nI.scope);
     }
@@ -198,21 +213,6 @@ class ResolverItem {
 
     public isParent(item: ResolverItem): boolean {
         return this.scope.isParent(item.scope);
-    }
-
-    public getSuper(item: ResolverItem): ResolverItem {
-        if (this === item || this.isParent(item)) {
-            if (this.scope === Scope.getDefault()) {
-                return item;
-            }
-            return ResolverItem.from(this.scope.getParent()!);
-        }
-
-        if (item.isParent(this)) {
-            return this;
-        }
-
-        throw Error("asd");
     }
 
     public static from(scope: Scope, path: RegExp = new RegExp("")): ResolverItem {
