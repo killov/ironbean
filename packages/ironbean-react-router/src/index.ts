@@ -166,7 +166,7 @@ class Resolver {
         this.paths = paths.map(e => ResolverItem.from(e.scope, e.path));
     }
 
-    private resolve(path: string): ResolverItem {
+    private resolve(path: string): Scope {
         return this.resolveInternal(path);
     }
 
@@ -188,18 +188,18 @@ class Resolver {
     getContextFromPaths(context: ApplicationContext, path1: string, path2: string): ApplicationContext {
         const lastI = this.resolve(path1);
         const nI = this.resolve(path2);
-        const scope = this.getSuper(lastI.scope, nI.scope);
+        const scope = this.getSuper(lastI, nI);
 
-        return context.createOrGetParentContext(scope).createOrGetParentContext(nI.scope);
+        return context.createOrGetParentContext(scope).createOrGetParentContext(nI);
     }
 
-    private resolveInternal(path: string): ResolverItem {
+    private resolveInternal(path: string): Scope {
         for (let p of this.paths) {
             if (path.search(p.path) === 0) {
-                return p;
+                return p.scope;
             }
         }
-        return ResolverItem.from(Scope.getDefault());
+        return Scope.getDefault();
     }
 }
 
@@ -209,10 +209,6 @@ class ResolverItem {
     constructor(scope: Scope, path: RegExp) {
         this.scope = scope;
         this.path = path;
-    }
-
-    public isParent(item: ResolverItem): boolean {
-        return this.scope.isParent(item.scope);
     }
 
     public static from(scope: Scope, path: RegExp = new RegExp("")): ResolverItem {
