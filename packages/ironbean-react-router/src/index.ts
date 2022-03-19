@@ -5,12 +5,11 @@ import {ApplicationContextProvider, useBean} from "ironbean-react";
 import * as H from "history";
 import {Location} from "history";
 import {UNSAFE_NavigationContext, useLocation} from "react-router";
-import {Scroll} from "./scroll";
+import {Scroll, useScrollRestoreManual} from "./scroll";
 
 interface PathItem {
     scope: Scope;
     path: RegExp;
-    paths?: PathItem[]
 }
 
 interface IRonRouteProps {
@@ -23,7 +22,7 @@ function getVersion(location: Location) {
 
 @component
 class Storage {
-    private map = new Map<string, any>();
+    private map = new Map<string, ApplicationContext>();
     public appContext: ApplicationContext;
     private last: string = "";
     private scroll = new Scroll();
@@ -32,19 +31,18 @@ class Storage {
 
     constructor(appContext: ApplicationContext) {
         this.appContext = appContext;
-        window.history.scrollRestoration = "manual"
     }
 
     private saveControl(state: string, path: string, control: any) {
         this.map.set(state + path, control)
     }
 
-    private getControl(state: string, path: string): any {
+    private getControl(state: string, path: string): ApplicationContext|undefined {
         return this.map.get(state + path);
     }
 
     private get(resolver: Resolver, v: string, appContext: ApplicationContext, path1: string, path2: string) {
-        return this.getControl(v, location.pathname) ?? resolver.getContextFromPaths(appContext, path1, path2);
+        return this.getControl(v, path1) ?? resolver.getContextFromPaths(appContext, path1, path2);
     }
 
     listen(history: H.History, location: Location, resolver: Resolver): ApplicationContext|undefined {
@@ -93,7 +91,6 @@ class Storage {
     }
 
     private save() {
-        // @ts-ignore
         const currentv = this.currentNumber;
         console.log("save " + currentv + " " + this.scroll.get())
         this.scrollMap.set(currentv, this.scroll.get());
@@ -145,6 +142,7 @@ interface Info {
 
 export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRonRouteProps> {
     console.log("render root")
+    useScrollRestoreManual();
     const resolver = new Resolver(props.resolver);
     const cache = useBean(Storage);
     const ctx = useContextByLocation(resolver);

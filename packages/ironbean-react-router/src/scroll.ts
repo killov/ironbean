@@ -1,3 +1,5 @@
+import {useEffect} from "react";
+
 export class Scroll {
     set(offset: number) {
         console.log("set to " + offset)
@@ -16,4 +18,14 @@ export class Scroll {
         }
         return window.pageYOffset || docScrollTop;
     }
+}
+
+export function useScrollRestoreManual() {
+    useEffect(() => {
+        const old = window.history.scrollRestoration;
+        window.history.scrollRestoration = "manual"
+        return () => {
+            window.history.scrollRestoration = old;
+        }
+    })
 }
