@@ -161,13 +161,13 @@ export function IronRouter(props: IRonRouteProps): FunctionComponentElement<IRon
 }
 
 class Resolver {
-    item: ResolverItem;
+    paths: ResolverItem[];
     constructor(scope: Scope, paths: PathItem[]) {
-        this.item = ResolverItem.from(scope, paths)
+        this.paths = paths.map(e => ResolverItem.from(e.scope, e.path));
     }
 
     private resolve(path: string): ResolverItem {
-        return this.resolveInternal(path, this.item.items, this.item);
+        return this.resolveInternal(path);
     }
 
     getContextFromPaths(context: ApplicationContext, path1: string, path2: string): ApplicationContext {
@@ -178,13 +178,13 @@ class Resolver {
         return context.createOrGetParentContext(scope).createOrGetParentContext(nI.scope);
     }
 
-    private resolveInternal(path: string, paths: ResolverItem[], scope: ResolverItem): ResolverItem {
-        for (let p of paths) {
+    private resolveInternal(path: string): ResolverItem {
+        for (let p of this.paths) {
             if (path.search(p.path) === 0) {
-                return this.resolveInternal(path.replace(p.path, ""), p.items, p)
+                return p;
             }
         }
-        return scope;
+        return ResolverItem.from(Scope.getDefault());
     }
 }
 
@@ -192,27 +192,21 @@ class ResolverItem {
     private parent?: ResolverItem;
     public scope: Scope;
     public path: RegExp;
-    public items: ResolverItem[];
-    constructor(scope: Scope, items: ResolverItem[], path: RegExp) {
+    constructor(scope: Scope, path: RegExp) {
         this.scope = scope;
-        this.items = items;
         this.path = path;
-
-        items.forEach(i => {
-            i.parent = this;
-        })
     }
 
     public isParent(item: ResolverItem): boolean {
-        return this.parent === item || (this.parent?.isParent(item) ?? false);
+        return this.scope.isParent(item.scope);
     }
 
     public getSuper(item: ResolverItem): ResolverItem {
         if (this === item || this.isParent(item)) {
-            if (this.parent === undefined) {
+            if (this.scope === Scope.getDefault()) {
                 return item;
             }
-            return this.parent;
+            return ResolverItem.from(this.scope.getParent()!);
         }
 
         if (item.isParent(this)) {
@@ -222,7 +216,7 @@ class ResolverItem {
         throw Error("asd");
     }
 
-    public static from(scope: Scope, paths: PathItem[], path: RegExp = new RegExp("")): ResolverItem {
-        return new ResolverItem(scope, paths.map(p => ResolverItem.from(p.scope, p.paths ?? [], p.path)), path);
+    public static from(scope: Scope, path: RegExp = new RegExp("")): ResolverItem {
+        return new ResolverItem(scope, path);
     }
 }

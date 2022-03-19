@@ -6,7 +6,6 @@ import {ApplicationContext, getBaseApplicationContext, Scope} from "ironbean";
 import {IronRouter, useHistory} from "../src";
 import {BrowserRouter, Router} from "react-router-dom";
 import * as H from "history";
-import {getDefaultScope} from "ironbean/dist/scope";
 import {Scroll} from "../src/scroll";
 
 describe("router", () => {
@@ -28,7 +27,7 @@ describe("router", () => {
 
     it("renders with or without a name", async () => {
         const scroll = new Scroll();
-        const defScope = getDefaultScope();
+        const defScope = Scope.getDefault();
         const scope = Scope.create("SCOPE");
         const rootContext = getBaseApplicationContext();
 
