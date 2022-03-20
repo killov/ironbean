@@ -198,6 +198,7 @@ interface PathSettings {
 
 export interface IRouterResolver {
     getSettingsForPath(path: string): PathSettings;
+    getBaseScopeForPaths(path1: string, path2: string): Scope;
 }
 
 export class RouterResolver implements IRouterResolver {
@@ -217,6 +218,28 @@ export class RouterResolver implements IRouterResolver {
             }
         }
         return item;
+    }
+
+    getBaseScopeForPaths(path1: string, path2: string): Scope {
+        const p1 = this.getSettingsForPath(path1);
+        const p2 = this.getSettingsForPath(path2);
+
+        return this.getSuper(p1.scope, p2.scope);
+    }
+
+    private getSuper(scope1: Scope, scope2: Scope): Scope {
+        const s1 = scope1.getParent() ?? Scope.getDefault();
+        const s2 = scope2.getParent() ?? Scope.getDefault();
+
+        if (s1 === s2) {
+            return s1;
+        }
+
+        if (s1.isParent(s2)) {
+            return s1;
+        }
+
+        return s2;
     }
 
     getSettingsForPath(path: string): PathSettings {
@@ -244,27 +267,11 @@ class Resolver {
         return this.resolver.getSettingsForPath(path);
     }
 
-    public getSuper(scope1: Scope, scope2: Scope): Scope {
-        const s1 = scope1.getParent() ?? Scope.getDefault();
-        const s2 = scope2.getParent() ?? Scope.getDefault();
-
-        if (s1 === s2) {
-            return s1;
-        }
-
-        if (s1.isParent(s2)) {
-            return s1;
-        }
-
-        return s2;
-    }
-
     getContextFromPaths(context: PathContext, path1: string, path2: string): PathContext {
-        const lastI = this.resolve(path1).scope;
         const nI = this.resolve(path2);
-        const scope = this.getSuper(lastI, nI.scope);
+        const baseScope = this.resolver.getBaseScopeForPaths(path1, path2);
 
-        const newContext = context.context.createOrGetParentContext(scope).createOrGetParentContext(nI.scope)
+        const newContext = context.context.createOrGetParentContext(baseScope).createOrGetParentContext(nI.scope)
         const handler = nI.stateHandler !== undefined ? newContext.getBean(nI.stateHandler) : undefined
 
         return {
