@@ -200,6 +200,24 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(2);
     });
 
+    it("inject by class key class return of factory", () => {
+        class Cisilko extends DependencyToken.Number {}
+        let i = 0;
+
+        @component
+        class A {
+            @autowired
+            num: Cisilko;
+        }
+
+        take(Cisilko).setFactory(() => i++);
+        expect(applicationContext.getBean(Cisilko)).toBe(0);
+        expect(applicationContext.getBean(Cisilko)).toBe(1);
+        expect(applicationContext.getBean(Cisilko)).toBe(2);
+        expect(applicationContext.getBean(A).num).toBe(3);
+        expect(applicationContext.getBean(A).num).toBe(3);
+    });
+
     it("test context for class created by factory", () => {
         @component(ComponentType.Prototype)
         class B {

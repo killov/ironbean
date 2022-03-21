@@ -103,6 +103,9 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     public postConstruct(container: ComponentContainer, instance: any) {
+        if (this.factory) {
+            return;
+        }
         const Class = this._Class;
 
         for (let key of getAllPropertyNames(Class.prototype)) {

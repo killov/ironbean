@@ -36,6 +36,13 @@ export abstract class Component<T = any> implements IConstructable<T> {
             return Reflect.getOwnMetadata(component$, object);
         }
 
+        const component = this.createComponentForToken(object);
+        Reflect.defineMetadata(component$, component, object)
+
+        return component;
+    }
+
+    private static createComponentForToken<T>(object: Dependency<T>): Component {
         if (object instanceof LazyToken) {
             return Component.create<T>(object.dependency).toLazy();
         }
@@ -44,10 +51,11 @@ export abstract class Component<T = any> implements IConstructable<T> {
             return Component.create<T>(object.dependency).toCollection();
         }
 
-        const component = object instanceof DependencyToken ? DependencyComponent.create<T>(object as any) : ClassComponent.create<T>(object);
-        Reflect.defineMetadata(component$, component, object)
+        if (typeof object === "function" && object.prototype instanceof DependencyToken) {
+            return DependencyComponent.create(DependencyToken.create(object.name, {componentType: ComponentType.Prototype}));
+        }
 
-        return component;
+        return object instanceof DependencyToken ? DependencyComponent.create<T>(object) : ClassComponent.create<T>(object);
     }
 
     public toLazy(): LazyComponent<T> {
