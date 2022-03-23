@@ -218,6 +218,23 @@ describe("test", () => {
         expect(applicationContext.getBean(A).num).toBe(3);
     });
 
+    it("inject by dependency token Array", () => {
+        class Cisilka extends DependencyToken.Array<number> {}
+
+        @component
+        class A {
+            @autowired
+            cisilka: Cisilka;
+        }
+
+        take(Cisilka).setFactory(() => [1, 2]);
+        expect(applicationContext.getBean(Cisilka)).toEqual([1, 2]);
+        expect(applicationContext.getBean(Cisilka)).toEqual([1, 2]);
+        expect(applicationContext.getBean(Cisilka)).toEqual([1, 2]);
+        expect(applicationContext.getBean(A).cisilka).toEqual([1, 2]);
+        expect(applicationContext.getBean(A).cisilka).toEqual([1, 2]);
+    });
+
     it("test context for class created by factory", () => {
         @component(ComponentType.Prototype)
         class B {

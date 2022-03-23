@@ -6,6 +6,7 @@ interface ISettings {
 }
 
 class NumberDependencyToken extends Number {}
+class ArrayDependencyToken<T> extends Array<T> {}
 
 export class DependencyToken<TDependency> {
     // @ts-ignore
@@ -13,7 +14,8 @@ export class DependencyToken<TDependency> {
     private _componentType: ComponentType;
     private readonly _scope: Scope;
     private readonly _name: string;
-    public static Number: TClass<NumberDependencyToken>;
+    public static Number: typeof NumberDependencyToken;
+    public static Array: typeof ArrayDependencyToken;
 
     private constructor(name: string, componentType: ComponentType, scope: Scope) {
         this._name = name;
@@ -48,3 +50,4 @@ abstract class Fake extends DependencyToken {
 }
 
 DependencyToken.Number = Fake as any;
+DependencyToken.Array = Fake as any;
