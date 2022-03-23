@@ -1,4 +1,4 @@
-import {ComponentType, Scope, TClass} from "./internals";
+import {ComponentType, Scope} from "./internals";
 
 interface ISettings {
     componentType?: ComponentType;
