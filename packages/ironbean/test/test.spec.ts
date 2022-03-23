@@ -369,6 +369,21 @@ describe("test", () => {
         expect(b.a.b).toBe(20);
     })
 
+    it("when class has factory -> postConstruct have not been called", () => {
+        class G {
+            @postConstruct
+            post() {
+            }
+        }
+
+        spyOn(G.prototype, "post");
+
+        take(G).setFactory(() => new G);
+
+        applicationContext.getBean(G);
+        expect(G.prototype.post).not.toHaveBeenCalled();
+    });
+
     it("missing param type", () => {
         @component
         class A {
