@@ -21,6 +21,7 @@ interface DecoratorContext {
 
 interface PropertyDecoratorContext extends DecoratorContext {
     type: Dependency<any>|undefined;
+    propertyName: string|symbol;
 }
 
 abstract class DecoratorContextImpl implements DecoratorContext {
@@ -42,7 +43,7 @@ abstract class DecoratorContextImpl implements DecoratorContext {
 }
 
 class PropertyDecoratorContextImpl extends DecoratorContextImpl implements PropertyDecoratorContext {
-    private readonly propertyName: string | symbol;
+    readonly propertyName: string | symbol;
 
     constructor(component: Component, instance: object, propertyName: string|symbol) {
         super(component, instance);
@@ -154,11 +155,12 @@ interface IMethodDecoratorSettings {
 interface MethodDecoratorContext extends DecoratorContext {
     callMethod(): any;
     args: any[];
+    propertyName: string|symbol;
 }
 
 class MethodDecoratorContextImpl extends DecoratorContextImpl implements MethodDecoratorContext {
     private readonly method: () => any;
-    private readonly propertyName: string|symbol;
+    readonly propertyName: string|symbol;
     public readonly args: any[];
 
     constructor(component: Component, instance: object, propertyName: string|symbol, method: () => any, args: any) {
@@ -198,7 +200,6 @@ interface ClassDecoratorContext extends DecoratorContext {
 }
 
 class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDecoratorContext {
-    private static DATA = Symbol();
     public Class: TClass<any>;
     public args: any[];
 
