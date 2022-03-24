@@ -1,6 +1,8 @@
 export {
-    TestProvider,
     IPlugin,
     registerPlugin,
     createComponentContext
 } from "./internals";
+export {
+    TestProvider
+} from "./internalsTesting";

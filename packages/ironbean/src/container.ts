@@ -8,12 +8,18 @@ import {
     DependencyStorage,
     IConstructable,
     Scope,
-    ScopeImpl
+    ScopeImpl,
+    TClass
 } from "./internals";
 import {Stack} from "./stack";
 
 @component(ComponentType.Singleton)
 export class Container {
+    static isContainer(Class: TClass<any>) {
+        return (Class as any)["$container"] === Container.$container;
+    }
+
+    private static $container = Symbol("container");
     protected readonly storage: DependencyStorage = new DependencyStorage();
     protected readonly parent: Container|null;
     protected readonly scope: ScopeImpl;

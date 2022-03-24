@@ -1,7 +1,7 @@
-import {CollectionToken, ComponentContainer, Container, IPlugin, PluginToken, take, TestContainer} from "./internals";
+import {CollectionToken, ComponentContainer, Container, IPlugin, PluginToken, take} from "./internals";
 
 class ContainerStorage {
-    private container: Container | null = null;
+    public container: Container | null = null;
     public currentComponentContainer: ComponentContainer | undefined;
     public currentContainer: Container | undefined;
     private _plugins: IPlugin[] = [];
@@ -23,20 +23,7 @@ class ContainerStorage {
         return this.container;
     }
 
-    getTestContainer(): TestContainer {
-        if (!this.container) {
-            this.container = new TestContainer();
-            this.initContainer(this.container);
-        }
-
-        if (!(this.container instanceof TestContainer)) {
-            throw new Error("You can't get test container because another container already exists.");
-        }
-
-        return this.container;
-    }
-
-    private initContainer(container: Container) {
+    initContainer(container: Container) {
         container.init();
         this.reloadPlugins();
     }

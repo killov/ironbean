@@ -7,12 +7,10 @@ export {
     scope,
     collection,
     getBaseApplicationContext,
-    getBaseTestingContext,
     destroyContext,
     take,
     DependencyToken,
     ApplicationContext,
-    TestingContext,
     ComponentContext,
     IFactory,
     Dependency,
@@ -21,5 +19,9 @@ export {
     provideScope,
     lazy
 } from "./internals";
+export {
+    getBaseTestingContext,
+    TestingContext
+} from "./internalsTesting";
 
 

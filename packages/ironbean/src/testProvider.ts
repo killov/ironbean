@@ -1,4 +1,4 @@
-import {component, DependencyToken, getAllPropertyNames, TClass} from "./internals";
+import {component, DependencyToken, getAllPropertyNames, TClass} from "./internalsTesting";
 
 @component
 export class TestProvider {

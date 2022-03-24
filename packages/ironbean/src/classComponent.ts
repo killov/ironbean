@@ -1,16 +1,14 @@
 import {
-    ApplicationContext,
     Component,
     ComponentContainer,
     ComponentType,
     constants,
     Container,
     getAllPropertyNames,
+    isContext,
     Scope,
     ScopeImpl,
     TClass,
-    TestContainer,
-    TestingContext
 } from "./internals";
 
 export class ClassComponent<T> extends Component<T> {
@@ -129,7 +127,7 @@ export class ClassComponent<T> extends Component<T> {
         const Class = this._Class;
 
         // @ts-ignore
-        return Class === ApplicationContext || Class === TestingContext || Class === Container || Class === TestContainer;
+        return isContext(Class) || Container.isContainer(Class);
     }
 
     isConstructable(): boolean {

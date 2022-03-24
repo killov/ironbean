@@ -16,7 +16,7 @@ import {
     TestingContext,
     TestingContextComponent,
     TestProvider
-} from "./internals";
+} from "./internalsTesting";
 
 @component(ComponentType.Singleton)
 export class TestContainer extends Container {
