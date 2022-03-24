@@ -265,6 +265,44 @@ describe("test", () => {
         expect(applicationContext.getBean(A).cisilka).toEqual([1, 2]);
     });
 
+    it("inject by dependency token Map", () => {
+        class Cisilka extends DependencyToken.Map<number, number> {}
+
+        @component
+        class A {
+            @autowired
+            cisilka: Cisilka;
+        }
+
+        const map = new Map<number, number>();
+
+        take(Cisilka).setFactory(() => map);
+        expect(applicationContext.getBean(Cisilka)).toEqual(map);
+        expect(applicationContext.getBean(Cisilka)).toEqual(map);
+        expect(applicationContext.getBean(Cisilka)).toEqual(map);
+        expect(applicationContext.getBean(A).cisilka).toEqual(map);
+        expect(applicationContext.getBean(A).cisilka).toEqual(map);
+    });
+
+    it("inject by dependency token Set", () => {
+        class Cisilka extends DependencyToken.Set<number> {}
+
+        @component
+        class A {
+            @autowired
+            cisilka: Cisilka;
+        }
+
+        const set = new Set<number>();
+
+        take(Cisilka).setFactory(() => set);
+        expect(applicationContext.getBean(Cisilka)).toEqual(set);
+        expect(applicationContext.getBean(Cisilka)).toEqual(set);
+        expect(applicationContext.getBean(Cisilka)).toEqual(set);
+        expect(applicationContext.getBean(A).cisilka).toEqual(set);
+        expect(applicationContext.getBean(A).cisilka).toEqual(set);
+    });
+
     it("test context for class created by factory", () => {
         @component(ComponentType.Prototype)
         class B {

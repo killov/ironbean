@@ -9,6 +9,8 @@ abstract class NumberDependencyToken extends Number {}
 abstract class StringDependencyToken extends String {}
 abstract class BooleanDependencyToken extends Boolean {}
 abstract class ArrayDependencyToken<T> extends Array<T> {}
+abstract class MapDependencyToken<K, V> extends Map<K, V> {}
+abstract class SetDependencyToken<T> extends Set<T> {}
 
 export class DependencyToken<TDependency> {
     // @ts-ignore
@@ -20,6 +22,8 @@ export class DependencyToken<TDependency> {
     public static String: typeof StringDependencyToken;
     public static Boolean: typeof BooleanDependencyToken;
     public static Array: typeof ArrayDependencyToken;
+    public static Map: typeof MapDependencyToken;
+    public static Set: typeof SetDependencyToken;
 
     private constructor(name: string, componentType: ComponentType, scope: Scope) {
         this._name = name;
@@ -57,3 +61,5 @@ DependencyToken.Number = Fake as any;
 DependencyToken.String = Fake as any;
 DependencyToken.Boolean = Fake as any;
 DependencyToken.Array = Fake as any;
+DependencyToken.Map = Fake as any;
+DependencyToken.Set = Fake as any;
