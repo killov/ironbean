@@ -233,6 +233,21 @@ describe("test", () => {
         expect(applicationContext.getBean(A).num).toBe("retizek");
     });
 
+    it("inject by dependency token bool", () => {
+        class Retizek extends DependencyToken.Boolean {}
+
+        @component
+        class A {
+            @autowired
+            num: Retizek;
+        }
+
+        take(Retizek).setFactory(() => true);
+        expect(applicationContext.getBean(Retizek)).toBe(true);
+        expect(applicationContext.getBean(A).num).toBe(true);
+        expect(applicationContext.getBean(A).num).toBe(true);
+    });
+
     it("inject by dependency token Array", () => {
         class Cisilka extends DependencyToken.Array<number> {}
 
