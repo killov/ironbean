@@ -1,6 +1,5 @@
 import {
     ApplicationContext,
-    cacheMap,
     CollectionToken,
     Component,
     ComponentContainer,
@@ -18,7 +17,6 @@ import {
 interface DecoratorContext {
     isComponent: boolean;
     componentContext: ComponentContext;
-    data: Map<any, any>;
 }
 
 interface PropertyDecoratorContext extends DecoratorContext {
@@ -32,21 +30,6 @@ abstract class DecoratorContextImpl implements DecoratorContext {
     protected constructor(component: Component, instance: object) {
         this.component = component;
         this.instance = instance;
-    }
-
-    abstract get data(): Map<any, any>;
-
-    get instanceData(): Map<any, any> {
-        if (!this.component.isComponent()) {
-            return new Map<any, any>();
-        }
-        let data = Reflect.getOwnMetadata(constants.componentInstanceData, this.instance);
-        if (!data) {
-            data = new Map<any, any>();
-            Reflect.defineMetadata(constants.componentInstanceData, data, this.instance);
-        }
-
-        return data;
     }
 
     get isComponent(): boolean {
@@ -68,10 +51,6 @@ class PropertyDecoratorContextImpl extends DecoratorContextImpl implements Prope
 
     get type(): Dependency<any>|undefined {
         return resolveType(this.instance, this.propertyName);
-    }
-
-    get data(): Map<any, any> {
-        return cacheMap(this.instanceData, this.propertyName, () => new Map<any, any>());
     }
 
     set value(value: any) {
@@ -192,10 +171,6 @@ class MethodDecoratorContextImpl extends DecoratorContextImpl implements MethodD
     callMethod(): any {
         return this.method();
     }
-
-    get data(): Map<any, any> {
-        return cacheMap(this.instanceData, this.propertyName, () => new Map<any, any>());
-    }
 }
 
 export function createMethodDecorator(settings: IMethodDecoratorSettings): MethodDecorator {
@@ -242,10 +217,6 @@ class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDec
 
     get componentContainer(): ComponentContainer {
         return this.componentContext.getBean(ComponentContainer);
-    }
-
-    get data(): Map<any, any> {
-        return cacheMap(this.instanceData, ClassDecoratorContextImpl.DATA, () => new Map<any, any>());
     }
 }
 

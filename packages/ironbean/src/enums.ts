@@ -3,7 +3,6 @@ export const constants = {
     postConstruct: "_ioc_postConstruct",
     componentType: "_ioc_componentType",
     componentContainer: "_ioc_componentContainer",
-    componentInstanceData: "_ioc_componentInstanceData",
     types: "_ioc_keys",
     lazy: "_ioc_lazy",
     collection: "_ioc_collection",
