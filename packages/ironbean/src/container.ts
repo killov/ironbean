@@ -3,6 +3,7 @@ import {
     component,
     ComponentContainer,
     ComponentType,
+    ContainerFactory,
     containerStorage,
     Dependency,
     DependencyStorage,
@@ -121,7 +122,8 @@ export class Container {
     }
 
     private createContainer(scope: ScopeImpl): Container {
-        const container = new Container(this, scope);
+        const factory = this.getBean(ContainerFactory);
+        const container = factory.create(this, scope);
         container.init();
 
         return container;

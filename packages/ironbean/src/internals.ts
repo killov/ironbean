@@ -4,6 +4,7 @@ export * from './lazy';
 export * from './collection';
 export * from "./zaop";
 export * from "./decorators";
+export * from "./containerFactory";
 export * from "./provideScope";
 export * from "./autowired";
 export * from "./containerStorage";
