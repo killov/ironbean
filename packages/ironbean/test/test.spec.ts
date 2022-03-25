@@ -950,9 +950,9 @@ describe("test", () => {
         const ia4 = applicationContext.getBean(a);
         expectDependenciesCount(4);
         const ticket1 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
-        expectDependenciesCount(5);
+        expectDependenciesCount(4);
         const ticket2 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
-        expectDependenciesCount(5);
+        expectDependenciesCount(4);
         expect(() => {
             applicationContext.getBean(Ticket);
         }).toThrowError("I can't create a container for (Class Ticket) for scope (DEFAULT.ticket), Please use createOrGetParentContext for manual creation.");
