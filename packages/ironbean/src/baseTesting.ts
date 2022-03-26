@@ -5,13 +5,13 @@ import {
     ComponentType,
     Dependency,
     FunctionFactory,
+    Scope,
     TClass,
-    TestContainer
+    TestContainer,
 } from "./internalsTesting";
 import {getTestContainer} from "./containerStorageTesting";
 
-@component(ComponentType.Singleton)
-export class TestingContext extends ApplicationContext {
+export abstract class TestingBaseContext<TContext extends ApplicationContext> extends ApplicationContext {
     private testContainer: TestContainer;
 
     constructor(container: TestContainer) {
@@ -41,6 +41,17 @@ export class TestingContext extends ApplicationContext {
 
     public getMock<T>(dependency: Dependency<T>): T {
         return this.getBean(dependency);
+    }
+
+    public createOrGetParentContext(scope: Scope): TContext {
+        return super.createOrGetParentContext(scope) as any;
+    }
+}
+
+@component(ComponentType.Singleton)
+export class TestingContext extends TestingBaseContext<TestingContext> {
+    constructor(container: TestContainer) {
+        super(container);
     }
 }
 

@@ -12,6 +12,7 @@ import {
     Factory,
     FunctionFactory,
     IConstructable,
+    ScopeImpl,
     TClass,
     TestingContext,
     TestingContextComponent,
@@ -30,6 +31,13 @@ export class TestContainer extends Container {
         this.disableMock(TestingContext);
         this.disableMock(TestContainer);
         this.testProvider = this.getBean(TestProvider);
+    }
+
+    protected createContainer(scope: ScopeImpl): TestContainer {
+        const container = new TestContainer(this, scope);
+        container.init();
+
+        return container;
     }
 
     public getComponent(component: Component): Component {

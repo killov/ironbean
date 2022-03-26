@@ -120,7 +120,7 @@ export class Container {
         return container.getOrCreateContainerForScope(scope, component);
     }
 
-    private createContainer(scope: ScopeImpl): Container {
+    protected createContainer(scope: ScopeImpl): Container {
         const container = new Container(this, scope);
         container.init();
 

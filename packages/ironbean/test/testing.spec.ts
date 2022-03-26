@@ -1,10 +1,17 @@
 import {
     autowired,
     component,
-    type,
+    ComponentType,
+    DependencyToken,
     destroyContext,
+    getBaseApplicationContext,
+    getBaseTestingContext,
     postConstruct,
-    getBaseTestingContext, TestingContext, getBaseApplicationContext, DependencyToken, take, ComponentType, IFactory
+    Scope,
+    scope,
+    take,
+    TestingContext,
+    type
 } from "../src";
 import {Container} from "../src/container";
 
@@ -331,5 +338,31 @@ describe("testing", () => {
 
         const iA = testingContext.getBeanWithMocks(a);
         expect(iA.a).toBe(null);
+    });
+
+    it("scopes", () => {
+        const SCOPE = Scope.create("scope");
+
+        @component
+        @scope(SCOPE)
+        class A {
+
+        }
+
+        const mock = new A();
+        testingContext.setMockFactory(A, () => mock);
+
+        expect(() => {
+            testingContext.getBean(A);
+        }).toThrowError("I can't create a container for (Class A) for scope (DEFAULT.scope), Please use createOrGetParentContext for manual creation.")
+
+        const contextScope = testingContext.createOrGetParentContext(SCOPE);
+        expect(contextScope.getBean(A)).not.toBe(mock);
+        expect(contextScope.getBean(A)).toBe(contextScope.getBean(A));
+
+        const contextScope2 = testingContext.createOrGetParentContext(SCOPE);
+        contextScope2.setMockFactory(A, () => mock);
+        expect(contextScope2.getBean(A)).toBe(mock);
+        expect(contextScope2.getBean(A)).toBe(contextScope2.getBean(A));
     });
 });
