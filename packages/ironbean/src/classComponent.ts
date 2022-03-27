@@ -5,6 +5,7 @@ import {
     constants,
     Container,
     getAllPropertyNames,
+    Instance,
     isContext,
     Scope,
     ScopeImpl,
@@ -58,7 +59,7 @@ export class ClassComponent<T> extends Component<T> {
         return components;
     }
 
-    public construct(container: ComponentContainer): T {
+    public construct(container: ComponentContainer): Instance<T> {
         if (this.factory) {
             return this.factory.construct(container);
         }
@@ -67,7 +68,7 @@ export class ClassComponent<T> extends Component<T> {
         const instance = new this._Class(...params);
         Reflect.defineMetadata(constants.componentContainer, container, instance);
 
-        return instance;
+        return new Instance(instance);
     }
 
     private static getComponents(types: any[], key: any[], lazy: any[], collection: any[]): Component[] {
@@ -100,15 +101,15 @@ export class ClassComponent<T> extends Component<T> {
         }
     }
 
-    public postConstruct(container: ComponentContainer, instance: any) {
+    public postConstruct(container: ComponentContainer, instance: Instance<any>) {
         if (this.factory) {
             return;
         }
         const Class = this._Class;
 
         for (let key of getAllPropertyNames(Class.prototype)) {
-            if (Reflect.getMetadata(constants.postConstruct, instance, key)) {
-                (instance[key] as Function).apply(instance, ClassComponent.getDependencyListFromMethod(Class, key, container));
+            if (Reflect.getMetadata(constants.postConstruct, instance.value, key)) {
+                (instance.value[key] as Function).apply(instance.value, ClassComponent.getDependencyListFromMethod(Class, key, container));
             }
         }
     }

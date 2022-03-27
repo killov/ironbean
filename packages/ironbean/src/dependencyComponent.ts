@@ -1,4 +1,4 @@
-import {Component, ComponentContainer, ComponentType, DependencyToken, ScopeImpl} from "./internals";
+import {Component, ComponentContainer, ComponentType, DependencyToken, Instance, ScopeImpl} from "./internals";
 
 export class DependencyComponent<T> extends Component<T> {
     public readonly key: DependencyToken<T>
@@ -24,7 +24,7 @@ export class DependencyComponent<T> extends Component<T> {
         this.key.componentType = componentType;
     }
 
-    public construct(container: ComponentContainer, ..._params: any[]): T {
+    public construct(container: ComponentContainer, ..._params: any[]): Instance<T> {
          if (!this.factory) {
             throw new Error("Factory for " + this.name + " not found.");
         }
@@ -33,7 +33,7 @@ export class DependencyComponent<T> extends Component<T> {
     }
 
 
-    public postConstruct(_container: ComponentContainer, _instance: any) {
+    public postConstruct(_container: ComponentContainer, _instance: Instance<any>) {
 
     }
 

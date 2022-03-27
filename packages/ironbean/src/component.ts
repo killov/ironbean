@@ -11,6 +11,7 @@ import {
     DependencyComponent,
     DependencyToken,
     IFactory,
+    Instance,
     LazyComponent,
     LazyToken,
     ScopeImpl,
@@ -18,7 +19,7 @@ import {
 } from "./internals";
 
 export interface IConstructable<T> {
-    construct(container: ComponentContainer): T;
+    construct(container: ComponentContainer): Instance<T>;
     isConstructable(): boolean;
     name: string;
 }
@@ -76,9 +77,9 @@ export abstract class Component<T = any> implements IConstructable<T> {
         return false;
     }
 
-    abstract construct(container: ComponentContainer): T;
+    abstract construct(container: ComponentContainer): Instance<T>;
 
-    abstract postConstruct(_container: ComponentContainer, _instance: T): void;
+    abstract postConstruct(_container: ComponentContainer, _instance: Instance<T>): void;
 
     public setFactory(factory: Factory<T>): void {
         this.factory = factory;
@@ -127,13 +128,13 @@ export class Factory<T> implements IConstructable<T> {
         this.factory = factory
     }
 
-    public construct(container: ComponentContainer): T {
+    public construct(container: ComponentContainer): Instance<T> {
         const instance = this.constructInstance(container);
         if (instance instanceof Object) {
             Reflect.defineMetadata(constants.componentContainer, container, instance);
         }
 
-        return instance;
+        return new Instance(instance);
     }
 
     private constructInstance(container: ComponentContainer): T {
@@ -155,6 +156,10 @@ export class Factory<T> implements IConstructable<T> {
 
     isConstructable(): boolean {
         return true;
+    }
+
+    isAsync(): boolean {
+        return false;
     }
 
     name = "";

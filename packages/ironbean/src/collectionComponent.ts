@@ -1,4 +1,4 @@
-import {Component, ComponentContainer, ComponentType, ScopeImpl} from "./internals";
+import {Component, ComponentContainer, ComponentType, Instance, ScopeImpl} from "./internals";
 
 export class CollectionComponent<T> extends Component<T> {
     private readonly component: Component<T>;
@@ -11,8 +11,8 @@ export class CollectionComponent<T> extends Component<T> {
         return this;
     }
 
-    construct(container: ComponentContainer): T {
-        return container.getDependencyList(this.component.getCollectionComponents()) as any;
+    construct(container: ComponentContainer): Instance<T> {
+        return new Instance(container.getDependencyList(this.component.getCollectionComponents()) as any);
     }
 
     isConstructable(): boolean {
@@ -35,7 +35,7 @@ export class CollectionComponent<T> extends Component<T> {
         return ComponentType.Prototype;
     }
 
-    postConstruct(_container: ComponentContainer, _instance: T): void {
+    postConstruct(_container: ComponentContainer, _instance: Instance<T>): void {
 
     }
 

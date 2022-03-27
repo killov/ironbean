@@ -1,4 +1,4 @@
-import {Component, ComponentContainer, ComponentType, createLazy, ScopeImpl} from "./internals";
+import {Component, ComponentContainer, ComponentType, createLazy, Instance, ScopeImpl} from "./internals";
 
 export class LazyComponent<T> extends Component<T> {
     private readonly component: Component<T>;
@@ -7,8 +7,8 @@ export class LazyComponent<T> extends Component<T> {
         this.component = component;
     }
 
-    construct(container: ComponentContainer): T {
-        return createLazy(() => container.getComponentInstance(this.component) as any);
+    construct(container: ComponentContainer): Instance<T> {
+        return new Instance(createLazy(() => container.getComponentInstance<T>(this.component).value as any));
     }
 
     isConstructable(): boolean {
@@ -31,7 +31,7 @@ export class LazyComponent<T> extends Component<T> {
         return this.component.getType();
     }
 
-    postConstruct(_container: ComponentContainer, _instance: T): void {
+    postConstruct(_container: ComponentContainer, _instance: Instance<T>): void {
         this.component.postConstruct(_container, _instance);
     }
 

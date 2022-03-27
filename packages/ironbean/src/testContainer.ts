@@ -12,6 +12,7 @@ import {
     Factory,
     FunctionFactory,
     IConstructable,
+    Instance,
     ScopeImpl,
     TClass,
     TestingContext,
@@ -26,7 +27,7 @@ export class TestContainer extends Container {
     private mockFactories: Map<Component, IConstructable<any>> = new Map<Component, IConstructable<any>>();
 
     public init() {
-        this.storage.saveInstance(Component.create<TestContainer>(TestContainer), this);
+        this.storage.saveInstance(Component.create<TestContainer>(TestContainer), new Instance(this));
         this.disableMock(TestProvider);
         this.disableMock(TestingContext);
         this.disableMock(TestContainer);
@@ -75,16 +76,16 @@ export class TestContainer extends Container {
         return !this.disabledMocks.has(this.getComponent(component));
     }
 
-    protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): T {
+    protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): Instance<T> {
         if (this.isComponentForMock(component)) {
             if (this.mockFactories.has(component)) {
                 return super.buildNewInstance(this.mockFactories.get(component)!, componentContainer)
             }
             if (component instanceof ClassComponent) {
-                return this.testProvider.mockClass(component.Class as any);
+                return new Instance(this.testProvider.mockClass(component.Class as any));
             }
             if (component instanceof DependencyComponent) {
-                return this.testProvider.mockUnknown<T>(component.key);
+                return new Instance(this.testProvider.mockUnknown<T>(component.key));
             }
         }
 

@@ -6,3 +6,11 @@ export function getAllPropertyNames(obj: object) {
     }
     return result;
 }
+
+export class AsyncInstance<T> {
+    promise: Promise<T>
+
+    constructor(promise: Promise<T>) {
+        this.promise = promise;
+    }
+}

@@ -7,6 +7,7 @@ import {
     Dependency,
     DependencyStorage,
     IConstructable,
+    Instance,
     Scope,
     ScopeImpl,
     TClass
@@ -31,18 +32,18 @@ export class Container {
     }
 
     init() {
-        this.storage.saveInstance(Component.create<Container>(Container), this);
+        this.storage.saveInstance(Component.create<Container>(Container), new Instance(this));
     }
 
     public getBean<T>(dependency: Dependency<T>): T {
-        return this.getComponentInstance(Component.create(dependency));
+        return this.getComponentInstance(Component.create(dependency)).value;
     }
 
     public getComponent(component: Component): Component {
         return component.getComponent();
     }
 
-    public getComponentInstance<T>(component: Component<T>): T {
+    public getComponentInstance<T>(component: Component<T>): Instance<T> {
         component = this.getComponent(component);
         const instance = this.storage.getInstance(component);
 
@@ -54,7 +55,7 @@ export class Container {
                 }
                 const type = component.getType();
                 const componentContainer = new ComponentContainer(this);
-                let instance;
+                let instance: Instance<T>;
 
                 try {
                     if (type === ComponentType.Singleton && this.resolvingStack.contains(component)) {
@@ -76,7 +77,7 @@ export class Container {
             }
         }
 
-        return instance as T;
+        return instance as Instance<T>;
     }
 
     protected isConstructable<T>(component: IConstructable<T>): boolean {
@@ -127,7 +128,7 @@ export class Container {
         return container;
     }
 
-    protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): T {
+    protected buildNewInstance<T>(component: IConstructable<T>, componentContainer: ComponentContainer): Instance<T> {
         if (!this.isConstructable(component)) {
             throw new Error("I can't instantiate a " + component.name + " that is not constructable.");
         }

@@ -1,4 +1,5 @@
 import "reflect-metadata";
+export * from './instance';
 export * from "./enums";
 export * from './lazy';
 export * from './collection';
