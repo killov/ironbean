@@ -1,5 +1,10 @@
 # ironbean
 
+## 1.0.8
+- Dependency tokens over class extend
+- preparation code splitting for testing
+- preparation code for async dependencies
+
 ## 1.0.7
 - Scope.getDefault()
 - Scope.isParent(scope: Scope)
