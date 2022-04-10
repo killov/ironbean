@@ -31,6 +31,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
     protected factory?: Factory<T>;
     private lazy: LazyComponent<T>|undefined;
     private collection: CollectionComponent<T>|undefined;
+    private classType: TClass<T>|undefined;
 
     public static create<T>(object: Dependency<T>): Component<T> {
         if (Reflect.hasOwnMetadata(component$, object)) {
@@ -72,6 +73,14 @@ export abstract class Component<T = any> implements IConstructable<T> {
     abstract getType(): ComponentType;
 
     abstract setType(type: ComponentType): void;
+
+    public setClassType<TT extends T>(classType: TClass<TT>) {
+        this.classType = classType;
+    }
+
+    public getClassType(): TClass<T>|undefined {
+        return this.classType;
+    }
 
     public isUnknownType(): boolean {
         return false;

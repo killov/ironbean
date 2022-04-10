@@ -1,4 +1,4 @@
-import {Component, ComponentFactory, ComponentType, Dependency, Factory} from "./internals";
+import {Component, ComponentFactory, ComponentType, Dependency, Factory, TClass} from "./internals";
 
 class Take<TDependency> {
     private readonly takenDependency: Dependency<TDependency>;
@@ -21,6 +21,10 @@ class Take<TDependency> {
 
     public setType(componentType: ComponentType): void {
         this.takenComponent.setType(componentType);
+    }
+
+    public setClassType<T extends TDependency>(classType: TClass<T>): void {
+        this.takenComponent.setClassType(classType);
     }
 
     public clear(): void {

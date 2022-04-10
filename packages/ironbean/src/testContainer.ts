@@ -85,6 +85,10 @@ export class TestContainer extends Container {
                 return new Instance(this.testProvider.mockClass(component.Class as any));
             }
             if (component instanceof DependencyComponent) {
+                const classType = component.getClassType();
+                if (classType !== undefined) {
+                    return new Instance(this.testProvider.mockClass(classType));
+                }
                 return new Instance(this.testProvider.mockUnknown<T>(component.key));
             }
         }

@@ -14,6 +14,7 @@ import {
     type
 } from "../src";
 import {Container} from "../src/container";
+import {TestProvider} from "../src/api";
 
 describe("testing", () => {
     let testingContext: TestingContext;
@@ -364,5 +365,19 @@ describe("testing", () => {
         contextScope2.setMockFactory(A, () => mock);
         expect(contextScope2.getBean(A)).toBe(mock);
         expect(contextScope2.getBean(A)).toBe(contextScope2.getBean(A));
+    });
+
+    it("dependency token set class type using mockClass", () => {
+        class A {
+            a: number;
+        }
+
+        const token = DependencyToken.create<A>("token");
+
+        const mockClassSpy = spyOn(TestProvider.prototype, "mockClass");
+
+        take(token).setClassType(A);
+        const mock = testingContext.getMock(token);
+        expect(mockClassSpy).toHaveBeenCalledWith(A);
     });
 });

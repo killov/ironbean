@@ -45,7 +45,7 @@ class DbTodoStorage {
     }
     
     saveTodo(todo: Todo): void {
-        ...
+        //...
     }
 }
 ```
