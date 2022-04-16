@@ -25,7 +25,7 @@ export class DependencyToken<TDependency> {
     public static Map: typeof MapDependencyToken;
     public static Set: typeof SetDependencyToken;
 
-    private constructor(name: string, componentType: ComponentType, scope: Scope) {
+    protected constructor(name: string, componentType: ComponentType, scope: Scope) {
         this._name = name;
         this._scope = scope;
         this._componentType = componentType;
@@ -53,13 +53,20 @@ export class DependencyToken<TDependency> {
 }
 
 // @ts-ignore
-abstract class Fake extends DependencyToken {
+export abstract class Fake extends DependencyToken<any> {
 
 }
 
-DependencyToken.Number = Fake as any;
-DependencyToken.String = Fake as any;
-DependencyToken.Boolean = Fake as any;
-DependencyToken.Array = Fake as any;
-DependencyToken.Map = Fake as any;
-DependencyToken.Set = Fake as any;
+function createFake(type: any): any {
+    // @ts-ignore
+    return class extends Fake {
+        static type = type;
+    }
+}
+
+DependencyToken.Number = createFake(Number);
+DependencyToken.String = createFake(String);
+DependencyToken.Boolean = createFake(Boolean);
+DependencyToken.Array = createFake(Array);
+DependencyToken.Map = createFake(Map);
+DependencyToken.Set = createFake(Set);

@@ -54,7 +54,11 @@ export abstract class Component<T = any> implements IConstructable<T> {
         }
 
         if (typeof object === "function" && object.prototype instanceof DependencyToken) {
-            return DependencyComponent.create(DependencyToken.create(object.name));
+            const component = DependencyComponent.create(DependencyToken.create(object.name));
+            if ((object as any).type !== undefined) {
+                component.setClassType((object as any).type);
+            }
+            return component;
         }
 
         return object instanceof DependencyToken ? DependencyComponent.create<T>(object) : ClassComponent.create<T>(object);

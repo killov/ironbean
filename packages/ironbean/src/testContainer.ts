@@ -12,7 +12,7 @@ import {
     Factory,
     FunctionFactory,
     IConstructable,
-    Instance,
+    Instance, isPrimitive,
     ScopeImpl,
     TClass,
     TestingContext,
@@ -87,6 +87,9 @@ export class TestContainer extends Container {
             if (component instanceof DependencyComponent) {
                 const classType = component.getClassType();
                 if (classType !== undefined) {
+                    if (isPrimitive(classType)) {
+                        return new Instance(this.testProvider.mockPrimitive(classType));
+                    }
                     return new Instance(this.testProvider.mockClass(classType));
                 }
                 return new Instance(this.testProvider.mockUnknown<T>(component.key));
