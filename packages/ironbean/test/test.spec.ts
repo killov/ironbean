@@ -200,6 +200,14 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(2);
     });
 
+    it("create instance from dependency token", () => {
+        class Cisilko extends DependencyToken.Number {}
+
+        expect(() => {
+            new Cisilko();
+        }).toThrowError("Dependency token is not for create instance over new.");
+    });
+
     it("inject by class key class return of factory", () => {
         class Cisilko extends DependencyToken.Number {}
         let i = 0;

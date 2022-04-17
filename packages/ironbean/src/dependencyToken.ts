@@ -54,7 +54,11 @@ export class DependencyToken<TDependency> {
 
 // @ts-ignore
 export abstract class Fake extends DependencyToken<any> {
-
+    constructor() {
+        // @ts-ignore
+        super();
+        throw new Error("Dependency token is not for create instance over new.");
+    }
 }
 
 function createFake(type: any): any {

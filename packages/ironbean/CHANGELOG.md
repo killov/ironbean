@@ -4,6 +4,8 @@
 - Dependency tokens over class extend
 - preparation code splitting for testing
 - preparation code for async dependencies
+- take setClassType() for automocking in testing
+- automocking for dependency tokens over class extend
 
 ## 1.0.7
 - Scope.getDefault()
