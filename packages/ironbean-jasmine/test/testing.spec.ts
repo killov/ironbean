@@ -19,9 +19,9 @@ describe("jasmine testing", () => {
     }
 
     it("inject by key", () => {
-        const key = DependencyToken.create("key");
-        const key2 = DependencyToken.create("key2");
-        const key3 = DependencyToken.create("key3");
+        const key = DependencyToken.create<string>("key");
+        const key2 = DependencyToken.create<string>("key2");
+        const key3 = DependencyToken.create<b>("key3");
 
         take(key).setFactory(() => "datata");
         take(key2).setFactory(() => "datata22");
@@ -30,10 +30,6 @@ describe("jasmine testing", () => {
         @component
         class a {
             test = "sa";
-
-            get property(): string {
-                return "str";
-            }
 
             constructor(@type(key) data: string, @type(key2) data2: string) {
                 expect(data).toBe("datata");
@@ -61,6 +57,10 @@ describe("jasmine testing", () => {
             @type(key)
             @autowired
             data!: string;
+
+            getBum(): number {
+                return 5;
+            }
         }
 
         const ib1 = testingContext.getBean(b);
@@ -80,17 +80,10 @@ describe("jasmine testing", () => {
         expect(ia1).toBe(ia3);
         expect(ia1).toBe(ia4);
 
-        expect(testingContext.getBean(key)).toBe("datata");
-        expect(testingContext.getBean(key2)).toBe("datata22");
+        expect(testingContext.getBean(key)).toBe(testingContext.getBean(key));
+        expect(testingContext.getBean(key2)).toBe(testingContext.getBean(key2));
 
-        const m = testingContext.getMock(a)
-        m.getText.and.returnValue("ahoja");
-
-        expect(testingContext.getBean(a).property).toBe(undefined as any);
-
-        getPropertyDescriptor(m, "property").get.and.returnValue("ahoja");
-
-        expect(testingContext.getBean(a).property).toBe("ahoja");
+        testingContext.getMock(a).getText.and.returnValue("ahoja");
 
         @component
         class c {
@@ -109,8 +102,10 @@ describe("jasmine testing", () => {
             }
         }
         spyOn(c.prototype, "postConstruct").and.callThrough();
+        testingContext.getMock(key3).getBum.and.returnValue(4);
 
         const ic1 = testingContext.getBeanWithMocks(c);
+        expect(testingContext.getBean(key3).getBum()).toBe(4);
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
