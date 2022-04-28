@@ -11,16 +11,14 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package: [ironbean, ironbean-jasmine, ironbean-react, ironbean-react-router]
-        node-version: [14.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-    defaults:
-      run:
-        working-directory: ./packages/${{ matrix.package }}
 
     steps:
+      - uses: little-core-labs/get-git-tag@v3.0.1
+          id: tagName
+          with:
+            tagRegex: "foobar-(.*)"  # Optional. Returns specified group text as tag name. Full tag string is returned if regex is not defined.
+            tagRegexGroup: 1 # Optional. Default is 1.
+      - working-directory: ./packages/${{ steps.tagName.outputs.tag }}
       - uses: actions/checkout@v3
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
