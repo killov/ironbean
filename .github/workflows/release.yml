@@ -20,7 +20,7 @@ jobs:
     - name: Get tag name
       uses: olegtarasov/get-tag@v2.1.1
       with:
-          tagRegex: "(?<package>.*)-(?<version>.*)"
+          tagRegex: "(?<package>.*)@(?<version>.*)"
     - uses: actions/checkout@v3
     # Setup .npmrc file to publish to npm
     - uses: actions/setup-node@v3
