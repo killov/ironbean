@@ -27,8 +27,8 @@ jobs:
       with:
         node-version: '16.x'
         registry-url: 'https://registry.npmjs.org'
+        working-directory: ./packages/${{ steps.tagName.outputs.package }}
     - run: npm ci
-      working-directory: ./packages/${{ steps.tagName.outputs.package }}
     - run: npm run build
     - run: npm run test:no-watch
     - run: npm publish
