@@ -4,9 +4,10 @@
 name: Publish Package to npmjs
 
 on:
-  release:
+  push:
     branches: [master]
-    types: [created]
+    tags:
+      - ironbean-*
 
 jobs:
   tests:
