@@ -13,21 +13,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: little-core-labs/get-git-tag@v3.0.1
-          id: tagName
-          with:
-            tagRegex: "foobar-(.*)"  # Optional. Returns specified group text as tag name. Full tag string is returned if regex is not defined.
-            tagRegexGroup: 1 # Optional. Default is 1.
-      - working-directory: ./packages/${{ steps.tagName.outputs.tag }}
-      - uses: actions/checkout@v3
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test:no-watch
+    - name: Get tag name
+      uses: olegtarasov/get-tag@v2.1.1
+      with:
+          ttagRegex: "(?<package>.*)-(?<version>.*)" 
+    - working-directory: ./packages/${{ steps.tagName.outputs.package }}
+    - uses: actions/checkout@v3
+    # Setup .npmrc file to publish to npm
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+        registry-url: 'https://registry.npmjs.org'
+    - run: npm ci
+    - run: npm run build
+    - run: npm run test:no-watch
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
