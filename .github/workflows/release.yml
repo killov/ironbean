@@ -17,8 +17,7 @@ jobs:
     - name: Get tag name
       uses: olegtarasov/get-tag@v2.1.1
       with:
-          ttagRegex: "(?<package>.*)-(?<version>.*)" 
-    - working-directory: ./packages/${{ steps.tagName.outputs.package }}
+          ttagRegex: "(?<package>.*)-(?<version>.*)"
     - uses: actions/checkout@v3
     # Setup .npmrc file to publish to npm
     - uses: actions/setup-node@v3
@@ -26,6 +25,7 @@ jobs:
         node-version: '16.x'
         registry-url: 'https://registry.npmjs.org'
     - run: npm ci
+      working-directory: ./packages/${{ steps.tagName.outputs.package }}
     - run: npm run build
     - run: npm run test:no-watch
     - run: npm publish
