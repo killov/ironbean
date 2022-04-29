@@ -27,13 +27,17 @@ jobs:
       with:
         node-version: '16.x'
         registry-url: 'https://registry.npmjs.org'
-    - run: npm ci
+    - name: Install
       working-directory: ./packages/${{ steps.tagName.outputs.package }}
-    - run: npm run build
+      run: npm ci
+    - name: Build
       working-directory: ./packages/${{ steps.tagName.outputs.package }}
-    - run: npm run test:no-watch
+      run: npm run build
+    - name: Tests
       working-directory: ./packages/${{ steps.tagName.outputs.package }}
-    - run: npm publish
+      run: npm run test:no-watch
+    - name: Publish
       working-directory: ./packages/${{ steps.tagName.outputs.package }}
+      run: npm publish
       env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
