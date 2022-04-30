@@ -24,7 +24,6 @@ jobs:
         working-directory: ./packages/${{ matrix.package }}
 
     steps:
-
       - run: npm ci
       - run: npm run build
       - run: npm run test:no-watch
