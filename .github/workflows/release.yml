@@ -23,16 +23,16 @@ jobs:
       run:
         working-directory: ./packages/${{ matrix.package }}
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: packages/${{ matrix.package }}/package-lock.json
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test:no-watch
-      - run: npm publish --dry-run
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: packages/${{ matrix.package }}/package-lock.json
+    - run: npm ci
+    - run: npm run build
+    - run: npm run test:no-watch
+    - run: npm publish --dry-run
       env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
