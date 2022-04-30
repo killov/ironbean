@@ -5,7 +5,6 @@ name: Publish Package to npmjs
 
 on:
   push:
-    branches: [master]
     tags:
       - ironbean@*
       - ironbean-react@*
@@ -15,29 +14,20 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [ironbean, ironbean-jasmine, ironbean-react, ironbean-react-router]
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    defaults:
+      run:
+        working-directory: ./packages/${{ matrix.package }}
 
     steps:
-    - name: Get tag name
-      uses: olegtarasov/get-tag@v2.1.1
-      with:
-          tagRegex: "(?<package>.*)@(?<version>.*)"
-    - uses: actions/checkout@v3
-    # Setup .npmrc file to publish to npm
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '16.x'
-        registry-url: 'https://registry.npmjs.org'
-    - name: Install
-      working-directory: ./packages/${{ steps.tagName.outputs.package }}
-      run: npm ci
-    - name: Build
-      working-directory: ./packages/${{ steps.tagName.outputs.package }}
-      run: npm run build
-    - name: Tests
-      working-directory: ./packages/${{ steps.tagName.outputs.package }}
-      run: npm run test:no-watch
-    - name: Publish
-      working-directory: ./packages/${{ steps.tagName.outputs.package }}
-      run: npm publish
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:no-watch
+      - run: npm publish --dry-run
       env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
