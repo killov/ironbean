@@ -9,7 +9,8 @@
         "build": "tsc",
         "debug": "tsc --watch",
         "test": "karma start karma.conf.js",
-        "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true"
+        "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true",
+        "publish": "publish-if-not-exists"
     },
     "repository": {
         "type": "git",
@@ -31,11 +32,12 @@
         "@types/jasmine": "^3.9.1",
         "jasmine-core": "^3.9.0",
         "karma": "^6.3.4",
-        "karma-commonjs": "^1.0.0",
         "karma-chrome-launcher": "^3.1.0",
+        "karma-commonjs": "^1.0.0",
         "karma-jasmine": "^4.0.1",
         "karma-phantomjs-launcher": "^1.0.4",
         "karma-typescript": "^5.5.2",
+        "publish-if-not-exists": "^1.1.0",
         "typescript": "4.4.4"
     }
 }
