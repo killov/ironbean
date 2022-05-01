@@ -35,5 +35,5 @@ jobs:
     - run: npm run test:no-watch
     - name: Setum npm credentiels
       run: |
-        echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
+        echo //registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN} > .npmrc
     - run: npm run publish
