@@ -12,7 +12,7 @@ on:
       - ironbean-react-router@*
 
 jobs:
-  tests:
+  release:
     runs-on: ubuntu-latest
     strategy:
       matrix:
