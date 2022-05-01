@@ -33,6 +33,8 @@ jobs:
     - run: npm ci
     - run: npm run build
     - run: npm run test:no-watch
+    - name: Setum npm credentiels
+      run: |
+        echo @lexacode:https://npm.pkg.github.com/ > build/.npmrc
+        echo '//npm.pkg.github.com/:_authToken=${NPM_AUTH_TOKEN}' >>
     - run: npm run publish
-      env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
