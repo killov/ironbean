@@ -92,6 +92,99 @@ There are two ways how ironbean can create instances for dependency tokens:
         return createTodoStorage();
    });
    ```
-   
 
 
+### ApplicationContext
+ApplicationContext slouží k získávání závislostí z aktuálního scopu.
+
+#### Získání contextu
+
+ApplicationContext se chová jako běžná komponenta, její intanci můžeme získat přes jakýkoliv typ vložení (viz. typy vložení)
+
+Pokud potřebujeme získat instanci ApplicationContext v globálním prostředí, třeba k ke startu celé aplikace, použijeme funkci getBaseApplicationContext()
+
+ ```typescript
+import {getBaseApplicationContext} from "ironbean";
+
+const context = getBaseApplicationContext();
+// ukázka spuštění aplikace
+const app = context.getBean(Application);
+app.run();
+  ```
+
+#### Popis metod
+- public getBean<T>(dependency: Dependency<T>): T
+  - složí k získání závislosti na základě tokenu závislosti.
+
+### ComponentContext
+Slouží k získávání závislostí uvnitř komponenty. Chová se velmí podobně jako ApplicationContext, jen s tím rozdílem,
+že komponenty typu prototype drží v paměti a nevytváří nové instance. Všechny typy vložení uvnitř komponent využívají interně ComponentContext.
+
+### Typy vložení v class Komponentách
+#### Vložení přes constructor
+K získání instance přes konstruktor se používá intuitivně, pokud máme typescript s reflexí, stačí uvést typ třídy, pokud ne využijeme dekorátor @type
+
+ ```typescript
+import {component} from "ironbean";
+
+@component()
+class Wheel {
+    
+}
+
+@component()
+class Car {
+    private readonly wheel: Wheel;
+
+    constructor(wheel: Wheel) {
+        this.wheel = wheel;
+    }
+}
+```
+
+#### Vložení přes vlastnost
+K vložení instance do vlastnosti slouží dekorátor @autowired, pokud nemám reflexi, použiji @type.
+
+ ```typescript
+import {component, autowired} from "ironbean";
+
+@component()
+class Wheel {
+
+}
+
+@component()
+class Car {
+    @autowired
+    private readonly wheel: Wheel;
+}
+```
+
+#### Vložení přes metodu
+K získání instance přes metodu lze docílit díky decorátoru @postConstruct, podobný princip jako u constructor vložení, jen st ím rozdílem,
+že metoda označená jako @postConstrut se volá po vytvoření instance komponenty.
+
+ ```typescript
+import {component, postConstruct} from "ironbean";
+
+@component()
+class Wheel {
+
+}
+
+@component()
+class Car {
+    private readonly wheel: Wheel;
+    
+    @postConstruct
+    injectWheel(wheel: Wheel) {
+        this.wheel = wheel;
+    }
+}
+```
+
+#### Vytáhnutí z kontextu
+Instanci závislosti jsme schopni získat i ze samotného kontextu přes metodu getBean().
+Tuhle metodu vložení nedoporučuji, jedná se o antipatern, nedává mi totiž smysl tahat klavír, abych získal instanci klávesy, když si rovnou můžu říci o klávesu.
+Tato možnost tu existuje jako poslední varianta při nějakých nesnázích,
+třeba, že bych potřeboval vytvořit více instancí prototype závislostí v rámci jedné komponenty.
