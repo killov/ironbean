@@ -95,30 +95,35 @@ There are two ways how ironbean can create instances for dependency tokens:
 
 
 ### ApplicationContext
-ApplicationContext slouží k získávání závislostí z aktuálního scopu.
+ApplicationContext is used for getting dependencies from current scope.
 
-#### Získání contextu
+#### Getting ApplicationContext
 
-ApplicationContext se chová jako běžná komponenta, její intanci můžeme získat přes jakýkoliv typ vložení (viz. typy vložení)
+Behaviour of ApplicationContext is the same as behaviour of the component.
+We can get the instance of ApplicationContext by using any type of injection.
 
-Pokud potřebujeme získat instanci ApplicationContext v globálním prostředí, třeba k ke startu celé aplikace, použijeme funkci getBaseApplicationContext()
+If we need to get instance of ApplicationContext in global environment,
+for example for starting an application, we use function getBaseApplicationContext().
 
  ```typescript
 import {getBaseApplicationContext} from "ironbean";
 
 const context = getBaseApplicationContext();
-// ukázka spuštění aplikace
+
 const app = context.getBean(Application);
 app.run();
   ```
 
-#### Popis metod
+#### Methods description
 - public getBean<T>(dependency: Dependency<T>): T
-  - složí k získání závislosti na základě tokenu závislosti.
+  - is used for getting dependencies
+  - we need dependency token
 
 ### ComponentContext
-Slouží k získávání závislostí uvnitř komponenty. Chová se velmí podobně jako ApplicationContext, jen s tím rozdílem,
-že komponenty typu prototype drží v paměti a nevytváří nové instance. Všechny typy vložení uvnitř komponent využívají interně ComponentContext.
+ComponentContext is used for getting dependencies intro component.
+Behaviour is almost the same as ApplicationContext, the difference is that component with type prototype
+memorizes instances that were created in previous request of the same dependency token.
+All types of injection inside the components used in background ComponentContext.
 
 ### Typy vložení v class Komponentách
 #### Vložení přes constructor
