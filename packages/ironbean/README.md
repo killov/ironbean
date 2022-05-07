@@ -125,71 +125,88 @@ Behaviour is almost the same as ApplicationContext, the difference is that compo
 memorizes instances that were created in previous request of the same dependency token.
 All types of injection inside the components used in background ComponentContext.
 
-### Typy vložení v class Komponentách
-#### Vložení přes constructor
-K získání instance přes konstruktor se používá intuitivně, pokud máme typescript s reflexí, stačí uvést typ třídy, pokud ne využijeme dekorátor @type
-
+### Inject types in class components
+#### Constructor injection
+Intuitive instance getting by constructor, if you use typescript with reflection you only need to specify type of class, 
+if not, use decorator ```@type```.
  ```typescript
 import {component} from "ironbean";
 
-@component()
-class Wheel {
+@component
+class Enginge {
     
 }
 
-@component()
+@component
 class Car {
-    private readonly wheel: Wheel;
+    private readonly enginge: Enginge;
 
-    constructor(wheel: Wheel) {
-        this.wheel = wheel;
+    constructor(enginge: Enginge) {
+        this.enginge = enginge;
     }
 }
 ```
 
-#### Vložení přes vlastnost
-K vložení instance do vlastnosti slouží dekorátor @autowired, pokud nemám reflexi, použiji @type.
+#### Property injection
+To inject the instance to property use decorator ```@autowired```, if you use reflection, use ```@type```.
 
  ```typescript
 import {component, autowired} from "ironbean";
 
-@component()
-class Wheel {
+@component
+class Enginge {
 
 }
 
-@component()
+@component
 class Car {
     @autowired
-    private readonly wheel: Wheel;
+    private readonly enginge: Enginge;
 }
 ```
 
-#### Vložení přes metodu
-K získání instance přes metodu lze docílit díky decorátoru @postConstruct, podobný princip jako u constructor vložení, jen st ím rozdílem,
-že metoda označená jako @postConstrut se volá po vytvoření instance komponenty.
-
+#### Method injection
+You can achieve method injection by using decorator ```@postConstruct```, it's similar principle as the Constructor injection,
+with the only difference that method marked as @postConstruct is called after initialization of the component instance
  ```typescript
 import {component, postConstruct} from "ironbean";
 
-@component()
-class Wheel {
+@component
+class Engine {
 
 }
 
-@component()
+@component
 class Car {
-    private readonly wheel: Wheel;
+    private engine: Engine;
     
     @postConstruct
-    injectWheel(wheel: Wheel) {
-        this.wheel = wheel;
+    injectWheel(engine: Engine) {
+        this.engine = engine;
     }
 }
 ```
 
-#### Vytáhnutí z kontextu
-Instanci závislosti jsme schopni získat i ze samotného kontextu přes metodu getBean().
-Tuhle metodu vložení nedoporučuji, jedná se o antipatern, nedává mi totiž smysl tahat klavír, abych získal instanci klávesy, když si rovnou můžu říci o klávesu.
-Tato možnost tu existuje jako poslední varianta při nějakých nesnázích,
-třeba, že bych potřeboval vytvořit více instancí prototype závislostí v rámci jedné komponenty.
+#### Context injection - not recommended
+You can get the instance from context itself using method ```getBean()```.
+I don't recommend using this method, because its anti-pattern. It doesn't make sense obtaining whole piano just to get 
+an instance of a key when you can ask for the key directly. This option exists here as a last resort in case of some 
+difficulties, for example if I would need to create more instances of prototype dependencies within one component. 
+
+ ```typescript
+import {component, ApplicationContext} from "ironbean";
+
+@component
+class Engine {
+
+}
+
+@component
+class Car {
+    private engine: Engine;
+    
+    constructor(context: ApplicationContext) {
+        this.engine = context.getBean(Engine);
+    }
+}
+```
