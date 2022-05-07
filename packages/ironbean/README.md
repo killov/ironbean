@@ -114,35 +114,9 @@ app.run();
   ```
 
 #### Methods description
-- public getBean<T>(dependency: Dependency<T>): T
+- ```public getBean<T>(dependency: Dependency<T>): T```
     - is used for getting dependencies
     - we need dependency token
-
-### ComponentContext
-ComponentContext is used for getting dependencies intro component.
-Behaviour is almost the same as ApplicationContext, the difference is that component with type prototype
-memorizes instances that were created in previous request of the same dependency token.
-All types of injection inside the components used in background ComponentContext.
-
-Behaviour of ApplicationContext is the same as behaviour of the component.
-We can get the instance of ApplicationContext by using any type of injection.
-
-If we need to get instance of ApplicationContext in global environment,
-for example for starting an application, we use function getBaseApplicationContext().
-
- ```typescript
-import {getBaseApplicationContext} from "ironbean";
-
-const context = getBaseApplicationContext();
-
-const app = context.getBean(Application);
-app.run();
-  ```
-
-#### Methods description
-- public getBean<T>(dependency: Dependency<T>): T
-  - is used for getting dependencies
-  - we need dependency token
 
 ### ComponentContext
 ComponentContext is used for getting dependencies intro component.
