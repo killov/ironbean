@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.9
+Documentation
+
 ## 1.0.8
 - Dependency tokens over class extend
 - preparation code splitting for testing
