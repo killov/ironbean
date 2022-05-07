@@ -93,7 +93,6 @@ There are two ways how ironbean can create instances for dependency tokens:
   });
   ```
 
-
 ### ApplicationContext
 ApplicationContext is used for getting dependencies from current scope.
 
@@ -124,3 +123,115 @@ ComponentContext is used for getting dependencies intro component.
 Behaviour is almost the same as ApplicationContext, the difference is that component with type prototype
 memorizes instances that were created in previous request of the same dependency token.
 All types of injection inside the components used in background ComponentContext.
+
+Behaviour of ApplicationContext is the same as behaviour of the component.
+We can get the instance of ApplicationContext by using any type of injection.
+
+If we need to get instance of ApplicationContext in global environment,
+for example for starting an application, we use function getBaseApplicationContext().
+
+ ```typescript
+import {getBaseApplicationContext} from "ironbean";
+
+const context = getBaseApplicationContext();
+
+const app = context.getBean(Application);
+app.run();
+  ```
+
+#### Methods description
+- public getBean<T>(dependency: Dependency<T>): T
+  - is used for getting dependencies
+  - we need dependency token
+
+### ComponentContext
+ComponentContext is used for getting dependencies intro component.
+Behaviour is almost the same as ApplicationContext, the difference is that component with type prototype
+memorizes instances that were created in previous request of the same dependency token.
+All types of injection inside the components used in background ComponentContext.
+
+### Inject types in class components
+#### Constructor injection
+Intuitive instance getting by constructor, if you use typescript with reflection you only need to specify type of class, 
+if not, use decorator ```@type```.
+ ```typescript
+import {component} from "ironbean";
+
+@component
+class Enginge {
+    
+}
+
+@component
+class Car {
+    private readonly enginge: Enginge;
+
+    constructor(enginge: Enginge) {
+        this.enginge = enginge;
+    }
+}
+```
+
+#### Property injection
+To inject the instance to property use decorator ```@autowired```, if you use reflection, use ```@type```.
+
+ ```typescript
+import {component, autowired} from "ironbean";
+
+@component
+class Enginge {
+
+}
+
+@component
+class Car {
+    @autowired
+    private readonly enginge: Enginge;
+}
+```
+
+#### Method injection
+You can achieve method injection by using decorator ```@postConstruct```, it's similar principle as the Constructor injection,
+with the only difference that method marked as @postConstruct is called after initialization of the component instance
+ ```typescript
+import {component, postConstruct} from "ironbean";
+
+@component
+class Engine {
+
+}
+
+@component
+class Car {
+    private engine: Engine;
+    
+    @postConstruct
+    injectWheel(engine: Engine) {
+        this.engine = engine;
+    }
+}
+```
+
+#### Context injection - not recommended
+You can get the instance from context itself using method ```getBean()```.
+I don't recommend using this method, because its anti-pattern. It doesn't make sense obtaining whole piano just to get 
+an instance of a key when you can ask for the key directly. This option exists here as a last resort in case of some 
+difficulties, for example if I would need to create more instances of prototype dependencies within one component. 
+
+ ```typescript
+import {component, ApplicationContext} from "ironbean";
+
+@component
+class Engine {
+
+}
+
+@component
+class Car {
+    private engine: Engine;
+    
+    constructor(context: ApplicationContext) {
+        this.engine = context.getBean(Engine);
+    }
+}
+```
