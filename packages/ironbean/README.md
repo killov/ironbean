@@ -209,3 +209,35 @@ class Car {
     }
 }
 ```
+
+### Lazy
+Anotace @lazy nechá vytvořit lazy instanci. Lazy instance funguje tak, že pravá instance se nevytváří v době vkládání,
+ale je místo ní vytvořena lazy instance.
+Pokus o vytvoření pravé instance se provádí až při zapísu nebo získání dat nějaké její vlastnosti.
+Hodí se to v momentě, pokud je vytváření instnace závislosti výpočetně náročné,
+ale i tak chceme intanci použít, ale né vždy ji potřebujeme.
+Anotace @lazy se dá použít jako param decorator nebo field decorator.
+
+ ```typescript
+import {component, autowired, lazy, ApplicationContext} from "ironbean";
+
+@component
+class Engine {
+
+}
+
+@component
+class Car {
+    @lazy
+    @autowired
+    private readonly enginge: Enginge;
+
+    constructor(@lazy engine: Enginge) {
+        this.engine = engine;
+    }
+}
+```
+
+### Collection
+Pokud má závislost více implementací, můžužeme všechny vyžádat najednout pomocí anotace @collection.
+Bude nám vloženo pole instancí všech implentací vyžadované závislosti.
