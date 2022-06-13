@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [ironbean, ironbean-jasmine, ironbean-react-router]
+        package: [ironbean-react]
+        react-version: [16, 17, 18]
         node-version: [14.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     defaults:
@@ -29,6 +30,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: packages/${{ matrix.package }}/package-lock.json
-    - run: npm i
+    - run: npm ci
+    - run: npm i react@${{ matrix.react-version }} react-dom@${{ matrix.react-version }} --save
     - run: npm run build
     - run: npm run test:no-watch
