@@ -26,7 +26,8 @@
         "container"
     ],
     "dependencies": {
-        "reflect-metadata": "^0.1.13"
+        "reflect-metadata": "^0.1.13",
+        "tslib": "^2.4.0"
     },
     "devDependencies": {
         "@types/jasmine": "^3.9.1",
