@@ -109,4 +109,89 @@ describe("jasmine testing", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
+
+    it("inject by class key class return of factory", () => {
+        class Cisilko extends DependencyToken.Number {}
+        let i = 0;
+
+        @component
+        class A {
+            @autowired
+            num: Cisilko;
+        }
+        (6).toFixed()
+
+        take(Cisilko).setFactory(() => i++);
+        expect(testingContext.getBean(Cisilko)).toBe(1);
+        expect(testingContext.getBean(Cisilko)).toHaveBeenCalled();
+    });
+
+    it("inject by dependency token String", () => {
+        class Retizek extends DependencyToken.String {}
+
+        @component
+        class A {
+            @autowired
+            num: Retizek;
+        }
+
+        take(Retizek).setFactory(() => "retizek");
+        expect(testingContext.getBean(Retizek)).toBe("string");
+    });
+
+    it("inject by dependency token bool", () => {
+        class Retizek extends DependencyToken.Boolean {}
+
+        @component
+        class A {
+            @autowired
+            num: Retizek;
+        }
+
+        take(Retizek).setFactory(() => true);
+        expect(testingContext.getBean(Retizek)).toBe(true);
+    });
+
+    it("inject by dependency token Array", () => {
+        class Cisilka extends DependencyToken.Array<number> {}
+
+        @component
+        class A {
+            @autowired
+            cisilka: Cisilka;
+        }
+
+        take(Cisilka).setFactory(() => [1, 2]);
+        expect(testingContext.getBean(Cisilka)).toEqual([]);
+    });
+
+    it("inject by dependency token Map", () => {
+        class Cisilka extends DependencyToken.Map<number, number> {}
+
+        @component
+        class A {
+            @autowired
+            cisilka: Cisilka;
+        }
+
+        const map = new Map<number, number>();
+
+        take(Cisilka).setFactory(() => map);
+        expect(testingContext.getBean(Cisilka)).toEqual(new Map());
+    });
+
+    it("inject by dependency token Set", () => {
+        class Cisilka extends DependencyToken.Set<number> {}
+
+        @component
+        class A {
+            @autowired
+            cisilka: Cisilka;
+        }
+
+        const set = new Set<number>();
+
+        take(Cisilka).setFactory(() => set);
+        expect(testingContext.getBean(Cisilka)).toEqual(new Set());
+    });
 });
