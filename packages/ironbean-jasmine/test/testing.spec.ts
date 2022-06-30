@@ -119,11 +119,9 @@ describe("jasmine testing", () => {
             @autowired
             num: Cisilko;
         }
-        (6).toFixed()
 
         take(Cisilko).setFactory(() => i++);
         expect(testingContext.getBean(Cisilko)).toBe(1);
-        expect(testingContext.getBean(Cisilko)).toHaveBeenCalled();
     });
 
     it("inject by dependency token String", () => {
