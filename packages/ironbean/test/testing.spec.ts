@@ -5,14 +5,16 @@ import {
     DependencyToken,
     destroyContext,
     getRootAppContext,
-    getBaseTestingContext,
     postConstruct,
     Scope,
     scope,
     take,
-    TestingContext,
     type
 } from "../src";
+import {
+    getBaseTestingContext,
+    TestingContext,
+} from "../src/baseTesting";
 import {Container} from "../src/container";
 import {TestProvider} from "../src/api";
 

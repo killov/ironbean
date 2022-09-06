@@ -62,6 +62,7 @@
     },
     "files": [
       "src/index.ts",
+      "src/indexTesting.ts",
       "src/api.ts"
     ]
 }

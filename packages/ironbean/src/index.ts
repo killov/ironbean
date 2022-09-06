@@ -19,9 +19,5 @@ export {
     provideScope,
     lazy
 } from "./internals";
-export {
-    getBaseTestingContext,
-    TestingContext
-} from "./internalsTesting";
 
 
