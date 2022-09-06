@@ -39,7 +39,7 @@ export class ApplicationContext {
     }
 }
 
-export function getBaseApplicationContext(): ApplicationContext {
+export function getRootAppContext(): ApplicationContext {
     const container = containerStorage.getBaseContainer();
     return container.getBean(ApplicationContext);
 }

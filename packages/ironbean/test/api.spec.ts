@@ -5,7 +5,7 @@ import {
     ComponentContext,
     ComponentType,
     destroyContext,
-    getBaseApplicationContext
+    getRootAppContext
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
@@ -15,7 +15,7 @@ describe("api", () => {
     let applicationContext: ApplicationContext;
 
     beforeEach(() => {
-        applicationContext = getBaseApplicationContext();
+        applicationContext = getRootAppContext();
         expectDependenciesCount(2);
     })
 

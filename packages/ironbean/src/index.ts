@@ -6,7 +6,7 @@ export {
     postConstruct,
     scope,
     collection,
-    getBaseApplicationContext,
+    getRootAppContext,
     destroyContext,
     take,
     DependencyToken,

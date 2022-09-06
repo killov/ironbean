@@ -1,5 +1,8 @@
 # ironbean
 
+## 2.0.0
+rename getBaseApplicationContext() to getRootAppContext()
+
 ## 1.0.1O
 Documentation
 

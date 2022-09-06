@@ -7,7 +7,7 @@ import {
     ComponentType,
     DependencyToken,
     destroyContext,
-    getBaseApplicationContext,
+    getRootAppContext,
     IFactory,
     lazy,
     needScope,
@@ -25,7 +25,7 @@ describe("test", () => {
     let applicationContext: ApplicationContext;
 
     beforeEach(() => {
-        applicationContext = getBaseApplicationContext();
+        applicationContext = getRootAppContext();
         expectDependenciesCount(2);
     })
 
@@ -1192,7 +1192,7 @@ describe("test", () => {
                 @autowired
                 item: Object;
             }
-            let context = getBaseApplicationContext();
+            let context = getRootAppContext();
 
             const i = context.getBean(A);
 
@@ -1202,7 +1202,7 @@ describe("test", () => {
         });
 
         it("test1", () => {
-            let context = getBaseApplicationContext();
+            let context = getRootAppContext();
             const oldB = context.getBean(AComponent).b;
             const oldC = context.getBean(AComponent).c;
 
@@ -1220,7 +1220,7 @@ describe("test", () => {
             expect(context.getBean(C)).not.toBe(oldC);
 
             destroyContext();
-            context = getBaseApplicationContext();
+            context = getRootAppContext();
             expect(context.getBean(AComponent).b).not.toBe(oldB);
             expect(context.getBean(B)).not.toBe(oldB);
             expect(context.getBean(AComponent).c).not.toBe(oldC);

@@ -4,7 +4,7 @@ import {
     ComponentType,
     DependencyToken,
     destroyContext,
-    getBaseApplicationContext,
+    getRootAppContext,
     getBaseTestingContext,
     postConstruct,
     Scope,
@@ -122,7 +122,7 @@ describe("testing", () => {
 
     it("get test container because another container already exists", () => {
         destroyContext();
-        getBaseApplicationContext();
+        getRootAppContext();
         expect(() => {
             getBaseTestingContext();
         }).toThrow(new Error("You can't get test container because another container already exists."));
