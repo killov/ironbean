@@ -9,7 +9,7 @@ import {
     TClass,
     TestContainer,
 } from "./internalsTesting";
-import {getTestContainer} from "./containerStorageTesting";
+import {getTestContainer} from "../core/containerStorageTesting";
 
 export abstract class TestingBaseContext<TContext extends ApplicationContext> extends ApplicationContext {
     private testContainer: TestContainer;

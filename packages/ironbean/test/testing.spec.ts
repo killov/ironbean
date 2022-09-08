@@ -16,7 +16,7 @@ import {
     TestingContext,
 } from "../src/testing";
 import {Container} from "../src/core/container";
-import {TestProvider} from "../src/api";
+import {TestProvider} from "../src/testing";
 
 describe("testing", () => {
     let testingContext: TestingContext;

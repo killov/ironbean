@@ -1,4 +1,5 @@
 export {
     getRootTestingContext,
-    TestingContext
-} from "./core/internalsTesting";
+    TestingContext,
+    TestProvider
+} from "./testing/internalsTesting";
