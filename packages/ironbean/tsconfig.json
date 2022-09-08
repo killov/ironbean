@@ -62,7 +62,7 @@
     },
     "files": [
       "src/index.ts",
-      "src/indexTesting.ts",
+      "src/testing.ts",
         "src/api.ts"
     ]
 }
