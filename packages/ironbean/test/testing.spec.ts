@@ -14,7 +14,7 @@ import {
 import {
     getBaseTestingContext,
     TestingContext,
-} from "../src/core/baseTesting";
+} from "../src/testing";
 import {Container} from "../src/core/container";
 import {TestProvider} from "../src/api";
 
