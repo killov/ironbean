@@ -2,9 +2,9 @@
     "name": "ironbean",
     "version": "1.0.10",
     "description": "Dependency injection library for Typescript or Javascript.",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "typings": "dist/index.d.ts",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "typings": "index.d.ts",
     "scripts": {
         "build": "tsc",
         "debug": "tsc --watch",
