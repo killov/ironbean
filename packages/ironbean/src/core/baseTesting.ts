@@ -55,7 +55,7 @@ export class TestingContext extends TestingBaseContext<TestingContext> {
     }
 }
 
-export function getBaseTestingContext(): TestingContext {
+export function getRootTestingContext(): TestingContext {
     const container = getTestContainer();
     return container.getBean(TestingContext);
 }

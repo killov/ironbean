@@ -12,7 +12,7 @@ import {
     type
 } from "../src";
 import {
-    getBaseTestingContext,
+    getRootTestingContext,
     TestingContext,
 } from "../src/testing";
 import {Container} from "../src/core/container";
@@ -22,7 +22,7 @@ describe("testing", () => {
     let testingContext: TestingContext;
 
     beforeEach(() => {
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         expectDependenciesCount(2);
     })
 
@@ -126,7 +126,7 @@ describe("testing", () => {
         destroyContext();
         getRootAppContext();
         expect(() => {
-            getBaseTestingContext();
+            getRootTestingContext();
         }).toThrow(new Error("You can't get test container because another container already exists."));
     })
 
@@ -143,12 +143,12 @@ describe("testing", () => {
         expect(testingContext.getBean(A).getA()).toBe(undefined as any);
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         testingContext.disableMock(A);
         expect(testingContext.getBean(A).getA()).toBe("a");
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         testingContext.disableMock(A);
         testingContext.enableMock(A);
 
@@ -169,12 +169,12 @@ describe("testing", () => {
         expect(testingContext.getBean(acko).getA()).toBe(undefined);
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         testingContext.disableMock(acko);
         expect(testingContext.getBean(acko).getA()).toBe("a");
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         testingContext.disableMock(acko);
         testingContext.enableMock(acko);
 
@@ -210,7 +210,7 @@ describe("testing", () => {
         expect(testingContext.getBean(A).getA()).toBe(undefined as any);
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         const mock = new B();
         testingContext.setMockFactory(A, () => mock);
         expect(testingContext.getBean(A).getA()).toBe("a");
