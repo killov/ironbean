@@ -14,8 +14,8 @@ import {
 import {
     getBaseTestingContext,
     TestingContext,
-} from "../src/baseTesting";
-import {Container} from "../src/container";
+} from "../src/core/baseTesting";
+import {Container} from "../src/core/container";
 import {TestProvider} from "../src/api";
 
 describe("testing", () => {

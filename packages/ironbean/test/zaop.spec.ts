@@ -1,5 +1,5 @@
 import {ApplicationContext, component, destroyContext, getRootAppContext} from "../src";
-import {createPropertyDecorator} from "../src/zaop";
+import {createPropertyDecorator} from "../src/core/zaop";
 
 describe("zaop", () => {
     let applicationContext: ApplicationContext;

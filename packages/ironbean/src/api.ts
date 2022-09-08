@@ -2,7 +2,7 @@ export {
     IPlugin,
     registerPlugin,
     createComponentContext
-} from "./internals";
+} from "./core/internals";
 export {
     TestProvider
-} from "./internalsTesting";
+} from "./core/internalsTesting";

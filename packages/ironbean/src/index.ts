@@ -18,6 +18,6 @@ export {
     needScope,
     provideScope,
     lazy
-} from "./internals";
+} from "./core/internals";
 
 

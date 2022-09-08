@@ -18,8 +18,8 @@ import {
     take,
     type
 } from "../src";
-import {Container} from "../src/container";
-import {containerStorage} from "../src/containerStorage";
+import {Container} from "../src/core/container";
+import {containerStorage} from "../src/core/containerStorage";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;

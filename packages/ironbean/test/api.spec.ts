@@ -7,8 +7,8 @@ import {
     destroyContext,
     getRootAppContext
 } from "../src";
-import {Container} from "../src/container";
-import {containerStorage} from "../src/containerStorage";
+import {Container} from "../src/core/container";
+import {containerStorage} from "../src/core/containerStorage";
 import {createComponentContext, IPlugin, registerPlugin} from "../src/api";
 
 describe("api", () => {
