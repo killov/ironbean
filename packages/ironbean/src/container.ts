@@ -147,7 +147,7 @@ export class Container {
         });
     }
 
-    protected runPostConstruct(instance: any, component: Component, componentContainer: ComponentContainer) {
+    protected runPostConstruct<T>(instance: Instance<T>, component: Component<T>, componentContainer: ComponentContainer) {
         component.postConstruct(componentContainer, instance);
     }
 

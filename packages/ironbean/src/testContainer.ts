@@ -99,7 +99,7 @@ export class TestContainer extends Container {
         return super.buildNewInstance(component, componentContainer);
     }
 
-    protected runPostConstruct<T>(instance: T, component: Component<T>, componentContainer: ComponentContainer) {
+    protected runPostConstruct<T>(instance: Instance<T>, component: Component<T>, componentContainer: ComponentContainer) {
         if (!this.isComponentForMock(component)) {
             super.runPostConstruct(instance, component, componentContainer)
         }
