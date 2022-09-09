@@ -84,7 +84,6 @@ describe("test async", () => {
 
         take(A).setType(ComponentType.Prototype)
         take(A).setAsyncFactory(async () => {
-            console.log("h")
             return Promise.resolve(new A());
         })
 
