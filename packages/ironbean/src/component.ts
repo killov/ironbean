@@ -200,6 +200,7 @@ export class AsyncFactory<T> implements IConstructable<T> {
                 if (instance instanceof Object) {
                     Reflect.defineMetadata(constants.componentContainer, container, instance);
                 }
+                return instance;
             });
 
         return new Instance(new AsyncInstance(instance) as any);

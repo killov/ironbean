@@ -1,25 +1,15 @@
 import {
     ApplicationContext,
-    autowired,
-    collection,
     component,
     ComponentContext,
     ComponentType,
-    DependencyToken,
     destroyContext,
     getBaseApplicationContext,
-    IFactory,
-    lazy,
-    needScope,
-    postConstruct,
-    provideScope,
-    Scope,
-    scope,
-    take,
-    type
+    take
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
+import {IFactoryAsync} from "../src/types";
 
 describe("test async", () => {
     let applicationContext: ApplicationContext;
@@ -64,6 +54,49 @@ describe("test async", () => {
         expect(() => {
             const a1 = applicationContext.getBean(ComponentContext).getBean(A);
         }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
+    })
+
+    it("getBean error async for class factory", async () => {
+        class A {
+
+        }
+
+        class Factory implements IFactoryAsync<A> {
+            createAsync(...args: any[]): Promise<A> {
+                return Promise.resolve(new A);
+            }
+        }
+
+        take(A).setAsyncFactory(Factory)
+
+        expect(() => {
+            const a1 = applicationContext.getBean(A);
+        }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
+        expect(() => {
+            const a1 = applicationContext.getBean(ComponentContext).getBean(A);
+        }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
+    })
+
+    it("getBeanAsync asdsa", async () => {
+        class A {
+
+        }
+
+        take(A).setType(ComponentType.Prototype)
+        take(A).setAsyncFactory(async () => {
+            console.log("h")
+            return Promise.resolve(new A());
+        })
+
+        const a1 = await applicationContext.getBeanAsync(A);
+        const a2 = await applicationContext.getBeanAsync(A);
+        expect(a1).not.toBe(a2);
+
+        const componentContext = applicationContext.getBean(ComponentContext);
+
+        const a3 = await componentContext.getBeanAsync(A);
+        const a4 = await componentContext.getBeanAsync(A);
+        expect(a3).toBe(a4);
 
     })
 });
