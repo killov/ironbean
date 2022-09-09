@@ -39,6 +39,10 @@ export class Container {
         return this.getComponentInstance(Component.create(dependency)).value;
     }
 
+    public getBeanAsync<T>(dependency: Dependency<T>): Promise<T> {
+        return this.getComponentInstance(Component.create(dependency)).toPromise();
+    }
+
     public getComponent(component: Component): Component {
         return component.getComponent();
     }

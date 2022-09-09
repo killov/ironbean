@@ -28,6 +28,10 @@ export class ComponentContainer {
         return this.getComponentInstance(Component.create(dependency)).value;
     }
 
+    public getBeanAsync<T>(dependency: Dependency<T>): Promise<T> {
+        return this.getComponentInstance(Component.create(dependency)).toPromise();
+    }
+
     public getComponentInstance<T>(component: Component<T>): Instance<T> {
         component = this.container.getComponent(component);
         let instance: Instance<T>|undefined = this.storage.getInstance(component);
