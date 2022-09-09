@@ -1,4 +1,13 @@
-import {Component, ComponentFactory, ComponentType, Dependency, Factory, TClass} from "./internals";
+import {
+    AsyncFactory,
+    Component,
+    ComponentAsyncFactory,
+    ComponentFactory,
+    ComponentType,
+    Dependency,
+    Factory,
+    TClass
+} from "./internals";
 
 class Take<TDependency> {
     private readonly takenDependency: Dependency<TDependency>;
@@ -17,6 +26,10 @@ class Take<TDependency> {
 
     public setFactory(factory: ComponentFactory<TDependency>): void {
         this.takenComponent.setFactory(Factory.create(factory));
+    }
+
+    public setAsyncFactory(factory: ComponentAsyncFactory<TDependency>): void {
+        this.takenComponent.setFactory(AsyncFactory.create(factory));
     }
 
     public setType(componentType: ComponentType): void {

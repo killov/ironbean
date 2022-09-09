@@ -146,4 +146,11 @@ export class ClassComponent<T> extends Component<T> {
     get name(): string {
         return "Class " + this._Class.name;
     }
+
+    isAsync(): boolean {
+        if (this.factory) {
+            return this.factory.isAsync();
+        }
+        return false; //todo
+    }
 }
