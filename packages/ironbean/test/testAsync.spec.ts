@@ -1,5 +1,5 @@
 import {
-    ApplicationContext,
+    ApplicationContext, autowired,
     component,
     ComponentContext,
     ComponentType,
@@ -69,6 +69,39 @@ describe("test async", () => {
 
         take(A).setAsyncFactory(Factory)
 
+        expect(() => {
+            const a1 = applicationContext.getBean(A);
+        }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
+        expect(() => {
+            const a1 = applicationContext.getBean(ComponentContext).getBean(A);
+        }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
+    })
+
+    it("getBean error async for class factory over autowired", async () => {
+        class A {
+
+        }
+
+        @component
+        class B {
+            @autowired
+            a: A;
+        }
+
+        class Factory implements IFactoryAsync<A> {
+            createAsync(...args: any[]): Promise<A> {
+                return Promise.resolve(new A);
+            }
+        }
+
+        take(A).setAsyncFactory(Factory)
+
+
+        const b = applicationContext.getBean(B);
+
+        expect(() => {
+            b.a
+        }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
         expect(() => {
             const a1 = applicationContext.getBean(A);
         }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
