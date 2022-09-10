@@ -381,6 +381,11 @@ describe("test", () => {
             b = 10;
             x = {};
 
+            @postConstruct
+            postconstruct() {
+                console.log("omg")
+            }
+
             ahoj() {
                 this.bye();
                 expect(this instanceof A).toBe(true);
@@ -395,6 +400,8 @@ describe("test", () => {
             }
         }
 
+        const spy = spyOn(A.prototype, "postconstruct").and.callThrough()
+
         @component
         class B {
             @autowired
@@ -407,9 +414,11 @@ describe("test", () => {
         }
 
         const b = applicationContext.getBean(B);
+        expect(spy).not.toHaveBeenCalled()
         expectDependenciesCount(4);
         b.a.ahoj();
         expectDependenciesCount(5);
+        expect(spy).toHaveBeenCalled()
         b.a.ahoj();
         expectDependenciesCount(5);
         expect((b.a as any).shit).toBe(undefined);

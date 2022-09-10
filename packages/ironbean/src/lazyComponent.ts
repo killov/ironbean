@@ -32,7 +32,7 @@ export class LazyComponent<T> extends Component<T> {
     }
 
     postConstruct(_container: ComponentContainer, _instance: Instance<T>): void {
-        this.component.postConstruct(_container, _instance);
+
     }
 
     setType(type: ComponentType): void {
