@@ -1,5 +1,5 @@
 import {
-    ApplicationContextComponent,
+    ApplicationContextComponent, AsyncFactory,
     ClassComponent,
     Component,
     component,
@@ -9,7 +9,7 @@ import {
     ContainerComponent,
     Dependency,
     DependencyComponent,
-    Factory,
+    Factory, FunctionAsyncFactory,
     FunctionFactory,
     IConstructable,
     Instance, isPrimitive,
@@ -70,6 +70,14 @@ export class TestContainer extends Container {
     public setMockFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionFactory<K>): void {
         const mockedComponent = this.getComponent(Component.create(dependency));
         this.mockFactories.set(mockedComponent, Factory.create(factory));
+    }
+
+    public setMockAsyncFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionAsyncFactory<K>): void {
+        const mockedComponent = this.getComponent(Component.create(dependency));
+        if (!mockedComponent.isAsync()) {
+            throw new Error("Component " + mockedComponent.name + " is not async.");
+        }
+        this.mockFactories.set(mockedComponent, AsyncFactory.create(factory));
     }
 
     private isComponentForMock(component: Component): boolean {

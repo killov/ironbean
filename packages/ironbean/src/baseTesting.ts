@@ -4,6 +4,7 @@ import {
     component,
     ComponentType,
     Dependency,
+    FunctionAsyncFactory,
     FunctionFactory,
     Scope,
     TClass,
@@ -29,6 +30,10 @@ export abstract class TestingBaseContext<TContext extends ApplicationContext> ex
 
     public setMockFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionFactory<K>): void {
         this.testContainer.setMockFactory(dependency, factory);
+    }
+
+    public setMockAsyncFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionAsyncFactory<K>): void {
+        this.testContainer.setMockAsyncFactory(dependency, factory);
     }
 
     public disableMock<T>(dependency: Dependency<T>): void {
