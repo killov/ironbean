@@ -24,6 +24,10 @@ export abstract class TestingBaseContext<TContext extends ApplicationContext> ex
         return this.testContainer.getInstanceWithMocks(dependency);
     }
 
+    public getBeanWithMocksAsync<T>(dependency: Dependency<T>): Promise<T> {
+        return this.testContainer.getInstanceWithMocksAsync(dependency);
+    }
+
     public setMock<T, K extends T>(dependency: Dependency<T>, classFactory: TClass<K>): void {
         this.testContainer.setMock(dependency, classFactory);
     }

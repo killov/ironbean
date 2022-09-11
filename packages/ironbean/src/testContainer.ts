@@ -118,6 +118,11 @@ export class TestContainer extends Container {
         return super.getBean(dependency);
     }
 
+    public getInstanceWithMocksAsync<T>(dependency: Dependency<T>): Promise<T> {
+        this.disableMock(dependency);
+        return super.getBeanAsync(dependency);
+    }
+
     public disableMock<T>(dependency: Dependency<T>, disable: boolean = true) {
         const component = this.getComponent(Component.create(dependency));
         if (disable) {
