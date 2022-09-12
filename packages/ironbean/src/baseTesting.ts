@@ -52,6 +52,10 @@ export abstract class TestingBaseContext<TContext extends ApplicationContext> ex
         return this.getBean(dependency);
     }
 
+    public getMockAsync<T>(dependency: Dependency<T>): Promise<T> {
+        return this.getBeanAsync(dependency);
+    }
+
     public createOrGetParentContext(scope: Scope): TContext {
         return super.createOrGetParentContext(scope) as any;
     }
