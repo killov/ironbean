@@ -44,6 +44,7 @@ describe("testing", () => {
 
         //set async
         take(A).setAsyncFactory(() => Promise.resolve(new A()))
+        take(B).setAsyncFactory(async (ctx) => new B(await ctx.getBeanAsync(A)))
 
         const b1 = await testingContext.getBeanWithMocksAsync(B);
         const b2 = await testingContext.getBeanWithMocksAsync(B);

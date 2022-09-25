@@ -98,6 +98,9 @@ export class ClassComponent<T> extends Component<T> {
             if (component.isUnknownType()) {
                 throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
             }
+            if (component.isAsync()) {
+                throw new Error("Create instance of component" + this.name + " failed. Constructor async dependency not supported.");
+            }
         }
     }
 

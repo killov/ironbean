@@ -131,4 +131,37 @@ describe("test async", () => {
         expect(a3).toBe(a4);
 
     })
+
+    it("getBean class with async dependency", async () => {
+        class A {
+
+        }
+
+        take(A).setType(ComponentType.Prototype)
+        take(A).setAsyncFactory(async () => {
+            return Promise.resolve(new A());
+        })
+
+        @component
+        class B {
+            constructor(a: A) {
+            }
+        }
+
+        @component
+        class C {
+            constructor() {
+            }
+
+            post(a: A) {
+
+            }
+        }
+
+        expect(() => {
+            applicationContext.getBean(B);
+        }).toThrowError("Create instance of componentClass B failed. Constructor async dependency not supported.");
+
+        applicationContext.getBean(C);
+    })
 });

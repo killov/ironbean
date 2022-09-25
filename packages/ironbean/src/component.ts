@@ -177,6 +177,10 @@ export class Factory<T> implements IConstructable<T> {
     }
 
     isAsync(): boolean {
+        if (this.isFactoryClass(this.factory)) {
+            return Component.create(this.factory).isAsync();
+        }
+
         return false;
     }
 
