@@ -4,7 +4,7 @@ import {
     ComponentContext,
     ComponentType,
     destroyContext,
-    getBaseApplicationContext,
+    getBaseApplicationContext, postConstruct,
     take
 } from "../src";
 import {Container} from "../src/container";
@@ -153,6 +153,7 @@ describe("test async", () => {
             constructor() {
             }
 
+            @postConstruct
             post(a: A) {
 
             }
@@ -162,6 +163,8 @@ describe("test async", () => {
             applicationContext.getBean(B);
         }).toThrowError("Create instance of componentClass B failed. Constructor async dependency not supported.");
 
-        applicationContext.getBean(C);
+        expect(() => {
+            applicationContext.getBean(C);
+        }).toThrowError("Create instance of componentClass C failed. PostConstuct async dependency not supported.");
     })
 });

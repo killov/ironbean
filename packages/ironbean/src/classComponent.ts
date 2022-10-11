@@ -104,6 +104,18 @@ export class ClassComponent<T> extends Component<T> {
         }
     }
 
+    private validatePostConstructorParams(components: Component[]) {
+        for (let i = 0; i < components.length; i++) {
+            const component = components[i];
+            if (component.isUnknownType()) {
+                throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
+            }
+            if (component.isAsync()) {
+                throw new Error("Create instance of component" + this.name + " failed. PostConstuct async dependency not supported.");
+            }
+        }
+    }
+
     public postConstruct(container: ComponentContainer, instance: Instance<any>) {
         if (this.factory) {
             return;
@@ -112,19 +124,24 @@ export class ClassComponent<T> extends Component<T> {
 
         for (let key of getAllPropertyNames(Class.prototype)) {
             if (Reflect.getMetadata(constants.postConstruct, instance.value, key)) {
-                (instance.value[key] as Function).apply(instance.value, ClassComponent.getDependencyListFromMethod(Class, key, container));
+                const components = ClassComponent.getComponentsListFromMethod(Class, key);
+                this.validatePostConstructorParams(components);
+                (instance.value[key] as Function).apply(instance.value, container.getDependencyList(components));
             }
         }
     }
 
-    public static getDependencyListFromMethod<T>(Class: TClass<T>, propertyName: string, container: ComponentContainer) {
-        let Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, propertyName) as any[] || [];
+    private static getComponentsListFromMethod<T>(Class: TClass<T>, propertyName: string): Component[] {
+        const Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, propertyName) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, propertyName) ?? [];
         const lazy = Reflect.getOwnMetadata(constants.lazy, Class.prototype, propertyName) ?? [];
         const collection = Reflect.getOwnMetadata(constants.collection, Class.prototype, propertyName) ?? [];
-        Classes = ClassComponent.getComponents(Classes, objectKeys, lazy, collection);
+        return ClassComponent.getComponents(Classes, objectKeys, lazy, collection);
+    }
 
-        return container.getDependencyList(Classes);
+    public static getDependencyListFromMethod<T>(Class: TClass<T>, propertyName: string, container: ComponentContainer) {
+        const components = this.getComponentsListFromMethod(Class, propertyName);
+        return container.getDependencyList(components);
     }
 
     private isApplicationContext(): boolean {
