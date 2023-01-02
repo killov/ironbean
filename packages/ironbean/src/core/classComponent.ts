@@ -72,7 +72,10 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     private static getComponents(types: any[], key: any[], lazy: any[], collection: any[]): Component[] {
-        return types.map((Class, index) => {
+        const max = Math.max(types.length, key.length);
+
+        return Array.from({length: max}, (_x, i) => i).map((index) => {
+            const Class = types[index]
             let component: Component;
             if (Class) {
                 component = Component.create(Class);
