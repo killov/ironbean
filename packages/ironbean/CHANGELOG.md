@@ -1,5 +1,9 @@
 # ironbean
 
+## 1.0.11
+Fixed lazy component postConstruct useless call
+Fixed @type decorator for a build that does not support emit decorator metadata
+
 ## 1.0.1O
 Documentation
 
