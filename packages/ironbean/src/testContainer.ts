@@ -23,7 +23,7 @@ import {
 @component(ComponentType.Singleton)
 export class TestContainer extends Container {
     private testProvider!: TestProvider;
-    private disabledMocks: Set<Component> = new Set<Component>();
+    private disabledMocks: Map<Component, boolean> = new Map<Component, boolean>();
     private mockFactories: Map<Component, IConstructable<any>> = new Map<Component, IConstructable<any>>();
 
     public init() {
@@ -55,7 +55,7 @@ export class TestContainer extends Container {
     }
 
     protected isConstructable<T>(component: Component<T>): boolean {
-        return this.mockFactories.has(component) || super.isConstructable(component);
+        return this.disabledMocks.get(component) === false || this.mockFactories.has(component) || super.isConstructable(component);
     }
 
     public setMock<T, K extends T>(dependency: Dependency<T>, factory: TClass<K>): void {
@@ -73,7 +73,7 @@ export class TestContainer extends Container {
     }
 
     private isComponentForMock(component: Component): boolean {
-        return !this.disabledMocks.has(this.getComponent(component));
+        return !this.disabledMocks.get(this.getComponent(component));
     }
 
     protected buildNewInstance<T>(component: Component<T>, componentContainer: ComponentContainer): Instance<T> {
@@ -112,11 +112,7 @@ export class TestContainer extends Container {
 
     public disableMock<T>(dependency: Dependency<T>, disable: boolean = true) {
         const component = this.getComponent(Component.create(dependency));
-        if (disable) {
-            this.disabledMocks.add(component);
-        } else {
-            this.disabledMocks.delete(component);
-        }
+        this.disabledMocks.set(component, disable);
     }
 }
 

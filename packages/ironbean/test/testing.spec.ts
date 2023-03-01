@@ -128,6 +128,20 @@ describe("testing", () => {
         }).toThrow(new Error("You can't get test container because another container already exists."));
     })
 
+    it("enable mock for class component - enable automocking", () => {
+
+        class A {
+            a: string = "a";
+
+            getA() {
+                return "a";
+            }
+        }
+
+        testingContext.enableMock(A);
+        expect(testingContext.getBean(A).getA()).toBe(undefined as any);
+    })
+
     it("disable Mock", () => {
         @component
         class A {
