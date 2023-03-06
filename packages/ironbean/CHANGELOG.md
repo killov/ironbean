@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.12
+Testing - enable automock for class component after mark by enableMock()
+
 ## 1.0.11
 Fixed lazy component postConstruct useless call
 Fixed @type decorator for a build that does not support emit decorator metadata
