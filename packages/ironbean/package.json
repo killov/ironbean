@@ -37,8 +37,8 @@
         "karma-commonjs": "^1.0.0",
         "karma-jasmine": "^4.0.1",
         "karma-phantomjs-launcher": "^1.0.4",
-        "karma-typescript": "^5.5.2",
+        "karma-typescript": "^5.5.3",
         "publish-if-not-exists": "^1.1.0",
-        "typescript": "4.4.4"
+        "typescript": "4.9.5"
     }
 }

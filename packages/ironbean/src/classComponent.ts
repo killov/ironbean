@@ -12,7 +12,7 @@ import {
     TClass,
 } from "./internals";
 
-export class ClassComponent<T> extends Component<T> {
+export class ClassComponent<T extends any> extends Component<T> {
     private readonly _Class: TClass<T>;
 
     get Class(): TClass<T> {
@@ -66,6 +66,7 @@ export class ClassComponent<T> extends Component<T> {
 
         const params = container.getDependencyList(this.getConstructDependencyList());
         const instance = new this._Class(...params);
+        // @ts-ignore
         Reflect.defineMetadata(constants.componentContainer, container, instance);
 
         return new Instance(instance);

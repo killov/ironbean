@@ -19,6 +19,7 @@ module.exports = function (config) {
                 sourceMap: true,
                 target: "ES5",
                 lib: ["es2015", "dom" ],
+                "skipLibCheck": true,
                 useDefineForClassFields: true
             }
         }
