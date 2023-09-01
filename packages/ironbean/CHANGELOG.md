@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.13
+Support parameter decorator for constructor
+
 ## 1.0.12
 Testing - enable automock for class component after mark by enableMock()
 
