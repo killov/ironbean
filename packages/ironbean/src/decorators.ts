@@ -46,13 +46,23 @@ export function scope(scope: Scope): ClassDecorator {
 }
 
 export function type<T>(key: DependencyToken<T>|(() => Dependency<T>)) {
-    return function(target: any, propertyName: string | symbol, parameterIndex?: number) {
+    return function(target: any, propertyName?: string | symbol, parameterIndex?: number) {
         if (typeof parameterIndex !== "number") {
-            Reflect.defineMetadata(constants.types, key, target, propertyName);
+            if (propertyName !== undefined) {
+                Reflect.defineMetadata(constants.types, key, target, propertyName);
+            } else {
+                Reflect.defineMetadata(constants.types, key, target);
+            }
         } else {
-            const methodParameters: Object[] = Reflect.getOwnMetadata(constants.types, target, propertyName) || [];
-            methodParameters[parameterIndex] = key;
-            Reflect.defineMetadata(constants.types, methodParameters, target, propertyName);
+            if (propertyName !== undefined) {
+                const methodParameters: Object[] = Reflect.getOwnMetadata(constants.types, target, propertyName) || [];
+                methodParameters[parameterIndex] = key;
+                Reflect.defineMetadata(constants.types, methodParameters, target, propertyName);
+            } else {
+                const methodParameters: Object[] = Reflect.getOwnMetadata(constants.types, target) || [];
+                methodParameters[parameterIndex] = key;
+                Reflect.defineMetadata(constants.types, methodParameters, target);
+            }
         }
     }
 }
