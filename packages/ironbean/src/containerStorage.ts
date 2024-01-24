@@ -1,9 +1,11 @@
 import {CollectionToken, ComponentContainer, Container, IPlugin, PluginToken, take} from "./internals";
+import {StorageMode} from "./storageMode";
 
 class ContainerStorage {
     public container: Container | null = null;
     public currentComponentContainer: ComponentContainer | undefined;
     public currentContainer: Container | undefined;
+    public mode: StorageMode = StorageMode.None;
     private _plugins: IPlugin[] = [];
 
     get plugins(): IPlugin[] {
@@ -14,13 +16,23 @@ class ContainerStorage {
         this._plugins = this.container?.getBean(CollectionToken.create(PluginToken)) as IPlugin[] ?? [];
     }
 
-    getBaseContainer(): Container {
+    getOrCreateBaseContainer(): Container {
         if (!this.container) {
-            this.container = new Container();
-            this.initContainer(this.container);
+            if (this.mode === StorageMode.Prototype) {
+                throw new Error("Create global container is not allowed for PROTOTYPE mode.")
+            }
+            this.mode = StorageMode.Singleton;
+            this.container = this.createBaseContainer();
         }
 
         return this.container;
+    }
+
+    createBaseContainer(): Container {
+        const container = new Container();
+        this.initContainer(container);
+
+        return container;
     }
 
     initContainer(container: Container) {

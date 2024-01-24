@@ -25,3 +25,4 @@ export * from "./base";
 export * from "./utils";
 export * from "./types";
 export * from "./plugin";
+export * from "./storageMode";

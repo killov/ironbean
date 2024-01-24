@@ -143,7 +143,7 @@ function getComponentContainerFromInstance(target: object): ComponentContainer {
 }
 
 function createAndSetComponentContainer(target: any) {
-    const componentContainer = new ComponentContainer(containerStorage.getBaseContainer());
+    const componentContainer = new ComponentContainer(containerStorage.getOrCreateBaseContainer());
     Reflect.defineMetadata(constants.componentContainer, componentContainer, target);
     return componentContainer;
 }
@@ -231,7 +231,7 @@ export function createClassDecorator(settings: IClassDecoratorSettings) {
                 if (settings.customContextFactory) {
                     customContainer = settings.customContextFactory(context).getBean(Container);
                 }
-                const componentContainer = new ComponentContainer(customContainer ?? containerStorage.currentContainer ?? containerStorage.getBaseContainer());
+                const componentContainer = new ComponentContainer(customContainer ?? containerStorage.currentContainer ?? containerStorage.getOrCreateBaseContainer());
                 Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
                 constructor(context);
             }
