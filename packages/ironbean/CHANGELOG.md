@@ -1,7 +1,10 @@
 # ironbean
 
+## 1.0.15
+createBaseApplicationContext
+
 ## 1.0.14
-Fixex is class factory predicate
+Fixed is class factory predicate
 
 ## 1.0.13
 Support parameter decorator for constructor
