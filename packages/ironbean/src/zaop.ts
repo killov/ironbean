@@ -11,7 +11,7 @@ import {
     Dependency,
     LazyToken,
     markAsOverwrittenDefineProperty,
-    TClass
+    TClass, TNormalClass
 } from "./internals";
 
 interface DecoratorContext {
@@ -200,10 +200,10 @@ interface ClassDecoratorContext extends DecoratorContext {
 }
 
 class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDecoratorContext {
-    public Class: TClass<any>;
+    public Class: TNormalClass<any>;
     public args: any[];
 
-    constructor(component: Component, instance: any, Class: TClass<any>, args: any[]) {
+    constructor(component: Component, instance: any, Class: TNormalClass<any>, args: any[]) {
         super(component, instance);
         this.Class = Class;
         this.args = args;
