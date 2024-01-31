@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.16
+support abstract classes
+
 ## 1.0.15
 createBaseApplicationContext
 
