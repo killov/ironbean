@@ -20,6 +20,9 @@ import {
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
+abstract class A {
+
+}
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -589,10 +592,6 @@ describe("test", () => {
     })
 
     it("collection autowired", () => {
-        class A {
-
-        }
-
         @component
         class AA extends A {
 
