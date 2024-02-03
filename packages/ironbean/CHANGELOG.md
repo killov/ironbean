@@ -4,6 +4,25 @@
 rename getBaseApplicationContext() to getRootAppContext()
 rename getBaseTestingContext() to getRootTestingContext()
 
+## 1.0.16
+support abstract classes
+
+## 1.0.15
+createBaseApplicationContext
+
+## 1.0.14
+Fixed is class factory predicate
+
+## 1.0.13
+Support parameter decorator for constructor
+
+## 1.0.12
+Testing - enable automock for class component after mark by enableMock()
+
+## 1.0.11
+Fixed lazy component postConstruct useless call
+Fixed @type decorator for a build that does not support emit decorator metadata
+
 ## 1.0.1O
 Documentation
 

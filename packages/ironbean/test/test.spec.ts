@@ -20,6 +20,9 @@ import {
 } from "../src";
 import {Container} from "../src/core/container";
 import {containerStorage} from "../src/core/containerStorage";
+abstract class A {
+
+}
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -139,6 +142,65 @@ describe("test", () => {
             }
 
             @postConstruct
+            postConstruct(@type(() => b)b: any, @type(() => c)c: any) {
+                expect(b).toBe(ib1);
+                expect(c).toBe(this);
+            }
+        }
+        spyOn(c.prototype, "postConstruct").and.callThrough();
+        const ic1 = applicationContext.getBean(c);
+
+        expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
+        expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
+    });
+
+    it("test 2 types", () => {
+        @component
+        class a {
+            test = "sa";
+        }
+
+        @component
+        class b {
+            @type(() => a)
+            @autowired a!: any;
+        }
+
+        expectDependenciesCount(2);
+        const ib1 = applicationContext.getBean(b);
+        expectDependenciesCount(3);
+        const ib2 = applicationContext.getBean(b);
+        expectDependenciesCount(3);
+        const ib3 = applicationContext.getBean(b);
+        expectDependenciesCount(3);
+        const ib4 = applicationContext.getBean(b);
+        expectDependenciesCount(3);
+        const ia1 = applicationContext.getBean(a);
+        expectDependenciesCount(4);
+        const ia2 = applicationContext.getBean(a);
+        expectDependenciesCount(4);
+        const ia3 = applicationContext.getBean(a);
+        expectDependenciesCount(4);
+        const ia4 = applicationContext.getBean(a);
+        expectDependenciesCount(4);
+
+        expect(ib1.a).toBe(ia1);
+        expect(ib1).toBe(ib2);
+        expect(ib1).toBe(ib3);
+        expect(ib1).toBe(ib4);
+        expect(ia1).toBe(ia2);
+        expect(ia1).toBe(ia3);
+        expect(ia1).toBe(ia4);
+
+        @component
+        @Reflect.metadata("design:paramtypes", null)
+        class c {
+            constructor(@type(() => a)a: any) {
+                expect(a).toBe(ia1);
+            }
+
+            @postConstruct
+            @Reflect.metadata("design:paramtypes", null)
             postConstruct(@type(() => b)b: any, @type(() => c)c: any) {
                 expect(b).toBe(ib1);
                 expect(c).toBe(this);
@@ -381,6 +443,11 @@ describe("test", () => {
             b = 10;
             x = {};
 
+            @postConstruct
+            postconstruct() {
+                console.log("omg")
+            }
+
             ahoj() {
                 this.bye();
                 expect(this instanceof A).toBe(true);
@@ -395,6 +462,8 @@ describe("test", () => {
             }
         }
 
+        const spy = spyOn(A.prototype, "postconstruct").and.callThrough()
+
         @component
         class B {
             @autowired
@@ -407,9 +476,11 @@ describe("test", () => {
         }
 
         const b = applicationContext.getBean(B);
+        expect(spy).not.toHaveBeenCalled()
         expectDependenciesCount(4);
         b.a.ahoj();
         expectDependenciesCount(5);
+        expect(spy).toHaveBeenCalled()
         b.a.ahoj();
         expectDependenciesCount(5);
         expect((b.a as any).shit).toBe(undefined);
@@ -521,10 +592,6 @@ describe("test", () => {
     })
 
     it("collection autowired", () => {
-        class A {
-
-        }
-
         @component
         class AA extends A {
 

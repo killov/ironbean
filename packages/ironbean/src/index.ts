@@ -7,6 +7,7 @@ export {
     scope,
     collection,
     getRootAppContext,
+    createBaseApplicationContext,
     destroyContext,
     take,
     DependencyToken,

@@ -11,7 +11,7 @@ import {
     Dependency,
     LazyToken,
     markAsOverwrittenDefineProperty,
-    TClass
+    TClass, TNormalClass
 } from "./internals";
 
 interface DecoratorContext {
@@ -143,7 +143,7 @@ function getComponentContainerFromInstance(target: object): ComponentContainer {
 }
 
 function createAndSetComponentContainer(target: any) {
-    const componentContainer = new ComponentContainer(containerStorage.getBaseContainer());
+    const componentContainer = new ComponentContainer(containerStorage.getOrCreateBaseContainer());
     Reflect.defineMetadata(constants.componentContainer, componentContainer, target);
     return componentContainer;
 }
@@ -200,10 +200,10 @@ interface ClassDecoratorContext extends DecoratorContext {
 }
 
 class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDecoratorContext {
-    public Class: TClass<any>;
+    public Class: TNormalClass<any>;
     public args: any[];
 
-    constructor(component: Component, instance: any, Class: TClass<any>, args: any[]) {
+    constructor(component: Component, instance: any, Class: TNormalClass<any>, args: any[]) {
         super(component, instance);
         this.Class = Class;
         this.args = args;
@@ -231,7 +231,7 @@ export function createClassDecorator(settings: IClassDecoratorSettings) {
                 if (settings.customContextFactory) {
                     customContainer = settings.customContextFactory(context).getBean(Container);
                 }
-                const componentContainer = new ComponentContainer(customContainer ?? containerStorage.currentContainer ?? containerStorage.getBaseContainer());
+                const componentContainer = new ComponentContainer(customContainer ?? containerStorage.currentContainer ?? containerStorage.getOrCreateBaseContainer());
                 Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
                 constructor(context);
             }
