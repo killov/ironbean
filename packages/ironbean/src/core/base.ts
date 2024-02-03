@@ -49,7 +49,7 @@ export function getRootAppContext(): ApplicationContext {
     return container.getBean(ApplicationContext);
 }
 
-export function createBaseApplicationContext(): ApplicationContext {
+export function createRootAppContext(): ApplicationContext {
     if (containerStorage.mode === StorageMode.Singleton) {
         throw new Error("You use getBaseApplicationContext(), don't use it in combination with createBaseApplicationContext() in the same environment.")
     }

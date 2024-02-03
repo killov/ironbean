@@ -2,6 +2,7 @@
 
 ## 2.0.0
 rename getBaseApplicationContext() to getRootAppContext()
+rename createBaseApplicationContext() to createRootAppContext()
 rename getBaseTestingContext() to getRootTestingContext()
 
 ## 1.0.16
