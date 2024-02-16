@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.17
+plugins bug fixed
+
 ## 1.0.16
 support abstract classes
 

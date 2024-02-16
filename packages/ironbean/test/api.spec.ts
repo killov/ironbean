@@ -3,7 +3,7 @@ import {
     autowired,
     component,
     ComponentContext,
-    ComponentType,
+    ComponentType, createBaseApplicationContext,
     destroyContext,
     getBaseApplicationContext
 } from "../src";
@@ -47,6 +47,38 @@ describe("api", () => {
     });
 
     it("plugin getContextForClassInstance", () => {
+        @component
+        class Plugin implements IPlugin {
+            componentContext: ComponentContext;
+
+            constructor(context: ApplicationContext) {
+                this.componentContext = createComponentContext(context)
+            }
+
+            getContextForClassInstance(Class: object): ComponentContext | undefined {
+                return this.componentContext;
+            }
+        }
+
+        registerPlugin(Plugin);
+
+        @component(ComponentType.Prototype)
+        class a {
+            test = "sa";
+        }
+
+        @component(ComponentType.Prototype)
+        class b {
+            @autowired a!: a;
+        }
+
+        expect(applicationContext.getBean(b).a).toBe(applicationContext.getBean(b).a);
+    });
+
+    it("plugins for prototype storage mode", () => {
+        containerStorage.dispose();
+
+        applicationContext = createBaseApplicationContext();
         @component
         class Plugin implements IPlugin {
             componentContext: ComponentContext;

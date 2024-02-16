@@ -13,7 +13,16 @@ class ContainerStorage {
     }
 
     reloadPlugins(): void {
-        this._plugins = this.container?.getBean(CollectionToken.create(PluginToken)) as IPlugin[] ?? [];
+        this._plugins = this.resolvePlugins();
+    }
+
+    private resolvePlugins() {
+        if (this.mode === StorageMode.Prototype) {
+            const container = new Container();
+            container.init();
+            return container.getBean(CollectionToken.create(PluginToken)) as IPlugin[];
+        }
+        return this.container?.getBean(CollectionToken.create(PluginToken)) as IPlugin[] ?? [];
     }
 
     getOrCreateBaseContainer(): Container {
