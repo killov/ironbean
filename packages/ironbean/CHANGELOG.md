@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.18
+reflect-metadata@0.2.1
+
 ## 1.0.17
 plugins bug fixed
 
