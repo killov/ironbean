@@ -1,5 +1,8 @@
 # ironbean
 
+## 
+inject(type) function
+
 ## 1.0.18
 reflect-metadata@0.2.1
 
