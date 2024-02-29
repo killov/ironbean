@@ -14,6 +14,7 @@ import {
 
 export class ClassComponent<T> extends Component<T> {
     private readonly _Class: TClass<T>;
+    private scope: Scope|undefined = undefined;
 
     get Class(): TClass<T> {
         return this._Class;
@@ -36,7 +37,7 @@ export class ClassComponent<T> extends Component<T> {
         if (this.isApplicationContext()) {
             return undefined;
         }
-        return Reflect.getMetadata(constants.scope, this._Class) ?? Scope.getDefault();
+        return (this.scope ?? Scope.getDefault()) as ScopeImpl;
     }
 
     public getType(): ComponentType {
@@ -148,5 +149,9 @@ export class ClassComponent<T> extends Component<T> {
 
     get name(): string {
         return "Class " + this._Class.name;
+    }
+
+    setScope(scope: Scope) {
+        this.scope = scope;
     }
 }

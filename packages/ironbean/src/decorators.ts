@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {
-    ApplicationContext,
+    ApplicationContext, ClassComponent,
     Component,
     ComponentType,
     constants,
@@ -37,7 +37,7 @@ export function component(ClassOrType: Class | ComponentType): any {
 
 export function scope(scope: Scope): ClassDecorator {
     function decorator(Class: any): any {
-        Reflect.defineMetadata(constants.scope, scope, Class);
+        (Component.create(Class) as ClassComponent<any>).setScope(scope)
 
         return Class;
     }
