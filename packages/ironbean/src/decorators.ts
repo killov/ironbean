@@ -19,7 +19,7 @@ export function component(ClassOrType: Class | ComponentType): any {
     let componentType = ComponentType.Singleton;
     function decorator(Class: any): any {
         Reflect.defineMetadata(constants.component, true, Class);
-        Reflect.defineMetadata(constants.componentType, componentType, Class);
+        Component.create(Class).setType(componentType);
 
         return Class;
     }
