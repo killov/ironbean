@@ -21,8 +21,7 @@ import {
 } from "../src";
 import {Container} from "../src/core/container";
 import {containerStorage} from "../src/core/containerStorage";
-import {CollectionToken} from "../src/collection";
-import {LazyToken} from "../src/lazy";
+import {LazyToken} from "../src/core/lazy";
 abstract class A {
 
 }

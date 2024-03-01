@@ -3,7 +3,8 @@ import {
     autowired,
     component,
     ComponentContext,
-    ComponentType, createBaseApplicationContext,
+    ComponentType,
+    createRootAppContext,
     destroyContext,
     getRootAppContext
 } from "../src";
@@ -78,7 +79,7 @@ describe("api", () => {
     it("plugins for prototype storage mode", () => {
         containerStorage.dispose();
 
-        applicationContext = createBaseApplicationContext();
+        applicationContext = createRootAppContext();
         @component
         class Plugin implements IPlugin {
             componentContext: ComponentContext;
