@@ -16,10 +16,13 @@ import {
     Scope,
     scope,
     take,
-    type
+    type,
+    inject
 } from "../src";
 import {Container} from "../src/core/container";
 import {containerStorage} from "../src/core/containerStorage";
+import {CollectionToken} from "../src/collection";
+import {LazyToken} from "../src/lazy";
 abstract class A {
 
 }
@@ -286,6 +289,31 @@ describe("test", () => {
         expect(applicationContext.getBean(Cisilko)).toBe(0);
         expect(applicationContext.getBean(A).num).toBe(0);
         expect(applicationContext.getBean(A).num).toBe(0);
+    });
+
+    it("inject by class key class return of factory - inject", () => {
+        class Cisilko extends DependencyToken.Number {}
+        let i = 0;
+
+        @component
+        class A {
+            num = inject(Cisilko);
+        }
+        take(Cisilko).setFactory(() => i++);
+        expect(applicationContext.getBean(Cisilko)).toBe(0);
+        expect(applicationContext.getBean(Cisilko)).toBe(0);
+        expect(applicationContext.getBean(Cisilko)).toBe(0);
+        expect(applicationContext.getBean(A).num).toBe(0);
+        expect(applicationContext.getBean(A).num).toBe(0);
+    });
+
+    it("inject failed", () => {
+        class Cisilko extends DependencyToken.Number {}
+        let i = 0;
+
+        expect(() => {
+            inject(Cisilko);
+        }).toThrowError("Function inject is allowed in constructor of @component only.")
     });
 
     it("inject by dependency token String", () => {
@@ -588,6 +616,57 @@ describe("test", () => {
 
         expect(b.a3.b).toBe(20);
         expect(b.a3).toBeInstanceOf(A);
+        expectDependenciesCount(5);
+    })
+
+    it("lazy inject", () => {
+        @component
+        class A {
+            a = 1;
+            b = 10;
+            x = {};
+
+            ahoj() {
+                this.bye();
+                expect(this instanceof A).toBe(true);
+            }
+
+            getA() {
+                return this.a;
+            }
+
+            bye() {
+
+            }
+        }
+
+        @component
+        class B {
+            public a = inject(LazyToken.create(A));
+            public a2 = inject(LazyToken.create(A));
+        }
+
+        const b = applicationContext.getBean(B);
+        expectDependenciesCount(4);
+        b.a.ahoj();
+        expectDependenciesCount(5);
+        b.a.ahoj();
+        expectDependenciesCount(5);
+        expect((b.a as any).shit).toBe(undefined);
+
+        b.a2.ahoj();
+        expectDependenciesCount(5);
+        expect((b.a2 as any).shit).toBe(undefined);
+
+        expect(b.a).toBe(b.a2);
+        expect(b.a.x).toBe(b.a2.x);
+
+        expect(b.a.getA()).toBe(1);
+        expect(b.a.b).toBe(10);
+
+        b.a.b = 20;
+        expect(b.a.b).toBe(20);
+        expect(b.a2).not.toBeInstanceOf(A);
         expectDependenciesCount(5);
     })
 

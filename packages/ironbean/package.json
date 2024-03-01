@@ -1,6 +1,6 @@
 {
     "name": "ironbean",
-    "version": "1.0.16",
+    "version": "1.0.18",
     "description": "Dependency injection library for Typescript or Javascript.",
     "main": "index.js",
     "types": "index.d.ts",
@@ -26,7 +26,7 @@
         "container"
     ],
     "dependencies": {
-        "reflect-metadata": "^0.1.13",
+        "reflect-metadata": "^0.2.1",
         "tslib": "^2.4.0"
     },
     "devDependencies": {

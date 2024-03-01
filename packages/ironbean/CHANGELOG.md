@@ -5,6 +5,15 @@ rename getBaseApplicationContext() to getRootAppContext()
 rename createBaseApplicationContext() to createRootAppContext()
 rename getBaseTestingContext() to getRootTestingContext()
 
+## 
+inject(type) function
+
+## 1.0.18
+reflect-metadata@0.2.1
+
+## 1.0.17
+plugins bug fixed
+
 ## 1.0.16
 support abstract classes
 

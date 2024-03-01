@@ -18,7 +18,8 @@ export {
     Scope,
     needScope,
     provideScope,
-    lazy
+    lazy,
+    inject
 } from "./core/internals";
 
 

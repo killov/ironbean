@@ -14,6 +14,8 @@ import {
 
 export class ClassComponent<T> extends Component<T> {
     private readonly _Class: TClass<T>;
+    private scope: Scope|undefined = undefined;
+    private type: ComponentType = ComponentType.Prototype;
 
     get Class(): TClass<T> {
         return this._Class;
@@ -36,15 +38,15 @@ export class ClassComponent<T> extends Component<T> {
         if (this.isApplicationContext()) {
             return undefined;
         }
-        return Reflect.getMetadata(constants.scope, this._Class) ?? Scope.getDefault();
+        return (this.scope ?? Scope.getDefault()) as ScopeImpl;
     }
 
     public getType(): ComponentType {
-        return Reflect.getMetadata(constants.componentType, this._Class) ?? ComponentType.Prototype;
+        return this.type;
     }
 
     public setType(componentType: ComponentType): void {
-        Reflect.defineMetadata(constants.componentType, componentType, this._Class);
+        this.type = componentType;
     }
 
     private getConstructDependencyList(): Component[] {
@@ -148,5 +150,9 @@ export class ClassComponent<T> extends Component<T> {
 
     get name(): string {
         return "Class " + this._Class.name;
+    }
+
+    setScope(scope: Scope) {
+        this.scope = scope;
     }
 }
