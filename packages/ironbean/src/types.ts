@@ -1,6 +1,8 @@
 import {ComponentContext, DependencyToken, LazyToken} from "./internals";
 
-export type TClass<T> = new (...args: any[]) => T;
+export type TNormalClass<T> = new (...args: any[]) => T;
+export type TAbstractClass<T> = abstract new (...args: any[]) => T;
+export type TClass<T> = TNormalClass<T>|TAbstractClass<T>;
 export interface IFactory<T> {
     create(...args: any[]): T
 }

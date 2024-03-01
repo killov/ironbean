@@ -7,6 +7,7 @@ export {
     scope,
     collection,
     getBaseApplicationContext,
+    createBaseApplicationContext,
     destroyContext,
     take,
     DependencyToken,
@@ -17,7 +18,8 @@ export {
     Scope,
     needScope,
     provideScope,
-    lazy
+    lazy,
+    inject
 } from "./internals";
 export {
     getBaseTestingContext,

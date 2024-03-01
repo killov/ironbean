@@ -167,8 +167,9 @@ export class Factory<T> implements IConstructable<T> {
         return this.factory(container.getBean(ComponentContext));
     }
 
-    private isFactoryClass(func: any): func is TClass<IFactory<T>> {
+    private isFactoryClass(func: unknown): func is TClass<IFactory<T>> {
         return typeof func === 'function'
+            && func.prototype !== undefined
             && func.prototype.create !== undefined;
     }
 

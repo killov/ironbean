@@ -1,5 +1,29 @@
 # ironbean
 
+## 
+inject(type) function
+
+## 1.0.18
+reflect-metadata@0.2.1
+
+## 1.0.17
+plugins bug fixed
+
+## 1.0.16
+support abstract classes
+
+## 1.0.15
+createBaseApplicationContext
+
+## 1.0.14
+Fixed is class factory predicate
+
+## 1.0.13
+Support parameter decorator for constructor
+
+## 1.0.12
+Testing - enable automock for class component after mark by enableMock()
+
 ## 1.0.11
 Fixed lazy component postConstruct useless call
 Fixed @type decorator for a build that does not support emit decorator metadata
