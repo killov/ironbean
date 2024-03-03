@@ -16,6 +16,7 @@ export class ClassComponent<T> extends Component<T> {
     private readonly _Class: TClass<T>;
     private scope: Scope|undefined = undefined;
     private type: ComponentType = ComponentType.Prototype;
+    private _isComponent: boolean = false;
 
     get Class(): TClass<T> {
         return this._Class;
@@ -145,7 +146,11 @@ export class ClassComponent<T> extends Component<T> {
     }
 
     isComponent(): boolean {
-        return Reflect.getOwnMetadata(constants.component, this._Class) === true;
+        return this._isComponent;
+    }
+
+    setIsComponent(value: boolean): void {
+        this._isComponent = value;
     }
 
     get name(): string {
