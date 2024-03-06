@@ -1,7 +1,8 @@
 # ironbean
 
-## 
+## 1.0.19
 inject(type) function
+inject.lazy(type) function
 
 ## 1.0.18
 reflect-metadata@0.2.1
