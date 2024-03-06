@@ -7,7 +7,7 @@ export function createLazy<T extends object>(create: () => T): T {
 class LazyProxyHandler<T extends object> implements ProxyHandler<T>{
     private readonly create: () => T;
     private _instance: T|undefined;
-    private methodMap = {};
+    private methodMap: {[k: string|symbol]: Function } = {};
     constructor(create: () => T) {
         this.create = create;
     }
