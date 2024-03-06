@@ -7,6 +7,7 @@ export function createLazy<T extends object>(create: () => T): T {
 class LazyProxyHandler<T extends object> implements ProxyHandler<T>{
     private readonly create: () => T;
     private _instance: T|undefined;
+    private methodMap = {};
     constructor(create: () => T) {
         this.create = create;
     }
@@ -16,8 +17,12 @@ class LazyProxyHandler<T extends object> implements ProxyHandler<T>{
     }
 
     get(_target: T, p: PropertyKey) {
-        const value = (this.instance as any)[p] as any;
-        return typeof value == 'function' ? value.bind(this.instance) : value;
+        const instance = this.instance;
+        const value = (instance as any)[p] as any;
+        if (typeof value === 'function') {
+            return this.methodMap[p] = this.methodMap[p] ?? value.bind(instance);
+        }
+        return value;
     }
 
     set(_target: T, p: PropertyKey, value: any): boolean {
