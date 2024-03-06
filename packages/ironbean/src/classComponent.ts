@@ -9,7 +9,7 @@ import {
     isContext,
     Scope,
     ScopeImpl,
-    TClass,
+    TClass, TNormalClass,
 } from "./internals";
 
 export class ClassComponent<T extends any> extends Component<T> {
@@ -68,7 +68,8 @@ export class ClassComponent<T extends any> extends Component<T> {
         }
 
         const params = container.getDependencyList(this.getConstructDependencyList());
-        const instance = new this._Class(...params);
+        const Class = this._Class as TNormalClass<T>;
+        const instance = new Class(...params);
         // @ts-ignore
         Reflect.defineMetadata(constants.componentContainer, container, instance);
 
