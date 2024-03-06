@@ -7,6 +7,7 @@ import {
     Dependency,
     Scope,
     ScopeImpl,
+    StorageMode,
     TClass
 } from "./internals";
 
@@ -40,7 +41,21 @@ export class ApplicationContext {
 }
 
 export function getBaseApplicationContext(): ApplicationContext {
-    const container = containerStorage.getBaseContainer();
+    if (containerStorage.mode === StorageMode.Prototype) {
+        throw new Error("You use createBaseApplicationContext(), don't use it in combination with getBaseApplicationContext() in the same environment.")
+    }
+    containerStorage.mode = StorageMode.Singleton;
+    const container = containerStorage.getOrCreateBaseContainer();
+    return container.getBean(ApplicationContext);
+}
+
+export function createBaseApplicationContext(): ApplicationContext {
+    if (containerStorage.mode === StorageMode.Singleton) {
+        throw new Error("You use getBaseApplicationContext(), don't use it in combination with createBaseApplicationContext() in the same environment.")
+    }
+    containerStorage.mode = StorageMode.Prototype;
+    const container = containerStorage.createBaseContainer();
+
     return container.getBean(ApplicationContext);
 }
 
