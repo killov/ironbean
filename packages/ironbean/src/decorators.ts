@@ -88,7 +88,7 @@ export function collection(target: any, propertyName: string | symbol, parameter
     }
 }
 
-export function postConstruct<T>(target: T, propertyName: string) {
+export function postConstruct<T extends Object>(target: T, propertyName: string) {
     Reflect.defineMetadata(constants.postConstruct, true, target, propertyName);
 }
 
