@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.20
+upgrade typescript to 4.9
+
 ## 1.0.19
 inject(type) function
 inject.lazy(type) function
