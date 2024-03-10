@@ -225,6 +225,7 @@ export class AsyncFactory<T> implements IConstructable<T> {
 
     private isFactoryClass(func: any): func is TClass<IFactoryAsync<T>> {
         return typeof func === 'function'
+            && func.prototype !== undefined
             && func.prototype.createAsync !== undefined;
     }
 
