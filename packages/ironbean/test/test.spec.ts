@@ -670,6 +670,58 @@ describe("test", () => {
         expectDependenciesCount(5);
     })
 
+    it("lazy inject.lazy", () => {
+        @component
+        class A {
+            a = 1;
+            b = 10;
+            x = {};
+
+            ahoj() {
+                this.bye();
+                expect(this instanceof A).toBe(true);
+            }
+
+            getA() {
+                return this.a;
+            }
+
+            bye() {
+
+            }
+        }
+
+        @component
+        class B {
+            public a = inject.lazy(A);
+            public a2 = inject.lazy(A);
+        }
+
+        const b = applicationContext.getBean(B);
+        expectDependenciesCount(4);
+        b.a.ahoj();
+        expectDependenciesCount(5);
+        b.a.ahoj();
+        expect(b.a.ahoj).toBe(b.a.ahoj);
+        expectDependenciesCount(5);
+        expect((b.a as any).shit).toBe(undefined);
+
+        b.a2.ahoj();
+        expectDependenciesCount(5);
+        expect((b.a2 as any).shit).toBe(undefined);
+
+        expect(b.a).toBe(b.a2);
+        expect(b.a.x).toBe(b.a2.x);
+
+        expect(b.a.getA()).toBe(1);
+        expect(b.a.b).toBe(10);
+
+        b.a.b = 20;
+        expect(b.a.b).toBe(20);
+        expect(b.a2).not.toBeInstanceOf(A);
+        expectDependenciesCount(5);
+    })
+
     it("collection autowired", () => {
         @component
         class AA extends A {
@@ -981,7 +1033,7 @@ describe("test", () => {
             }
 
             @postConstruct
-            post(@type(key3) data: b, item: Item) {
+            post(@type(key3) data: any, item: Item) {
                 expect(data instanceof  b).toBe(true);
                 expect(item.a).toBe("datatadatata22");
             }

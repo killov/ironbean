@@ -1,5 +1,4 @@
 export const constants = {
-    component: "_ioc_component",
     postConstruct: "_ioc_postConstruct",
     componentContainer: "_ioc_componentContainer",
     types: "_ioc_keys",

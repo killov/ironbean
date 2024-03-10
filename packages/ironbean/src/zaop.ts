@@ -11,7 +11,8 @@ import {
     Dependency,
     LazyToken,
     markAsOverwrittenDefineProperty,
-    TClass, TNormalClass
+    TClass,
+    TNormalClass
 } from "./internals";
 
 interface DecoratorContext {
@@ -189,35 +190,34 @@ export function createMethodDecorator(settings: IMethodDecoratorSettings): Metho
 }
 
 interface IClassDecoratorSettings {
-    customContextFactory?: (context: ClassDecoratorContext) => ApplicationContext;
-    constructor?: (context: ClassDecoratorContext) => void;
+    customContextFactory?: (Class: TClass<any>) => ApplicationContext;
+    constructor?: (context: ClassDecoratorContext) => object;
 }
 
-interface ClassDecoratorContext extends DecoratorContext {
+interface ClassDecoratorContext {
     Class: TClass<any>;
     args: any[];
     callConstructor(): any;
 }
 
-class ClassDecoratorContextImpl extends DecoratorContextImpl implements ClassDecoratorContext {
+class ClassDecoratorContextImpl implements ClassDecoratorContext {
     public Class: TNormalClass<any>;
     public args: any[];
+    private componentContainer: ComponentContainer;
+    private newTarget: TClass<any>;
 
-    constructor(component: Component, instance: any, Class: TNormalClass<any>, args: any[]) {
-        super(component, instance);
+    constructor(Class: TNormalClass<any>, args: any[], componentContainer: ComponentContainer, newTarget: TClass<any>) {
+        this.componentContainer = componentContainer;
         this.Class = Class;
         this.args = args;
+        this.newTarget = newTarget;
     }
 
     callConstructor(): any {
         return containerStorage.currentComponentContainerAction(
             this.componentContainer,
-            () => this.Class.apply(this.instance, this.args)
+            () => Reflect.construct(this.Class, this.args, this.newTarget)
         );
-    }
-
-    get componentContainer(): ComponentContainer {
-        return this.componentContext.getBean(ComponentContainer);
     }
 }
 
@@ -225,22 +225,19 @@ export function createClassDecorator(settings: IClassDecoratorSettings) {
     return function (Class: any) {
         if (settings.constructor) {
             const constructor = settings.constructor;
-            const extended = function (this: any, ...args: any[]) {
-                let customContainer;
-                const context = new ClassDecoratorContextImpl(Component.create(Class), this, Class, args);
-                if (settings.customContextFactory) {
-                    customContainer = settings.customContextFactory(context).getBean(Container);
+            return new Proxy(Class, {
+                construct(Class: TNormalClass<any>, args: any[], newTarget: TClass<any>): object {
+                    let customContainer;
+                    if (settings.customContextFactory) {
+                        customContainer = settings.customContextFactory(Class).getBean(Container);
+                    }
+                    const componentContainer = new ComponentContainer(customContainer ?? containerStorage.currentContainer ?? containerStorage.getOrCreateBaseContainer());
+                    const context = new ClassDecoratorContextImpl(Class, args, componentContainer, newTarget);
+                    const instance = constructor(context);
+                    Reflect.defineMetadata(constants.componentContainer, componentContainer, instance);
+                    return instance;
                 }
-                const componentContainer = new ComponentContainer(customContainer ?? containerStorage.currentContainer ?? containerStorage.getOrCreateBaseContainer());
-                Reflect.defineMetadata(constants.componentContainer, componentContainer, this);
-                constructor(context);
-            }
-
-            Object.setPrototypeOf(extended, Class);
-            extended.prototype = Class.prototype;
-            extended.prototype.constructor = extended;
-
-            return extended;
+            });
         }
         return Class;
     }

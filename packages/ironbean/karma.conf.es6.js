@@ -17,7 +17,7 @@ module.exports = function (config) {
                 jsx: "react",
                 module: "commonjs",
                 sourceMap: true,
-                target: "ES5",
+                target: "ES6",
                 lib: ["es2015", "dom" ],
                 "skipLibCheck": true,
                 useDefineForClassFields: true

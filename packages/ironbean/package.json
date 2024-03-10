@@ -1,6 +1,6 @@
 {
     "name": "ironbean",
-    "version": "1.0.18",
+    "version": "1.0.21",
     "description": "Dependency injection library for Typescript or Javascript.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
         "build": "tsc",
         "debug": "tsc --watch",
         "test": "karma start karma.conf.js",
-        "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true",
+        "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true && karma start karma.conf.es6.js --auto-watch=false --single-run=true",
         "release": "publish-if-not-exists"
     },
     "repository": {
@@ -37,8 +37,8 @@
         "karma-commonjs": "^1.0.0",
         "karma-jasmine": "^4.0.1",
         "karma-phantomjs-launcher": "^1.0.4",
-        "karma-typescript": "^5.5.2",
+        "karma-typescript": "^5.5.3",
         "publish-if-not-exists": "^1.1.0",
-        "typescript": "4.4.4"
+        "typescript": "4.9.5"
     }
 }
