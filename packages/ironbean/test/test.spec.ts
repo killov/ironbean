@@ -1033,7 +1033,7 @@ describe("test", () => {
             }
 
             @postConstruct
-            post(@type(key3) data: b, item: Item) {
+            post(@type(key3) data: any, item: Item) {
                 expect(data instanceof  b).toBe(true);
                 expect(item.a).toBe("datatadatata22");
             }

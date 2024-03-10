@@ -9,7 +9,7 @@
         "build": "tsc",
         "debug": "tsc --watch",
         "test": "karma start karma.conf.js",
-        "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true",
+        "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true && karma start karma.conf.es6.js --auto-watch=false --single-run=true",
         "release": "publish-if-not-exists"
     },
     "repository": {

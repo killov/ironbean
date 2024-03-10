@@ -94,19 +94,19 @@ export function postConstruct<T extends Object>(target: T, propertyName: string)
 
 export function needScope(scope: Scope) {
     return createClassDecorator({
-        customContextFactory(context) {
+        customContextFactory(Class) {
             if (containerStorage.currentContainer === undefined) {
-                throw new Error(Component.create(context.Class).name +  " must be initialized via [provideScope] " + scope + ".");
+                throw new Error(Component.create(Class).name +  " must be initialized via [provideScope] " + scope + ".");
             }
             const container = containerStorage.currentContainer.getParentContainerByScope(scope);
             if (container === undefined) {
-                throw new Error(Component.create(context.Class).name + " initialized with different scope provided, please provide scope " + scope + ".");
+                throw new Error(Component.create(Class).name + " initialized with different scope provided, please provide scope " + scope + ".");
             }
 
             return container.getBean(ApplicationContext);
         },
         constructor(context) {
-            context.callConstructor()
+            return context.callConstructor();
         }
     });
 }
