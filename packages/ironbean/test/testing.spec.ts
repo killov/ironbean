@@ -53,7 +53,7 @@ describe("testing", () => {
             }
 
             @postConstruct
-            post(@type(key3) data: b) {
+            post(@type(key3) data: any) {
                 expect(data instanceof b).toBe(true);
             }
 

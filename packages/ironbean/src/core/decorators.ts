@@ -18,8 +18,9 @@ export function component(Class: Class): any;
 export function component(ClassOrType: Class | ComponentType): any {
     let componentType = ComponentType.Singleton;
     function decorator(Class: any): any {
-        Reflect.defineMetadata(constants.component, true, Class);
-        Component.create(Class).setType(componentType);
+        const component = Component.create(Class) as ClassComponent<any>
+        component.setType(componentType);
+        component.setIsComponent(true);
 
         return Class;
     }
@@ -87,25 +88,25 @@ export function collection(target: any, propertyName: string | symbol, parameter
     }
 }
 
-export function postConstruct<T>(target: T, propertyName: string) {
+export function postConstruct<T extends Object>(target: T, propertyName: string) {
     Reflect.defineMetadata(constants.postConstruct, true, target, propertyName);
 }
 
 export function needScope(scope: Scope) {
     return createClassDecorator({
-        customContextFactory(context) {
+        customContextFactory(Class) {
             if (containerStorage.currentContainer === undefined) {
-                throw new Error(Component.create(context.Class).name +  " must be initialized via [provideScope] " + scope + ".");
+                throw new Error(Component.create(Class).name +  " must be initialized via [provideScope] " + scope + ".");
             }
             const container = containerStorage.currentContainer.getParentContainerByScope(scope);
             if (container === undefined) {
-                throw new Error(Component.create(context.Class).name + " initialized with different scope provided, please provide scope " + scope + ".");
+                throw new Error(Component.create(Class).name + " initialized with different scope provided, please provide scope " + scope + ".");
             }
 
             return container.getBean(ApplicationContext);
         },
         constructor(context) {
-            context.callConstructor()
+            return context.callConstructor();
         }
     });
 }
