@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.21
+fixes for E6 environment
+
 ## 1.0.20
 upgrade typescript to 4.9
 
