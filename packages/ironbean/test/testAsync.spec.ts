@@ -20,7 +20,7 @@ describe("test async", () => {
     })
 
     afterEach(() => {
-        expect(containerStorage.currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
+        expect(containerStorage.currentComponentContainer).toBe(undefined)
         destroyContext();
     });
 
