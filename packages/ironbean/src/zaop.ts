@@ -67,7 +67,7 @@ class PropertyDecoratorContextImpl extends DecoratorContextImpl implements Prope
 }
 
 interface IPropertyDecoratorSettings {
-    isConstant?: boolean|((context: PropertyDecoratorContext) => void);
+    isConstant?: boolean|((context: PropertyDecoratorContext) => boolean);
     get?: (context: PropertyDecoratorContext) => void
     set?: (context: PropertyDecoratorContext, value: any) => void
 }

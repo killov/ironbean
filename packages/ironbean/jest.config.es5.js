@@ -14,6 +14,8 @@ module.exports = {
           noUnusedLocals: false,
           noImplicitAny: false,
           noUnusedParameters: false,
+          experimentalDecorators: true,
+          emitDecoratorMetadata: true,
           target: "ES5"
         },
       },
