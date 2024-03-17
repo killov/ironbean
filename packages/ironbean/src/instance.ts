@@ -10,4 +10,11 @@ export class Instance<T> {
     constructor(value: T) {
         this.value = value;
     }
+
+    toPromise(): Promise<T> {
+        if (this.value instanceof AsyncInstance) {
+            return this.value.promise;
+        }
+        return Promise.resolve(this.value);
+    }
 }

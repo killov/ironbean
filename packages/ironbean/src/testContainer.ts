@@ -1,5 +1,5 @@
 import {
-    ApplicationContextComponent,
+    ApplicationContextComponent, AsyncFactory,
     ClassComponent,
     Component,
     component,
@@ -9,7 +9,7 @@ import {
     ContainerComponent,
     Dependency,
     DependencyComponent,
-    Factory,
+    Factory, FunctionAsyncFactory,
     FunctionFactory,
     IConstructable,
     Instance, isPrimitive,
@@ -72,6 +72,14 @@ export class TestContainer extends Container {
         this.mockFactories.set(mockedComponent, Factory.create(factory));
     }
 
+    public setMockAsyncFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionAsyncFactory<K>): void {
+        const mockedComponent = this.getComponent(Component.create(dependency));
+        if (!mockedComponent.isAsync()) {
+            throw new Error("Component " + mockedComponent.name + " is not async.");
+        }
+        this.mockFactories.set(mockedComponent, AsyncFactory.create(factory));
+    }
+
     private isComponentForMock(component: Component): boolean {
         return !this.disabledMocks.get(this.getComponent(component));
     }
@@ -99,7 +107,7 @@ export class TestContainer extends Container {
         return super.buildNewInstance(component, componentContainer);
     }
 
-    protected runPostConstruct<T>(instance: T, component: Component<T>, componentContainer: ComponentContainer) {
+    protected runPostConstruct<T>(instance: Instance<T>, component: Component<T>, componentContainer: ComponentContainer) {
         if (!this.isComponentForMock(component)) {
             super.runPostConstruct(instance, component, componentContainer)
         }
@@ -108,6 +116,11 @@ export class TestContainer extends Container {
     public getInstanceWithMocks<T>(dependency: Dependency<T>): T {
         this.disableMock(dependency);
         return super.getBean(dependency);
+    }
+
+    public getInstanceWithMocksAsync<T>(dependency: Dependency<T>): Promise<T> {
+        this.disableMock(dependency);
+        return super.getBeanAsync(dependency);
     }
 
     public disableMock<T>(dependency: Dependency<T>, disable: boolean = true) {

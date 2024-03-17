@@ -3,13 +3,13 @@ import {containerStorage} from "../src/containerStorage";
 
 describe("storage", () => {
     afterEach(() => {
-        expect(containerStorage.currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
+        expect(containerStorage.currentComponentContainer).toBe(undefined)
         containerStorage.dispose();
         destroyContext();
     });
 
     beforeEach(() => {
-        expect(containerStorage.currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
+        expect(containerStorage.currentComponentContainer).toBe(undefined)
         containerStorage.dispose();
         destroyContext();
     });

@@ -68,7 +68,9 @@ export function type<T>(key: DependencyToken<T>|(() => Dependency<T>)) {
     }
 }
 
-export function lazy(target: any, propertyName: string | symbol, parameterIndex?: number) {
+export function lazy(target: any, propertyName: string | symbol): void
+export function lazy(target: any, propertyName: string | symbol | undefined, parameterIndex: number): void
+export function lazy(target: any, propertyName: any, parameterIndex?: number) {
     if (typeof parameterIndex !== "number") {
         Reflect.defineMetadata(constants.lazy, true, target, propertyName);
     } else {
@@ -78,7 +80,9 @@ export function lazy(target: any, propertyName: string | symbol, parameterIndex?
     }
 }
 
-export function collection(target: any, propertyName: string | symbol, parameterIndex?: number) {
+export function collection(target: any, propertyName: string | symbol): void
+export function collection(target: any, propertyName: string | symbol | undefined, parameterIndex: number): void
+export function collection(target: any, propertyName: any, parameterIndex?: number) {
     if (typeof parameterIndex !== "number") {
         Reflect.defineMetadata(constants.collection, true, target, propertyName);
     } else {

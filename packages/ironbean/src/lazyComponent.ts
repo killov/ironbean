@@ -54,4 +54,8 @@ export class LazyComponent<T> extends Component<T> {
     isComponent(): boolean {
         return this.component.isComponent();
     }
+
+    isAsync(): boolean {
+        return this.component.isAsync();
+    }
 }
