@@ -6,8 +6,8 @@ export {
     postConstruct,
     scope,
     collection,
-    getBaseApplicationContext,
-    createBaseApplicationContext,
+    getRootAppContext,
+    createRootAppContext,
     destroyContext,
     take,
     DependencyToken,
@@ -20,10 +20,6 @@ export {
     provideScope,
     lazy,
     inject
-} from "./internals";
-export {
-    getBaseTestingContext,
-    TestingContext
-} from "./internalsTesting";
+} from "./core/internals";
 
 

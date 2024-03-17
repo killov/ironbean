@@ -150,7 +150,7 @@ export class Container {
     }
 
     private throwCircularDependency(component: Component): void {
-        const names = [];
+        const names: string[] = [];
         for (const i of this.resolvingStack.items) {
             names.push(i.name);
         }

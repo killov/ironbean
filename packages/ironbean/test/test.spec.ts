@@ -7,7 +7,7 @@ import {
     ComponentType,
     DependencyToken,
     destroyContext,
-    getBaseApplicationContext,
+    getRootAppContext,
     IFactory,
     lazy,
     needScope,
@@ -19,10 +19,9 @@ import {
     type,
     inject
 } from "../src";
-import {Container} from "../src/container";
-import {containerStorage} from "../src/containerStorage";
-import {CollectionToken} from "../src/collection";
-import {LazyToken} from "../src/lazy";
+import {Container} from "../src/core/container";
+import {containerStorage} from "../src/core/containerStorage";
+import {LazyToken} from "../src/core/lazy";
 abstract class A {
 
 }
@@ -31,12 +30,12 @@ describe("test", () => {
     let applicationContext: ApplicationContext;
 
     beforeEach(() => {
-        applicationContext = getBaseApplicationContext();
+        applicationContext = getRootAppContext();
         expectDependenciesCount(2);
     })
 
     afterEach(() => {
-        expect(containerStorage.currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
+        expect(containerStorage.currentComponentContainer).toBe(undefined)
         destroyContext();
     });
 
@@ -93,7 +92,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct");
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -150,7 +149,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct");
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -209,7 +208,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct")
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -473,7 +472,7 @@ describe("test", () => {
 
             @postConstruct
             postconstruct() {
-                console.log("omg")
+
             }
 
             ahoj() {
@@ -490,7 +489,7 @@ describe("test", () => {
             }
         }
 
-        const spy = spyOn(A.prototype, "postconstruct").and.callThrough()
+        const spy = jest.spyOn(A.prototype, "postconstruct");
 
         @component
         class B {
@@ -536,7 +535,7 @@ describe("test", () => {
             }
         }
 
-        spyOn(G.prototype, "post");
+        jest.spyOn(G.prototype, "post");
 
         take(G).setFactory(() => new G);
 
@@ -1082,7 +1081,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct")
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -1187,7 +1186,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct")
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -1390,7 +1389,7 @@ describe("test", () => {
                 @autowired
                 item: Object;
             }
-            let context = getBaseApplicationContext();
+            let context = getRootAppContext();
 
             const i = context.getBean(A);
 
@@ -1400,7 +1399,7 @@ describe("test", () => {
         });
 
         it("test1", () => {
-            let context = getBaseApplicationContext();
+            let context = getRootAppContext();
             const oldB = context.getBean(AComponent).b;
             const oldC = context.getBean(AComponent).c;
 
@@ -1418,7 +1417,7 @@ describe("test", () => {
             expect(context.getBean(C)).not.toBe(oldC);
 
             destroyContext();
-            context = getBaseApplicationContext();
+            context = getRootAppContext();
             expect(context.getBean(AComponent).b).not.toBe(oldB);
             expect(context.getBean(B)).not.toBe(oldB);
             expect(context.getBean(AComponent).c).not.toBe(oldC);

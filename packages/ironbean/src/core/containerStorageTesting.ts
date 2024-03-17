@@ -1,4 +1,4 @@
-import {containerStorage, TestContainer} from "./internalsTesting";
+import {containerStorage, TestContainer} from "../testing/internalsTesting";
 
 export function getTestContainer(): TestContainer {
     if (!containerStorage.container) {

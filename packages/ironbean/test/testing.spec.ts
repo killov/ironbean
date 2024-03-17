@@ -4,23 +4,25 @@ import {
     ComponentType,
     DependencyToken,
     destroyContext,
-    getBaseApplicationContext,
-    getBaseTestingContext,
+    getRootAppContext,
     postConstruct,
     Scope,
     scope,
     take,
-    TestingContext,
     type
 } from "../src";
-import {Container} from "../src/container";
-import {TestProvider} from "../src/api";
+import {
+    getRootTestingContext,
+    TestingContext,
+} from "../src/testing";
+import {Container} from "../src/core/container";
+import {TestProvider} from "../src/testing";
 
 describe("testing", () => {
     let testingContext: TestingContext;
 
     beforeEach(() => {
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         expectDependenciesCount(2);
     })
 
@@ -99,7 +101,7 @@ describe("testing", () => {
         class c {
             constructor(a: a) {
                 expect(a).toBe(ia1);
-                spyOn(a, "f");
+                jest.spyOn(a, "f");
                 expect(a.f).not.toHaveBeenCalled();
                 a.f();
                 expect(a.getText()).toBe("ahoja");
@@ -112,7 +114,7 @@ describe("testing", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct");
 
         const ic1 = testingContext.getBeanWithMocks(c);
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -122,9 +124,9 @@ describe("testing", () => {
 
     it("get test container because another container already exists", () => {
         destroyContext();
-        getBaseApplicationContext();
+        getRootAppContext();
         expect(() => {
-            getBaseTestingContext();
+            getRootTestingContext();
         }).toThrow(new Error("You can't get test container because another container already exists."));
     })
 
@@ -155,12 +157,12 @@ describe("testing", () => {
         expect(testingContext.getBean(A).getA()).toBe(undefined as any);
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         testingContext.disableMock(A);
         expect(testingContext.getBean(A).getA()).toBe("a");
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         testingContext.disableMock(A);
         testingContext.enableMock(A);
 
@@ -178,19 +180,19 @@ describe("testing", () => {
         const acko = DependencyToken.create<A>("acko");
         take(acko).setFactory(() => new A());
 
-        expect(testingContext.getBean(acko).getA()).toBe(undefined);
+        expect(testingContext.getBean(acko).getA() as any).toBe(undefined);
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         testingContext.disableMock(acko);
         expect(testingContext.getBean(acko).getA()).toBe("a");
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         testingContext.disableMock(acko);
         testingContext.enableMock(acko);
 
-        expect(testingContext.getBean(acko).getA()).toBe(undefined);
+        expect(testingContext.getBean(acko).getA() as any).toBe(undefined);
     })
 
     it("unknown dependency mock", () => {
@@ -222,7 +224,7 @@ describe("testing", () => {
         expect(testingContext.getBean(A).getA()).toBe(undefined as any);
 
         destroyContext();
-        testingContext = getBaseTestingContext();
+        testingContext = getRootTestingContext();
         const mock = new B();
         testingContext.setMockFactory(A, () => mock);
         expect(testingContext.getBean(A).getA()).toBe("a");
@@ -388,7 +390,7 @@ describe("testing", () => {
 
         const token = DependencyToken.create<A>("token");
 
-        const mockClassSpy = spyOn(TestProvider.prototype, "mockClass");
+        const mockClassSpy = jest.spyOn(TestProvider.prototype, "mockClass");
 
         take(token).setClassType(A);
         const mock = testingContext.getMock(token);
