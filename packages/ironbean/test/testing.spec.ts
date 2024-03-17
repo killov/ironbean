@@ -101,7 +101,7 @@ describe("testing", () => {
         class c {
             constructor(a: a) {
                 expect(a).toBe(ia1);
-                spyOn(a, "f");
+                jest.spyOn(a, "f");
                 expect(a.f).not.toHaveBeenCalled();
                 a.f();
                 expect(a.getText()).toBe("ahoja");
@@ -114,7 +114,7 @@ describe("testing", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct");
 
         const ic1 = testingContext.getBeanWithMocks(c);
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -180,7 +180,7 @@ describe("testing", () => {
         const acko = DependencyToken.create<A>("acko");
         take(acko).setFactory(() => new A());
 
-        expect(testingContext.getBean(acko).getA()).toBe(undefined);
+        expect(testingContext.getBean(acko).getA() as any).toBe(undefined);
 
         destroyContext();
         testingContext = getRootTestingContext();
@@ -192,7 +192,7 @@ describe("testing", () => {
         testingContext.disableMock(acko);
         testingContext.enableMock(acko);
 
-        expect(testingContext.getBean(acko).getA()).toBe(undefined);
+        expect(testingContext.getBean(acko).getA() as any).toBe(undefined);
     })
 
     it("unknown dependency mock", () => {
@@ -390,7 +390,7 @@ describe("testing", () => {
 
         const token = DependencyToken.create<A>("token");
 
-        const mockClassSpy = spyOn(TestProvider.prototype, "mockClass");
+        const mockClassSpy = jest.spyOn(TestProvider.prototype, "mockClass");
 
         take(token).setClassType(A);
         const mock = testingContext.getMock(token);

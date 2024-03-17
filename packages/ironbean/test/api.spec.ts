@@ -21,7 +21,7 @@ describe("api", () => {
     })
 
     afterEach(() => {
-        expect(containerStorage.currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
+        expect(containerStorage.currentComponentContainer).toBe(undefined)
         containerStorage.dispose();
         destroyContext();
     });

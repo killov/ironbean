@@ -35,7 +35,7 @@ describe("test", () => {
     })
 
     afterEach(() => {
-        expect(containerStorage.currentComponentContainer).toBe(undefined, "currentComponentContainer is not clear")
+        expect(containerStorage.currentComponentContainer).toBe(undefined)
         destroyContext();
     });
 
@@ -92,7 +92,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct");
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -149,7 +149,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct");
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -208,7 +208,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct")
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -472,7 +472,7 @@ describe("test", () => {
 
             @postConstruct
             postconstruct() {
-                console.log("omg")
+
             }
 
             ahoj() {
@@ -489,7 +489,7 @@ describe("test", () => {
             }
         }
 
-        const spy = spyOn(A.prototype, "postconstruct").and.callThrough()
+        const spy = jest.spyOn(A.prototype, "postconstruct");
 
         @component
         class B {
@@ -535,7 +535,7 @@ describe("test", () => {
             }
         }
 
-        spyOn(G.prototype, "post");
+        jest.spyOn(G.prototype, "post");
 
         take(G).setFactory(() => new G);
 
@@ -1081,7 +1081,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct")
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
@@ -1186,7 +1186,7 @@ describe("test", () => {
                 expect(c).toBe(this);
             }
         }
-        spyOn(c.prototype, "postConstruct").and.callThrough();
+        jest.spyOn(c.prototype, "postConstruct")
         const ic1 = applicationContext.getBean(c);
 
         expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
