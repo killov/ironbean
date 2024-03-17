@@ -14,7 +14,7 @@ describe("zaop", () => {
 
     describe("property", () => {
         it("constant", () => {
-            const spy = jasmine.createSpy("spy");
+            const spy = jest.fn()
             const decorator = createPropertyDecorator({
                 isConstant: true,
                 get: () => {
