@@ -10,8 +10,8 @@
     "scripts": {
         "build": "tsc",
         "debug": "tsc --watch",
-        "test": "jest",
-        "test:no-watch": "karma start karma.conf.js --auto-watch=false --single-run=true",
+        "test": "jest --watch",
+        "test:no-watch": "jest",
         "release": "publish-if-not-exists"
     },
     "author": "Zdeněk Mazurák",
