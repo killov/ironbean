@@ -1,10 +1,10 @@
-import {getBaseJasmineTestingContext, getPropertyDescriptor, JasmineTestingContext} from "../src";
+import {getBaseJasmineTestingContext, getPropertyDescriptor, JestTestingContext} from "../src";
 import {autowired, component, DependencyToken, destroyContext, postConstruct, take, type} from "ironbean";
 import {Container} from "ironbean/dist/container";
 import MockInstance = jest.MockInstance;
 
 describe("jasmine testing", () => {
-    let testingContext: JasmineTestingContext;
+    let testingContext: JestTestingContext;
 
     beforeEach(() => {
         testingContext = getBaseJasmineTestingContext();

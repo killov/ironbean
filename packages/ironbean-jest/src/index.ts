@@ -30,7 +30,7 @@ class JestTestProvider extends TestProvider {
         }) as any;
     }
 
-    private createSpyObj<T>(baseName, methodNames, properties): SpyObject<T> {
+    private createSpyObj<T>(_baseName: string, methodNames: string[], properties: string[]): SpyObject<T> {
         let obj: any = {};
 
         for (let i = 0; i < methodNames.length; i++) {
@@ -61,15 +61,15 @@ function getAllPropertyNames(obj: object) {
     return result;
 }
 
-export abstract class JasmineTestingContext extends TestingContext {
+export abstract class JestTestingContext extends TestingContext {
     abstract getMock<T>(dependency: Dependency<T>): SpyObject<T>;
 }
 
-export function getBaseJasmineTestingContext(): JasmineTestingContext {
-    return getBaseTestingContext() as JasmineTestingContext;
+export function getBaseJasmineTestingContext(): JestTestingContext {
+    return getBaseTestingContext() as JestTestingContext;
 }
 
-export type SpyObject<T> =
+export type SpyObject<T> = T &
     {
         [K in keyof T]: T[K] extends (...A: infer Y) => infer R ? MockInstance<R, Y> : never;
     };
