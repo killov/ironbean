@@ -2,10 +2,12 @@ import {
     autowired,
     component,
     ComponentType,
+    createConfig,
     DependencyToken,
     destroyContext,
     getBaseApplicationContext,
     getBaseTestingContext,
+    inject,
     postConstruct,
     Scope,
     scope,
@@ -478,4 +480,30 @@ describe("testing", () => {
         take(Cisilka).setFactory(() => set);
         expect(testingContext.getBean(Cisilka)).toEqual(new Set());
     });
+
+    it("config", () => {
+        const CFG = createConfig({
+            GOOGLE: {
+                TOKEN: "string",
+                SECRET: "string",
+                TIMEOUT: "number"
+            },
+            FACEBOOK: {
+                TOKEN: "string",
+                SECRET: "string",
+                TIMEOUT: "number"
+            },
+        });
+
+        @component
+        class Test {
+            googleToken = inject(CFG.GOOGLE.TOKEN);
+            googleTimeout = inject(CFG.GOOGLE.TIMEOUT);
+        }
+
+        const testInstance = testingContext.getBeanWithMocks(Test);
+
+        expect(testInstance.googleToken).toBe("string");
+        expect(testInstance.googleTimeout).toBe(1);
+    })
 });

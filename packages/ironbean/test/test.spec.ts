@@ -17,7 +17,8 @@ import {
     scope,
     take,
     type,
-    inject
+    inject,
+    createConfig
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
@@ -1496,4 +1497,42 @@ describe("test", () => {
             expect(applicationContext.getBean(f).f).toBe(applicationContext.getBean(f))
         });
     });
+
+    it("config", () => {
+        const CFG = createConfig({
+            GOOGLE: {
+                TOKEN: "string",
+                SECRET: "string",
+                TIMEOUT: "number"
+            },
+            FACEBOOK: {
+                TOKEN: "string",
+                SECRET: "string",
+                TIMEOUT: "number"
+            },
+        });
+
+        @component
+        class Test {
+            googleToken = inject(CFG.GOOGLE.TOKEN);
+            googleTimeout = inject(CFG.GOOGLE.TIMEOUT);
+        }
+
+        CFG.fill(applicationContext, {
+            FACEBOOK: {
+                TOKEN: "bum",
+                SECRET: "gun",
+                TIMEOUT: 500,
+            },
+            GOOGLE: {
+                TOKEN: "bum",
+                SECRET: "gun",
+                TIMEOUT: 500,
+            }
+        });
+        const testInstance = applicationContext.getBean(Test);
+
+        expect(testInstance.googleToken).toBe("bum");
+        expect(testInstance.googleTimeout).toBe(500);
+    })
 });
