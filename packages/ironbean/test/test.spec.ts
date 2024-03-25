@@ -1518,7 +1518,7 @@ describe("test", () => {
             googleTimeout = inject(CFG.GOOGLE.TIMEOUT);
         }
 
-        CFG.fill(applicationContext, {
+        CFG.apply(applicationContext, {
             FACEBOOK: {
                 TOKEN: "bum",
                 SECRET: "gun",

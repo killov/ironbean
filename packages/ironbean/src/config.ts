@@ -16,19 +16,21 @@ type Schema<T> = {
     [P in keyof T]: T[P] extends PrimitiveKeys ? MapToType[T[P]] : Schema<T[P]>
 }
 
-type Config<T> = {
+type Config<T> = ConfigChild<T> & {
+    apply(context: ApplicationContext, values: Schema<T>): void
+}
+
+type ConfigChild<T> = {
     [P in keyof T]: T[P] extends "string" ? DependencyToken<string> :
                     T[P] extends "number" ? DependencyToken<number> :
                     T[P] extends "boolean" ? DependencyToken<boolean> :
-                    T[P] extends {} ? Config<T[P]> :
+                    T[P] extends {} ? ConfigChild<T[P]> :
                     never;
-} & {
-    fill(context: ApplicationContext, values: Schema<T>): void
-}
+};
 
 export function createConfig<T extends ConfigParams<any>>(params: T): Config<T> {
     const cfg = _createConfig(params);
-    cfg.fill = (context: ApplicationContext, values: any) => {
+    cfg.apply = (context: ApplicationContext, values: any) => {
         const container = context.getBean(Container);
         fillConfig(container, cfg, values);
     }
