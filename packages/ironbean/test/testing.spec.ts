@@ -492,7 +492,7 @@ describe("testing", () => {
                 TOKEN: "string",
                 SECRET: "string",
                 TIMEOUT: "number"
-            },
+            }
         });
 
         @component

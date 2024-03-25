@@ -1510,6 +1510,7 @@ describe("test", () => {
                 SECRET: "string",
                 TIMEOUT: "number"
             },
+            OPTIONAL: "?number"
         });
 
         @component
@@ -1528,7 +1529,8 @@ describe("test", () => {
                 TOKEN: "bum",
                 SECRET: "gun",
                 TIMEOUT: 500,
-            }
+            },
+            OPTIONAL: 1
         });
         const testInstance = applicationContext.getBean(Test);
 
