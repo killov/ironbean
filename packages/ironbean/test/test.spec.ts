@@ -27,6 +27,13 @@ abstract class A {
 
 }
 
+@component
+abstract class Abstract {
+    constructor() {
+        console.log("ah")
+    }
+}
+
 describe("test", () => {
     let applicationContext: ApplicationContext;
 
@@ -554,6 +561,10 @@ describe("test", () => {
         expect(() => {
             applicationContext.getBean(A);
         }).toThrowError("The parameter at index 0 of constructor Class A could recognize the type.");
+    });
+
+    it("abstract", () => {
+        applicationContext.getBean(Abstract);
     });
 
     it("lazy autowired", () => {
