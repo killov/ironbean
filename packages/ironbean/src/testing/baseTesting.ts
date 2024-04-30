@@ -9,7 +9,7 @@ import {
     TClass,
     TestContainer,
 } from "./internalsTesting";
-import {getTestContainer} from "./containerStorageTesting";
+import {getTestContainer} from "../core/containerStorageTesting";
 
 export abstract class TestingBaseContext<TContext extends ApplicationContext> extends ApplicationContext {
     private testContainer: TestContainer;
@@ -55,7 +55,7 @@ export class TestingContext extends TestingBaseContext<TestingContext> {
     }
 }
 
-export function getBaseTestingContext(): TestingContext {
+export function getRootTestingContext(): TestingContext {
     const container = getTestContainer();
     return container.getBean(TestingContext);
 }
