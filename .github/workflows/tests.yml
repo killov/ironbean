@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [ironbean, ironbean-jasmine, ironbean-react-router]
-        node-version: [14.x]
+        package: [ironbean, ironbean-jasmine, ironbean-react-router, ironbean-jest]
+        node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     defaults:
       run:
