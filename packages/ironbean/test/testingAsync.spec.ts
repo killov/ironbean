@@ -1,4 +1,4 @@
-import {component, destroyContext, getBaseTestingContext, take, TestingContext} from "../src";
+import {Async, component, destroyContext, getBaseTestingContext, take, TestingContext} from "../src";
 import {Container} from "../src/container";
 
 describe("testing", () => {
@@ -32,13 +32,14 @@ describe("testing", () => {
 
     it ("getBeanWithMocksAsync", async () => {
         @component
-        class A {
+        class A extends Async {
 
         }
 
         @component
-        class B {
+        class B extends Async {
             constructor(public a: A) {
+                super();
             }
         }
 

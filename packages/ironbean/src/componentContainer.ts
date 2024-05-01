@@ -24,6 +24,10 @@ export class ComponentContainer {
         return components.map((component) => this.getComponentInstance(component).value)
     }
 
+    public getDependencyListAsync(components: Component[]) {
+        return components.map((component) => this.getComponentInstance(component).toPromise())
+    }
+
     public getBean<T>(dependency: Dependency<T>): T {
         const component = Component.create(dependency);
 

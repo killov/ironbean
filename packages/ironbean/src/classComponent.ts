@@ -13,7 +13,7 @@ import {
 } from "./internals";
 
 export class ClassComponent<T extends any> extends Component<T> {
-    private readonly _Class: TClass<T>;
+    protected readonly _Class: TClass<T>;
     private scope: Scope|undefined = undefined;
     private type: ComponentType = ComponentType.Prototype;
     private _isComponent: boolean = false;
@@ -26,7 +26,7 @@ export class ClassComponent<T extends any> extends Component<T> {
         return new ClassComponent<T>(Class);
     }
 
-    private constructor(Class: TClass<T>) {
+    protected constructor(Class: TClass<T>) {
         super();
         this._Class = Class;
     }
@@ -50,7 +50,7 @@ export class ClassComponent<T extends any> extends Component<T> {
         this.type = componentType;
     }
 
-    private getConstructDependencyList(): Component[] {
+    protected getConstructDependencyList(): Component[] {
         const Classes = Reflect.getOwnMetadata("design:paramtypes", this._Class) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[] ?? [];
         const lazy = Reflect.getOwnMetadata(constants.lazy, this._Class) as any[] ?? [];
@@ -106,7 +106,7 @@ export class ClassComponent<T extends any> extends Component<T> {
             if (component.isUnknownType()) {
                 throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
             }
-            if (component.isAsync()) {
+            if (!this.isAsync() && component.isAsync()) {
                 throw new Error("Create instance of component" + this.name + " failed. Constructor async dependency not supported.");
             }
         }
@@ -184,9 +184,6 @@ export class ClassComponent<T extends any> extends Component<T> {
     }
 
     isAsync(): boolean {
-        if (this.factory) {
-            return this.factory.isAsync();
-        }
-        return false; //todo
+        return false;
     }
 }

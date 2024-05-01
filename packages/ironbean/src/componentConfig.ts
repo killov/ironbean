@@ -1,10 +1,12 @@
 import {
+    Async,
+    AsyncDependency, AsyncDependencyToken,
     AsyncFactory,
     Component,
     ComponentAsyncFactory,
     ComponentFactory,
     ComponentType,
-    Dependency,
+    Dependency, DependencyToken,
     Factory,
     TClass
 } from "./internals";
@@ -16,7 +18,7 @@ class Take<TDependency> {
         this.takenDependency = dependency;
     }
 
-    private get takenComponent(): Component {
+    protected get takenComponent(): Component {
         return Component.create(this.takenDependency);
     }
 
@@ -26,10 +28,6 @@ class Take<TDependency> {
 
     public setFactory(factory: ComponentFactory<TDependency>): void {
         this.takenComponent.setFactory(Factory.create(factory));
-    }
-
-    public setAsyncFactory(factory: ComponentAsyncFactory<TDependency>): void {
-        this.takenComponent.setFactory(AsyncFactory.create(factory));
     }
 
     public setType(componentType: ComponentType): void {
@@ -45,6 +43,23 @@ class Take<TDependency> {
     }
 }
 
+class AsyncTake<TDependency> extends Take<TDependency> {
+
+    public bindTo<T extends TDependency>(dependency: Dependency<T>|AsyncDependency<T>): void {
+        this.takenComponent.add(Component.create(dependency))
+    }
+
+    public setAsyncFactory(factory: ComponentAsyncFactory<TDependency>): void {
+        this.takenComponent.setFactory(AsyncFactory.create(factory));
+    }
+}
+
+export function take<TDependency>(dependency: AsyncDependency<TDependency>): AsyncTake<TDependency>
+export function take<TDependency>(dependency: Dependency<TDependency>): Take<TDependency>
 export function take<TDependency>(dependency: Dependency<TDependency>): Take<TDependency> {
+    if ((dependency as any).prototype instanceof Async || dependency instanceof AsyncDependencyToken) {
+        // @ts-ignore
+        return new AsyncTake(dependency as AsyncDependency<TDependency>);
+    }
     return new Take(dependency);
 }

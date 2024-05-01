@@ -5,7 +5,8 @@ import {
     ComponentType,
     destroyContext,
     getBaseApplicationContext, postConstruct,
-    take
+    take,
+    Async
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
@@ -40,9 +41,7 @@ describe("test async", () => {
     })
 
     it("getBean error async", async () => {
-        class A {
-
-        }
+        class A extends Async {}
 
         take(A).setAsyncFactory(async () => {
             return Promise.resolve(new A());
@@ -57,7 +56,7 @@ describe("test async", () => {
     })
 
     it("getBean error async for class factory", async () => {
-        class A {
+        class A extends Async {
 
         }
 
@@ -78,7 +77,7 @@ describe("test async", () => {
     })
 
     it("getBean error async for class factory over autowired", async () => {
-        class A {
+        class A extends Async {
 
         }
 
@@ -111,7 +110,7 @@ describe("test async", () => {
     })
 
     it("getBeanAsync asdsa", async () => {
-        class A {
+        class A extends Async {
 
         }
 
@@ -133,7 +132,7 @@ describe("test async", () => {
     })
 
     it("getBean class with async dependency", async () => {
-        class A {
+        class A extends Async {
 
         }
 
@@ -167,4 +166,31 @@ describe("test async", () => {
             applicationContext.getBean(C);
         }).toThrowError("Create instance of componentClass C failed. PostConstuct async dependency not supported.");
     })
+
+    it ("getBeanWithMocksAsync 2", async () => {
+        @component
+        class A extends Async {
+
+        }
+
+        @component
+        class B extends Async {
+            constructor(public a: A) {
+                super();
+            }
+        }
+
+        //set async
+        take(A).setAsyncFactory(() => Promise.resolve(new A()));
+
+        const b1 = await applicationContext.getBeanAsync(B);
+        const b2 = await applicationContext.getBeanAsync(B);
+
+
+        const a = await applicationContext.getBeanAsync(A);
+
+        expect(b1).toBe(b2);
+        expect(b1.a).toBe(b2.a);
+        expect(b1.a).toBe(a);
+    });
 });

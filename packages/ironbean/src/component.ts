@@ -1,4 +1,6 @@
 import {
+    Async,
+    AsyncDependency,
     AsyncInstance,
     ClassComponent,
     CollectionComponent,
@@ -18,7 +20,8 @@ import {
     LazyComponent,
     LazyToken,
     ScopeImpl,
-    TClass
+    TClass,
+    AsyncClassComponent
 } from "./internals";
 
 export interface IConstructable<T> {
@@ -36,7 +39,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
     private collection: CollectionComponent<T>|undefined;
     private classType: TClass<T>|undefined;
 
-    public static create<T>(object: Dependency<T>): Component<T> {
+    public static create<T>(object: Dependency<T>|AsyncDependency<T>): Component<T> {
         if (Reflect.hasOwnMetadata(component$, object)) {
             return Reflect.getOwnMetadata(component$, object);
         }
@@ -47,7 +50,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
         return component;
     }
 
-    private static createComponentForToken<T>(object: Dependency<T>): Component {
+    private static createComponentForToken<T>(object: Dependency<T>|AsyncDependency<T>): Component {
         if (object instanceof LazyToken) {
             return Component.create<T>(object.dependency).toLazy();
         }
@@ -64,7 +67,9 @@ export abstract class Component<T = any> implements IConstructable<T> {
             return component;
         }
 
-        return object instanceof DependencyToken ? DependencyComponent.create<T>(object) : ClassComponent.create<T>(object);
+        return object instanceof DependencyToken ?
+            DependencyComponent.create<T>(object)
+            : object.prototype instanceof Async ? AsyncClassComponent.create<T>(object as any) : ClassComponent.create<T>(object as any);
     }
 
     public toLazy(): LazyComponent<T> {
