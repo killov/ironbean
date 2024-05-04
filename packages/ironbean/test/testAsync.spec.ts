@@ -6,7 +6,9 @@ import {
     destroyContext,
     getBaseApplicationContext, postConstruct,
     take,
-    Async
+    Async,
+    Scope,
+    scope
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
@@ -168,27 +170,50 @@ describe("test async", () => {
     })
 
     it ("getBeanWithMocksAsync 2", async () => {
+        const sc = Scope.create("scope");
         @component
+        @scope(sc)
         class A extends Async {
 
         }
 
         @component
+        @scope(sc)
+        class C {
+
+        }
+
+        @component
+        @scope(sc)
+        class D extends Async{
+
+        }
+        const postSpy = jest.fn();
+        @component
+        @scope(sc)
         class B extends Async {
-            constructor(public a: A) {
+            @autowired c: C;
+            constructor(public a: A, c: C) {
                 super();
+                expect(this.c).toBe(c);
+            }
+
+            @postConstruct
+            post(d: D) {
+                postSpy();
             }
         }
 
         //set async
         take(A).setAsyncFactory(() => Promise.resolve(new A()));
 
-        const b1 = await applicationContext.getBeanAsync(B);
-        const b2 = await applicationContext.getBeanAsync(B);
+        const context = applicationContext.createOrGetParentContext(sc);
+        const b1 = await context.getBeanAsync(B);
+        const b2 = await context.getBeanAsync(B);
 
+        const a = await context.getBeanAsync(A);
 
-        const a = await applicationContext.getBeanAsync(A);
-
+        expect(postSpy).toBeCalledTimes(1);
         expect(b1).toBe(b2);
         expect(b1.a).toBe(b2.a);
         expect(b1.a).toBe(a);

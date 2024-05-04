@@ -22,7 +22,7 @@ export class ClassComponent<T extends any> extends Component<T> {
         return this._Class;
     }
 
-    public static create<T>(Class: TClass<T>): ClassComponent<T> {
+    public static create<T>(Class: any): ClassComponent<T> {
         return new ClassComponent<T>(Class);
     }
 
@@ -112,13 +112,13 @@ export class ClassComponent<T extends any> extends Component<T> {
         }
     }
 
-    private validatePostConstructorParams(components: Component[]) {
+    protected validatePostConstructorParams(components: Component[]) {
         for (let i = 0; i < components.length; i++) {
             const component = components[i];
             if (component.isUnknownType()) {
                 throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
             }
-            if (component.isAsync()) {
+            if (!this.isAsync() && component.isAsync()) {
                 throw new Error("Create instance of component" + this.name + " failed. PostConstuct async dependency not supported.");
             }
         }
@@ -139,7 +139,7 @@ export class ClassComponent<T extends any> extends Component<T> {
         }
     }
 
-    private static getComponentsListFromMethod<T>(Class: TClass<T>, propertyName: string): Component[] {
+    protected static getComponentsListFromMethod<T>(Class: TClass<T>, propertyName: string): Component[] {
         const Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, propertyName) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, propertyName) ?? [];
         const lazy = Reflect.getOwnMetadata(constants.lazy, Class.prototype, propertyName) ?? [];
