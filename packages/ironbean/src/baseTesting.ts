@@ -4,6 +4,7 @@ import {
     component,
     ComponentType,
     Dependency,
+    FunctionAsyncFactory,
     FunctionFactory,
     Scope,
     TClass,
@@ -23,12 +24,20 @@ export abstract class TestingBaseContext<TContext extends ApplicationContext> ex
         return this.testContainer.getInstanceWithMocks(dependency);
     }
 
+    public getBeanWithMocksAsync<T>(dependency: Dependency<T>): Promise<T> {
+        return this.testContainer.getInstanceWithMocksAsync(dependency);
+    }
+
     public setMock<T, K extends T>(dependency: Dependency<T>, classFactory: TClass<K>): void {
         this.testContainer.setMock(dependency, classFactory);
     }
 
     public setMockFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionFactory<K>): void {
         this.testContainer.setMockFactory(dependency, factory);
+    }
+
+    public setMockAsyncFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionAsyncFactory<K>): void {
+        this.testContainer.setMockAsyncFactory(dependency, factory);
     }
 
     public disableMock<T>(dependency: Dependency<T>): void {
@@ -41,6 +50,10 @@ export abstract class TestingBaseContext<TContext extends ApplicationContext> ex
 
     public getMock<T>(dependency: Dependency<T>): T {
         return this.getBean(dependency);
+    }
+
+    public getMockAsync<T>(dependency: Dependency<T>): Promise<T> {
+        return this.getBeanAsync(dependency);
     }
 
     public createOrGetParentContext(scope: Scope): TContext {

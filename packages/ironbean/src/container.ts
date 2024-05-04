@@ -36,7 +36,17 @@ export class Container {
     }
 
     public getBean<T>(dependency: Dependency<T>): T {
-        return this.getComponentInstance(Component.create(dependency)).value;
+        const component = Component.create(dependency);
+
+        if (component.isAsync()) {
+            throw new Error("Getting bean for component " + component.name + " failed. Bean has async dependency.");
+        }
+
+        return this.getComponentInstance(component).value;
+    }
+
+    public getBeanAsync<T>(dependency: Dependency<T>): Promise<T> {
+        return this.getComponentInstance(Component.create(dependency)).toPromise();
     }
 
     public getComponent(component: Component): Component {
@@ -137,7 +147,7 @@ export class Container {
         });
     }
 
-    protected runPostConstruct(instance: any, component: Component, componentContainer: ComponentContainer) {
+    protected runPostConstruct<T>(instance: Instance<T>, component: Component<T>, componentContainer: ComponentContainer) {
         component.postConstruct(componentContainer, instance);
     }
 
