@@ -206,4 +206,27 @@ describe("jasmine testing", () => {
         take(Cisilka).setFactory(() => set);
         expect(testingContext.getBean(Cisilka)).toEqual(new Set());
     });
+
+    it("automocking with inheritance", () => {
+        class A {
+            get prop1(): string {
+                return "asd";
+            }
+        }
+
+        @component
+        class B extends A {
+            get prop2(): string {
+                return "asdf";
+            }
+        }
+
+        const mock = testingContext.getMock(B);
+
+        getPropertyDescriptor(mock, "prop1").get.mockReturnValue("gj");
+        getPropertyDescriptor(mock, "prop2").get.mockReturnValue("gj2");
+
+        expect(mock.prop1).toBe("gj");
+        expect(mock.prop2).toBe("gj2");
+    });
 });

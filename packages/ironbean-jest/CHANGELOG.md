@@ -1,6 +1,5 @@
-# ironbean-jasmine
+# ironbean-jest
 
 ## 1.0.1
 
-- support DependencyToken for getMock()
-- support for mockUnknown()
+- fixed automocking with inheritance
