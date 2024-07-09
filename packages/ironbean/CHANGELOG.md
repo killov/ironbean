@@ -1,5 +1,8 @@
 # ironbean
 
+## 1.0.22
+class token automocking by classType
+
 ## 1.0.21
 fixes for E6 environment
 
