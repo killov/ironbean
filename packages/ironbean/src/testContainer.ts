@@ -82,7 +82,7 @@ export class TestContainer extends Container {
                 return super.buildNewInstance(this.mockFactories.get(component)!, componentContainer)
             }
             if (component instanceof ClassComponent) {
-                return new Instance(this.testProvider.mockClass(component.Class as any));
+                return new Instance(this.testProvider.mockClass(component.getClassType() ?? component.Class as any));
             }
             if (component instanceof DependencyComponent) {
                 const classType = component.getClassType();

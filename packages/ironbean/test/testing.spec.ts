@@ -397,6 +397,23 @@ describe("testing", () => {
         expect(mockClassSpy).toHaveBeenCalledWith(A);
     });
 
+    it("class token set class type using mockClass", () => {
+        class A {
+            a: number;
+        }
+
+        class B {
+            a: number;
+        }
+
+        const mockClassSpy = jest.spyOn(TestProvider.prototype, "mockClass");
+
+        take(A).setFactory(() => new B());
+        take(A).setClassType(B);
+        const mock = testingContext.getMock(A);
+        expect(mockClassSpy).toHaveBeenCalledWith(B);
+    });
+
 
     it("inject by class key class return of factory", () => {
         class Cisilko extends DependencyToken.Number {}

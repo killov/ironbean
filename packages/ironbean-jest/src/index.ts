@@ -6,15 +6,8 @@ import MockInstance = jest.MockInstance;
 @component
 class JestTestProvider extends TestProvider {
     public mockClass<T>(Class: { new(): T }): T {
-        const methods: string[] = [];
-        const properties: string[] = [];
-        for (const key of getAllPropertyNames(Class.prototype)) {
-            if (typeof Object.getOwnPropertyDescriptor(Class.prototype, key)?.get === "function") {
-                properties.push(key);
-            } else {
-                methods.push(key);
-            }
-        }
+        const [methods, properties] = getAllPropertyNames(Class.prototype);
+
         return this.createSpyObj<T>("", methods, properties) as any;
     }
 
@@ -52,20 +45,34 @@ class JestTestProvider extends TestProvider {
 
 take(TestProvider).bindTo(JestTestProvider);
 
-function getAllPropertyNames(obj: object) {
-    let result: string[] = [];
+function getAllPropertyNames(obj: object): [string[], string[]] {
+    const methods: string[] = [];
+    const properties: string[] = [];
     while (obj) {
-        Object.getOwnPropertyNames(obj).forEach(p => result.push(p));
+        Object.getOwnPropertyNames(obj).forEach(key => {
+            if (typeof Object.getOwnPropertyDescriptor(obj, key)?.get === "function") {
+                properties.push(key);
+            } else {
+                methods.push(key);
+            }
+        });
         obj = Object.getPrototypeOf(obj);
     }
-    return result;
+    return [methods, properties];
 }
 
 export abstract class JestTestingContext extends TestingContext {
     abstract getMock<T>(dependency: Dependency<T>): SpyObject<T>;
 }
 
+/**
+ * @deprecated
+ */
 export function getBaseJasmineTestingContext(): JestTestingContext {
+    return getBaseTestingContext() as JestTestingContext;
+}
+
+export function getBaseJestTestingContext(): JestTestingContext {
     return getBaseTestingContext() as JestTestingContext;
 }
 
