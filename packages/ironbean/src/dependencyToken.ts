@@ -14,7 +14,7 @@ abstract class SetDependencyToken<T> extends Set<T> {}
 
 export class DependencyToken<TDependency> {
     // @ts-ignore
-    a: TDependency;
+    private a: TDependency;
     private _componentType: ComponentType;
     private readonly _scope: Scope;
     private readonly _name: string;

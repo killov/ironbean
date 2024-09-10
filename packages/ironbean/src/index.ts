@@ -19,7 +19,8 @@ export {
     needScope,
     provideScope,
     lazy,
-    inject
+    inject,
+    createConfig
 } from "./internals";
 export {
     getBaseTestingContext,

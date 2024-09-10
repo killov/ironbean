@@ -35,6 +35,13 @@ export class Container {
         this.storage.saveInstance(Component.create<Container>(Container), new Instance(this));
     }
 
+    public setValue<T>(dependency: Dependency<T>, value: T): void {
+        const component = Component.create(dependency);
+        if (component.getType() === ComponentType.Singleton) {
+            this.storage.saveInstance(component, new Instance(value));
+        }
+    }
+
     public getBean<T>(dependency: Dependency<T>): T {
         return this.getComponentInstance(Component.create(dependency)).value;
     }
