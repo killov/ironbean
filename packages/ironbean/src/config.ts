@@ -2,11 +2,8 @@ import {take, Container, ApplicationContext, DependencyToken} from "./internals"
 
 type MapToType = {
     string: string;
-    "?string": string|undefined;
     number: number;
-    "?number": number|undefined;
     boolean: boolean;
-    "?boolean": boolean|undefined;
 }
 
 type PrimitiveKeys = keyof MapToType;
@@ -25,11 +22,8 @@ type Config<T> = ConfigChild<T> & {
 
 type ConfigChild<T> = {
     [P in keyof T]: T[P] extends "string" ? DependencyToken<string> :
-                    T[P] extends "?string" ? DependencyToken<string|undefined> :
                     T[P] extends "number" ? DependencyToken<number> :
-                    T[P] extends "?number" ? DependencyToken<number|undefined> :
                     T[P] extends "boolean" ? DependencyToken<boolean> :
-                    T[P] extends "?boolean" ? DependencyToken<boolean|undefined> :
                     T[P] extends {} ? ConfigChild<T[P]> :
                     never;
 };
@@ -59,15 +53,12 @@ function resolveValue(value: PrimitiveKeys | object): any {
         const token = DependencyToken.create("asd");
         switch (value) {
             case "string":
-            case "?string":
                 take(token).setClassType(String);
                 break;
             case "number":
-            case "?number":
                 take(token).setClassType(Number);
                 break;
             case "boolean":
-            case "?boolean":
                 take(token).setClassType(Boolean);
                 break;
         }
