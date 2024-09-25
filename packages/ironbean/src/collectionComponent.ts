@@ -50,4 +50,9 @@ export class CollectionComponent<T> extends Component<T> {
     isComponent(): boolean {
         return true;
     }
+
+    isAsync(): boolean {
+        return this.component.getCollectionComponents()
+            .some((component) => component.isAsync());
+    }
 }

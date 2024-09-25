@@ -13,7 +13,7 @@ import {
 } from "./internals";
 
 export class ClassComponent<T extends any> extends Component<T> {
-    private readonly _Class: TClass<T>;
+    protected readonly _Class: TClass<T>;
     private scope: Scope|undefined = undefined;
     private type: ComponentType = ComponentType.Prototype;
     private _isComponent: boolean = false;
@@ -22,11 +22,11 @@ export class ClassComponent<T extends any> extends Component<T> {
         return this._Class;
     }
 
-    public static create<T>(Class: TClass<T>): ClassComponent<T> {
+    public static create<T>(Class: any): ClassComponent<T> {
         return new ClassComponent<T>(Class);
     }
 
-    private constructor(Class: TClass<T>) {
+    protected constructor(Class: TClass<T>) {
         super();
         this._Class = Class;
     }
@@ -50,7 +50,7 @@ export class ClassComponent<T extends any> extends Component<T> {
         this.type = componentType;
     }
 
-    private getConstructDependencyList(): Component[] {
+    protected getConstructDependencyList(): Component[] {
         const Classes = Reflect.getOwnMetadata("design:paramtypes", this._Class) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, this._Class) as any[] ?? [];
         const lazy = Reflect.getOwnMetadata(constants.lazy, this._Class) as any[] ?? [];
@@ -106,6 +106,21 @@ export class ClassComponent<T extends any> extends Component<T> {
             if (component.isUnknownType()) {
                 throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
             }
+            if (!this.isAsync() && component.isAsync()) {
+                throw new Error("Create instance of component" + this.name + " failed. Constructor async dependency not supported.");
+            }
+        }
+    }
+
+    protected validatePostConstructorParams(components: Component[]) {
+        for (let i = 0; i < components.length; i++) {
+            const component = components[i];
+            if (component.isUnknownType()) {
+                throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
+            }
+            if (!this.isAsync() && component.isAsync()) {
+                throw new Error("Create instance of component" + this.name + " failed. PostConstuct async dependency not supported.");
+            }
         }
     }
 
@@ -117,19 +132,24 @@ export class ClassComponent<T extends any> extends Component<T> {
 
         for (let key of getAllPropertyNames(Class.prototype)) {
             if (Reflect.getMetadata(constants.postConstruct, instance.value, key)) {
-                (instance.value[key] as Function).apply(instance.value, ClassComponent.getDependencyListFromMethod(Class, key, container));
+                const components = ClassComponent.getComponentsListFromMethod(Class, key);
+                this.validatePostConstructorParams(components);
+                (instance.value[key] as Function).apply(instance.value, container.getDependencyList(components));
             }
         }
     }
 
-    public static getDependencyListFromMethod<T>(Class: TClass<T>, propertyName: string, container: ComponentContainer) {
-        let Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, propertyName) as any[] || [];
+    protected static getComponentsListFromMethod<T>(Class: TClass<T>, propertyName: string): Component[] {
+        const Classes = Reflect.getMetadata("design:paramtypes", Class.prototype, propertyName) as any[] || [];
         const objectKeys = Reflect.getOwnMetadata(constants.types, Class.prototype, propertyName) ?? [];
         const lazy = Reflect.getOwnMetadata(constants.lazy, Class.prototype, propertyName) ?? [];
         const collection = Reflect.getOwnMetadata(constants.collection, Class.prototype, propertyName) ?? [];
-        Classes = ClassComponent.getComponents(Classes, objectKeys, lazy, collection);
+        return ClassComponent.getComponents(Classes, objectKeys, lazy, collection);
+    }
 
-        return container.getDependencyList(Classes);
+    public static getDependencyListFromMethod<T>(Class: TClass<T>, propertyName: string, container: ComponentContainer) {
+        const components = this.getComponentsListFromMethod(Class, propertyName);
+        return container.getDependencyList(components);
     }
 
     private isApplicationContext(): boolean {
@@ -161,5 +181,9 @@ export class ClassComponent<T extends any> extends Component<T> {
 
     setScope(scope: Scope) {
         this.scope = scope;
+    }
+
+    isAsync(): boolean {
+        return false;
     }
 }

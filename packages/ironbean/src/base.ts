@@ -30,6 +30,10 @@ export class ApplicationContext {
         return this.container.getBean(dependency);
     }
 
+    public getBeanAsync<T>(dependency: Dependency<T>): Promise<T> {
+        return this.container.getBeanAsync(dependency);
+    }
+
     public provideScope<T>(action: () => T) {
         return containerStorage.currentContainerAction(this.container, action);
     }

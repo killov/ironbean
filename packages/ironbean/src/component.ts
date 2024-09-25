@@ -1,7 +1,11 @@
 import {
+    Async,
+    AsyncDependency,
+    AsyncInstance,
     ClassComponent,
     CollectionComponent,
     CollectionToken,
+    ComponentAsyncFactory,
     ComponentContainer,
     ComponentContext,
     ComponentFactory,
@@ -11,11 +15,13 @@ import {
     DependencyComponent,
     DependencyToken,
     IFactory,
+    IFactoryAsync,
     Instance,
     LazyComponent,
     LazyToken,
     ScopeImpl,
-    TClass
+    TClass,
+    AsyncClassComponent
 } from "./internals";
 
 export interface IConstructable<T> {
@@ -28,12 +34,12 @@ const component$ = Symbol();
 
 export abstract class Component<T = any> implements IConstructable<T> {
     components: Component[] = [];
-    protected factory?: Factory<T>;
+    protected factory?: Factory<T>|AsyncFactory<T>;
     private lazy: LazyComponent<T>|undefined;
     private collection: CollectionComponent<T>|undefined;
     private classType: TClass<T>|undefined;
 
-    public static create<T>(object: Dependency<T>): Component<T> {
+    public static create<T>(object: Dependency<T>|AsyncDependency<T>): Component<T> {
         if (Reflect.hasOwnMetadata(component$, object)) {
             return Reflect.getOwnMetadata(component$, object);
         }
@@ -44,7 +50,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
         return component;
     }
 
-    private static createComponentForToken<T>(object: Dependency<T>): Component {
+    private static createComponentForToken<T>(object: Dependency<T>|AsyncDependency<T>): Component {
         if (object instanceof LazyToken) {
             return Component.create<T>(object.dependency).toLazy();
         }
@@ -61,7 +67,9 @@ export abstract class Component<T = any> implements IConstructable<T> {
             return component;
         }
 
-        return object instanceof DependencyToken ? DependencyComponent.create<T>(object) : ClassComponent.create<T>(object);
+        return object instanceof DependencyToken ?
+            DependencyComponent.create<T>(object)
+            : object.prototype instanceof Async ? AsyncClassComponent.create<T>(object as any) : ClassComponent.create<T>(object as any);
     }
 
     public toLazy(): LazyComponent<T> {
@@ -94,7 +102,7 @@ export abstract class Component<T = any> implements IConstructable<T> {
 
     abstract postConstruct(_container: ComponentContainer, _instance: Instance<T>): void;
 
-    public setFactory(factory: Factory<T>): void {
+    public setFactory(factory: Factory<T>|AsyncFactory<T>): void {
         this.factory = factory;
     }
 
@@ -128,6 +136,8 @@ export abstract class Component<T = any> implements IConstructable<T> {
     abstract isComponent(): boolean;
 
     abstract get name(): string;
+
+    abstract isAsync(): boolean;
 }
 
 export class Factory<T> implements IConstructable<T> {
@@ -173,7 +183,63 @@ export class Factory<T> implements IConstructable<T> {
     }
 
     isAsync(): boolean {
+        if (this.isFactoryClass(this.factory)) {
+            return Component.create(this.factory).isAsync();
+        }
+
         return false;
+    }
+
+    name = "";
+}
+
+export class AsyncFactory<T> implements IConstructable<T> {
+    protected factory: ComponentAsyncFactory<T>;
+
+    public static create<T>(factory: ComponentAsyncFactory<T>): AsyncFactory<T> {
+        return new AsyncFactory<T>(factory);
+    }
+
+    private constructor(factory: ComponentAsyncFactory<T>) {
+        this.factory = factory
+    }
+
+    public construct(container: ComponentContainer): Instance<T> {
+        const instance = this.constructInstance(container)
+            .then((instance) => {
+                if (instance instanceof Object) {
+                    Reflect.defineMetadata(constants.componentContainer, container, instance);
+                }
+                return instance;
+            });
+
+        return new Instance(new AsyncInstance(instance) as any);
+    }
+
+    private async constructInstance(container: ComponentContainer): Promise<T> {
+        if (this.isFactoryClass(this.factory)) {
+            const factoryClass = this.factory;
+            const factory = await container.getBeanAsync(factoryClass);
+            const args = ClassComponent.getDependencyListFromMethod(factoryClass, "createAsync", container);
+
+            return factory.createAsync.apply(factory, args);
+        }
+
+        return this.factory(container.getBean(ComponentContext));
+    }
+
+    private isFactoryClass(func: any): func is TClass<IFactoryAsync<T>> {
+        return typeof func === 'function'
+            && func.prototype !== undefined
+            && func.prototype.createAsync !== undefined;
+    }
+
+    isConstructable(): boolean {
+        return true;
+    }
+
+    isAsync(): boolean {
+        return true;
     }
 
     name = "";
