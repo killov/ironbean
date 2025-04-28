@@ -28,8 +28,6 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: packages/${{ matrix.package }}/package-lock.json
     - run: npm ci
     - run: npm i react@${{ matrix.react-version }} react-dom@${{ matrix.react-version }} --save
     - run: npm run build
