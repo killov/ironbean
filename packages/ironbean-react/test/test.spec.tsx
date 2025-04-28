@@ -11,7 +11,6 @@ import React, {Component, FunctionComponent, useState} from "react";
 import ReactDOM, {render, unmountComponentAtNode} from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 import {ContextProvider, useBean, withContext} from "../src";
-import {act} from "react-dom/test-utils";
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -74,6 +73,7 @@ describe("test", () => {
         const ChildComponent: FunctionComponent = () => {
             const page = useBean(Page);
             [, invalidate] = useState(1);
+            console.log(1);
             expect(page).toBe(page1);
 
             return (
@@ -87,13 +87,11 @@ describe("test", () => {
             );
         }
 
-        act(() => {
-            ReactDOM.render(<Top />, elm);
-        });
+        ReactDOM.render(<Top />, elm);
 
         destroyContext();
+        page1 = getBaseApplicationContext().getBean(Page);
         invalidate(2);
-        page1 = applicationContext.getBean(Page);
 
         done();
     });
@@ -148,9 +146,7 @@ describe("test", () => {
             )
         }
 
-        act(() => {
-            render(<App />, container);
-        });
+        render(<App />, container);
         await wait();
         expect(currentContext).toBe(ctx1);
         expect(ref.current.ctx).toBe(ctx1);
@@ -201,9 +197,7 @@ describe("test", () => {
             )
         }
 
-        act(() => {
-            render(<App />, container);
-        });
+        render(<App />, container);
         await wait();
         expect(currentContext).toBe(ctx1);
         //expect(ref.current.ctx).toBe(ctx1);
@@ -248,9 +242,7 @@ describe("test", () => {
             )
         }
 
-        act(() => {
-            render(<App />, container);
-        });
+        render(<App />, container);
         await wait();
         expect(currentContext).toBe(ctx1);
         actCtx = ctx2;
