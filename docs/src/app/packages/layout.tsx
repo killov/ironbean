@@ -12,7 +12,7 @@ export default function PackagesLayout({
       <header className="sticky top-0 z-10 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight">
-            <Image src="/logo.jpg" alt="ironbean logo" width={32} height={32} className="rounded-lg" />
+            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH}/logo.jpg`} alt="ironbean logo" width={32} height={32} className="rounded-lg" />
             <span className="text-zinc-900 dark:text-white">ironbean</span>
             <span className="text-zinc-400 dark:text-zinc-500 font-normal">docs</span>
           </Link>

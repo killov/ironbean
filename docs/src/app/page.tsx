@@ -55,7 +55,7 @@ export default function Home() {
       {/* Hero */}
       <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
         <div className="mx-auto max-w-5xl px-6 py-20 text-center">
-          <Image src="/logo.jpg" alt="ironbean" width={280} height={280} className="mx-auto mb-6 rounded-3xl shadow-2xl shadow-blue-900/40" />
+          <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH}/logo.jpg`} alt="ironbean" width={280} height={280} className="mx-auto mb-6 rounded-3xl shadow-2xl shadow-blue-900/40" />
           <h1 className="text-6xl font-black tracking-tight mb-6">
             <span className="bg-gradient-to-br from-blue-600 to-cyan-500 bg-clip-text text-transparent">
               ironbean
