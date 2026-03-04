@@ -23,8 +23,9 @@ if ((React as any).act) {
     (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 }
 
-// render/unmount: React 18+ has createRoot directly on ReactDOM, older uses ReactDOM.render
-const createRoot: ((container: Element) => any) | undefined = (ReactDOM as any).createRoot;
+// render/unmount: React 18+ uses createRoot from react-dom/client
+// For React < 18, karma.conf.js shims react-dom/client to {}, so createRoot is undefined
+const { createRoot } = require('react-dom/client') as any;
 
 let renderToContainer: (element: React.ReactElement, container: Element) => void;
 let unmountFromContainer: (container: Element) => void;
@@ -186,15 +187,15 @@ describe("test", () => {
             )
         }
 
-        act(() => {
+        await act(async () => {
             renderToContainer(<App />, container);
         });
-        await wait();
         expect(currentContext).toBe(ctx1);
         expect(ref.current.ctx).toBe(ctx1);
         actCtx = ctx2;
-        reload();
-        await wait();
+        await act(async () => {
+            reload();
+        });
         expect(currentContext).toBe(ctx2);
         expect(ref.current.ctx).toBe(ctx2);
 
@@ -239,15 +240,15 @@ describe("test", () => {
             )
         }
 
-        act(() => {
+        await act(async () => {
             renderToContainer(<App />, container);
         });
-        await wait();
         expect(currentContext).toBe(ctx1);
         //expect(ref.current.ctx).toBe(ctx1);
         actCtx = ctx2;
-        reload();
-        await wait();
+        await act(async () => {
+            reload();
+        });
         expect(currentContext).toBe(ctx2);
         //expect(ref.current.ctx).toBe(ctx2);
 
@@ -286,14 +287,14 @@ describe("test", () => {
             )
         }
 
-        act(() => {
+        await act(async () => {
             renderToContainer(<App />, container);
         });
-        await wait();
         expect(currentContext).toBe(ctx1);
         actCtx = ctx2;
-        reload();
-        await wait();
+        await act(async () => {
+            reload();
+        });
         expect(currentContext).toBe(ctx2);
 
         expect(true).toBe(true);

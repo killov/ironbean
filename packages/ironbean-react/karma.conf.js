@@ -2,8 +2,12 @@ module.exports = function (config) {
     const reactVersion = parseInt(require('./node_modules/react/package.json').version.split('.')[0]);
 
     // Shim modules that don't exist in certain React versions so bundler doesn't fail:
+    // - react-dom/client was added in React 18
     // - react-dom/test-utils was removed in React 19
     const bundlerBrowser = {};
+    if (reactVersion < 18) {
+        bundlerBrowser['react-dom/client'] = false;
+    }
     if (reactVersion >= 19) {
         bundlerBrowser['react-dom/test-utils'] = false;
     }
