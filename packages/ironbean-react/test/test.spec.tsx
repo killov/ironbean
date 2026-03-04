@@ -8,10 +8,49 @@ import {
     scope
 } from "ironbean";
 import React, {Component, FunctionComponent, useState} from "react";
-import ReactDOM, {render, unmountComponentAtNode} from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 import {ContextProvider, useBean, withContext} from "../src";
-import {act} from "react-dom/test-utils";
+
+// Compatibility helpers for React 16/17 vs React 18+
+const reactMajorVersion = parseInt(React.version.split('.')[0]);
+
+// act: React 18+ exports from 'react', older from 'react-dom/test-utils'
+// React 18+ requires IS_REACT_ACT_ENVIRONMENT to be set when using act() from 'react'
+if (reactMajorVersion >= 18) {
+    (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
+}
+const act: (callback: () => void | Promise<void>) => any =
+    reactMajorVersion >= 18
+        ? require('react').act
+        : require('react-dom/test-utils').act;
+
+// render/unmount: React 18+ uses createRoot, older uses ReactDOM.render
+let renderToContainer: (element: React.ReactElement, container: Element) => void;
+let unmountFromContainer: (container: Element) => void;
+
+if (reactMajorVersion >= 18) {
+    const { createRoot } = require('react-dom/client');
+    const roots = new Map<Element, any>();
+    renderToContainer = (element, container) => {
+        let root = roots.get(container);
+        if (!root) {
+            root = createRoot(container);
+            roots.set(container, root);
+        }
+        root.render(element);
+    };
+    unmountFromContainer = (container) => {
+        const root = roots.get(container);
+        if (root) {
+            root.unmount();
+            roots.delete(container);
+        }
+    };
+} else {
+    const ReactDOM = require('react-dom');
+    renderToContainer = (element, container) => ReactDOM.render(element, container);
+    unmountFromContainer = (container) => ReactDOM.unmountComponentAtNode(container);
+}
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -88,7 +127,7 @@ describe("test", () => {
         }
 
         act(() => {
-            ReactDOM.render(<Top />, elm);
+            renderToContainer(<Top />, elm);
         });
 
         destroyContext();
@@ -106,7 +145,7 @@ describe("test", () => {
 
     afterEach(() => {
         // cleanup on exiting
-        unmountComponentAtNode(container);
+        unmountFromContainer(container);
         container.remove();
         container = null;
     });
@@ -149,7 +188,7 @@ describe("test", () => {
         }
 
         act(() => {
-            render(<App />, container);
+            renderToContainer(<App />, container);
         });
         await wait();
         expect(currentContext).toBe(ctx1);
@@ -202,7 +241,7 @@ describe("test", () => {
         }
 
         act(() => {
-            render(<App />, container);
+            renderToContainer(<App />, container);
         });
         await wait();
         expect(currentContext).toBe(ctx1);
@@ -249,7 +288,7 @@ describe("test", () => {
         }
 
         act(() => {
-            render(<App />, container);
+            renderToContainer(<App />, container);
         });
         await wait();
         expect(currentContext).toBe(ctx1);
