@@ -1,15 +1,18 @@
+const path = require('path');
+const fs = require('fs');
+
 module.exports = function (config) {
     const reactVersion = parseInt(require('./node_modules/react/package.json').version.split('.')[0]);
 
-    // Shim modules that don't exist in certain React versions so bundler doesn't fail:
-    // - react-dom/client was added in React 18
-    // - react-dom/test-utils was removed in React 19
-    const bundlerBrowser = {};
+    // react-dom/client was added in React 18. For older versions, create a stub so
+    // karma-typescript's browser-resolve doesn't fail when encountering require('react-dom/client').
+    // The stub returns {}, so createRoot will be undefined, and the test code falls back to
+    // legacy ReactDOM.render / unmountComponentAtNode.
     if (reactVersion < 18) {
-        bundlerBrowser['react-dom/client'] = false;
-    }
-    if (reactVersion >= 19) {
-        bundlerBrowser['react-dom/test-utils'] = false;
+        const clientStub = path.resolve('./node_modules/react-dom/client.js');
+        if (!fs.existsSync(clientStub)) {
+            fs.writeFileSync(clientStub, 'module.exports = {};\n');
+        }
     }
 
     config.set({
@@ -30,9 +33,6 @@ module.exports = function (config) {
                 esModuleInterop: true,
                 target: "ES5",
                 lib: ["es2015", "dom"]
-            },
-            bundlerOptions: {
-                browser: bundlerBrowser
             }
         }
     });
