@@ -1,0 +1,151 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #09090b;
+    --foreground: #f4f4f5;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* rehype-pretty-code — shiki dual theme via CSS variables */
+[data-rehype-pretty-code-figure] pre {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg) !important;
+}
+[data-rehype-pretty-code-figure] pre span {
+  color: var(--shiki-light);
+}
+@media (prefers-color-scheme: dark) {
+  [data-rehype-pretty-code-figure] pre {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg) !important;
+  }
+  [data-rehype-pretty-code-figure] pre span {
+    color: var(--shiki-dark);
+  }
+}
+
+/* Code blocks */
+[data-rehype-pretty-code-figure] {
+  margin: 1.25rem 0;
+}
+
+[data-rehype-pretty-code-figure] pre {
+  border-radius: 0.75rem;
+  border: 1px solid #e4e4e7;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-rehype-pretty-code-figure] pre {
+    border-color: #2d333b;
+  }
+}
+
+/* Language label */
+[data-rehype-pretty-code-title] {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.75rem;
+  color: #71717a;
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  border-bottom: none;
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding: 0.35rem 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-rehype-pretty-code-title] {
+    background: #18181b;
+    border-color: #27272a;
+    color: #a1a1aa;
+  }
+}
+
+[data-rehype-pretty-code-title] + pre {
+  border-radius: 0 0 0.75rem 0.75rem;
+  border-top: none;
+}
+
+/* Inline code */
+.prose :not(pre) > code {
+  background: #f4f4f5;
+  color: #2563eb;
+  border-radius: 0.3em;
+  padding: 0.15em 0.45em;
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+  .prose :not(pre) > code {
+    background: #27272a;
+    color: #60a5fa;
+  }
+}
+
+/* h2 divider */
+.prose h2 {
+  border-bottom: 1px solid #e4e4e7;
+  padding-bottom: 0.35em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .prose h2 {
+    border-bottom-color: #27272a;
+  }
+}
+
+/* Copy button */
+.copy-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  background: rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+}
+
+pre:hover .copy-btn {
+  opacity: 1;
+}
+
+.copy-btn.copied {
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.3);
+  opacity: 1;
+}
