@@ -8,28 +8,28 @@ import {
     scope
 } from "ironbean";
 import React, {Component, FunctionComponent, useState} from "react";
+import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 import {ContextProvider, useBean, withContext} from "../src";
 
-// Compatibility helpers for React 16/17 vs React 18+
-const reactMajorVersion = parseInt(React.version.split('.')[0]);
+// Compatibility helpers for React 16/17 vs React 18/19
+// react-dom/test-utils is shimmed to {} for React 19 in karma.conf.js
 
-// act: React 18+ exports from 'react', older from 'react-dom/test-utils'
-// React 18+ requires IS_REACT_ACT_ENVIRONMENT to be set when using act() from 'react'
-if (reactMajorVersion >= 18) {
+// act: React 18.3+ exports directly from 'react', older versions use 'react-dom/test-utils'
+// React 18+ requires IS_REACT_ACT_ENVIRONMENT when using act() from 'react'
+const _testUtils = require('react-dom/test-utils');
+const act: (callback: () => void | Promise<void>) => any = (React as any).act ?? _testUtils.act;
+if ((React as any).act) {
     (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 }
-const act: (callback: () => void | Promise<void>) => any =
-    reactMajorVersion >= 18
-        ? require('react').act
-        : require('react-dom/test-utils').act;
 
-// render/unmount: React 18+ uses createRoot, older uses ReactDOM.render
+// render/unmount: React 18+ has createRoot directly on ReactDOM, older uses ReactDOM.render
+const createRoot: ((container: Element) => any) | undefined = (ReactDOM as any).createRoot;
+
 let renderToContainer: (element: React.ReactElement, container: Element) => void;
 let unmountFromContainer: (container: Element) => void;
 
-if (reactMajorVersion >= 18) {
-    const { createRoot } = require('react-dom/client');
+if (createRoot) {
     const roots = new Map<Element, any>();
     renderToContainer = (element, container) => {
         let root = roots.get(container);
@@ -47,9 +47,8 @@ if (reactMajorVersion >= 18) {
         }
     };
 } else {
-    const ReactDOM = require('react-dom');
-    renderToContainer = (element, container) => ReactDOM.render(element, container);
-    unmountFromContainer = (container) => ReactDOM.unmountComponentAtNode(container);
+    renderToContainer = (element, container) => (ReactDOM as any).render(element, container);
+    unmountFromContainer = (container) => (ReactDOM as any).unmountComponentAtNode(container);
 }
 
 describe("test", () => {
