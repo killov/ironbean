@@ -8,9 +8,49 @@ import {
     scope
 } from "ironbean";
 import React, {Component, FunctionComponent, useState} from "react";
-import ReactDOM, {render, unmountComponentAtNode} from 'react-dom';
+import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 import {ContextProvider, useBean, withContext} from "../src";
+
+// Compatibility helpers for React 16/17 vs React 18/19
+// react-dom/test-utils is shimmed to {} for React 19 in karma.conf.js
+
+// act: React 18.3+ exports directly from 'react', older versions use 'react-dom/test-utils'
+// React 18+ requires IS_REACT_ACT_ENVIRONMENT when using act() from 'react'
+const _testUtils = require('react-dom/test-utils');
+const act: (callback: () => void | Promise<void>) => any = (React as any).act ?? _testUtils.act;
+if ((React as any).act) {
+    (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
+}
+
+// render/unmount: React 18+ uses createRoot from react-dom/client
+// For React < 18, karma.conf.js shims react-dom/client to {}, so createRoot is undefined
+const { createRoot } = require('react-dom/client') as any;
+
+let renderToContainer: (element: React.ReactElement, container: Element) => void;
+let unmountFromContainer: (container: Element) => void;
+
+if (createRoot) {
+    const roots = new Map<Element, any>();
+    renderToContainer = (element, container) => {
+        let root = roots.get(container);
+        if (!root) {
+            root = createRoot(container);
+            roots.set(container, root);
+        }
+        root.render(element);
+    };
+    unmountFromContainer = (container) => {
+        const root = roots.get(container);
+        if (root) {
+            root.unmount();
+            roots.delete(container);
+        }
+    };
+} else {
+    renderToContainer = (element, container) => (ReactDOM as any).render(element, container);
+    unmountFromContainer = (container) => (ReactDOM as any).unmountComponentAtNode(container);
+}
 
 describe("test", () => {
     let applicationContext: ApplicationContext;
@@ -87,7 +127,9 @@ describe("test", () => {
             );
         }
 
-        ReactDOM.render(<Top />, elm);
+        act(() => {
+            renderToContainer(<Top />, elm);
+        });
 
         destroyContext();
         page1 = getBaseApplicationContext().getBean(Page);
@@ -104,7 +146,7 @@ describe("test", () => {
 
     afterEach(() => {
         // cleanup on exiting
-        unmountComponentAtNode(container);
+        unmountFromContainer(container);
         container.remove();
         container = null;
     });
@@ -146,13 +188,16 @@ describe("test", () => {
             )
         }
 
-        render(<App />, container);
+        await act(async () => {
+            renderToContainer(<App />, container);
+        });
         await wait();
         expect(currentContext).toBe(ctx1);
         expect(ref.current.ctx).toBe(ctx1);
         actCtx = ctx2;
-        reload();
-        await wait();
+        await act(async () => {
+            reload();
+        });
         expect(currentContext).toBe(ctx2);
         expect(ref.current.ctx).toBe(ctx2);
 
@@ -197,13 +242,16 @@ describe("test", () => {
             )
         }
 
-        render(<App />, container);
+        await act(async () => {
+            renderToContainer(<App />, container);
+        });
         await wait();
         expect(currentContext).toBe(ctx1);
         //expect(ref.current.ctx).toBe(ctx1);
         actCtx = ctx2;
-        reload();
-        await wait();
+        await act(async () => {
+            reload();
+        });
         expect(currentContext).toBe(ctx2);
         //expect(ref.current.ctx).toBe(ctx2);
 
@@ -242,12 +290,15 @@ describe("test", () => {
             )
         }
 
-        render(<App />, container);
+        await act(async () => {
+            renderToContainer(<App />, container);
+        });
         await wait();
         expect(currentContext).toBe(ctx1);
         actCtx = ctx2;
-        reload();
-        await wait();
+        await act(async () => {
+            reload();
+        });
         expect(currentContext).toBe(ctx2);
 
         expect(true).toBe(true);
