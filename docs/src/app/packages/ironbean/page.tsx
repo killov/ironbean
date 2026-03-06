@@ -423,6 +423,54 @@ take(SomeService).setType(ComponentType.Prototype);
 take(SomeService).setClassType(SomeConcreteClass);
 \`\`\`
 
+## Config
+
+\`createConfig\` lets you define a typed configuration schema and inject individual values directly into components — without manually creating \`DependencyToken\`s.
+
+\`\`\`typescript
+import { createConfig, inject, component, getBaseApplicationContext } from "ironbean";
+
+const CFG = createConfig({
+    GOOGLE: {
+        TOKEN: "string",
+        TIMEOUT: "number",
+    },
+    FEATURE: {
+        ENABLED: "boolean",
+    },
+});
+\`\`\`
+
+Each leaf becomes a \`DependencyToken\` of the appropriate type. Inject them with \`inject()\` or \`@type\` + \`@autowired\`:
+
+\`\`\`typescript
+@component
+class GoogleClient {
+    private token = inject(CFG.GOOGLE.TOKEN);     // string
+    private timeout = inject(CFG.GOOGLE.TIMEOUT); // number
+}
+\`\`\`
+
+Fill the config values by calling \`apply()\` before resolving the first bean:
+
+\`\`\`typescript
+const context = getBaseApplicationContext();
+
+CFG.apply(context, {
+    GOOGLE: {
+        TOKEN: "my-token",
+        TIMEOUT: 5000,
+    },
+    FEATURE: {
+        ENABLED: true,
+    },
+});
+
+const client = context.getBean(GoogleClient);
+\`\`\`
+
+The schema supports three primitive types — \`"string"\`, \`"number"\`, and \`"boolean"\` — and arbitrary nesting depth.
+
 ## Changelog
 
 ### 1.0.22
