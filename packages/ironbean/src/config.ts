@@ -8,8 +8,8 @@ type MapToType = {
 
 type PrimitiveKeys = keyof MapToType;
 
-type ConfigParams<T> = {
-    [P in keyof T]: PrimitiveKeys | ConfigParams<any>
+interface ConfigParams {
+    [key: string]: PrimitiveKeys | ConfigParams
 }
 
 type Schema<T> = {
@@ -28,29 +28,33 @@ type ConfigChild<T> = {
                     never;
 };
 
-export function createConfig<T extends ConfigParams<any>>(params: T): Config<T> {
+export function createConfig<T extends ConfigParams>(params: T): Config<T> {
     const cfg = _createConfig(params);
-    cfg.apply = (context: ApplicationContext, values: any) => {
-        const container = context.getBean(Container);
-        fillConfig(container, cfg, values);
-    }
+    Object.defineProperty(cfg, "apply", {
+        value: (context: ApplicationContext, values: any) => {
+            const container = context.getBean(Container);
+            fillConfig(container, cfg, values);
+        },
+        enumerable: false,
+    });
 
     return cfg;
 }
 
-function _createConfig(params: any): any {
+function _createConfig(params: any, path: string = ""): any {
     const config: any = {};
 
     for (let key in params) {
-        config[key] = resolveValue(params[key]);
+        const fullPath = path ? `${path}.${key}` : key;
+        config[key] = resolveValue(params[key], fullPath);
     }
 
     return config;
 }
 
-function resolveValue(value: PrimitiveKeys | object): any {
+function resolveValue(value: PrimitiveKeys | object, name: string): any {
     if (typeof value === "string") {
-        const token = DependencyToken.create("asd");
+        const token = DependencyToken.create(name);
         switch (value) {
             case "string":
                 take(token).setClassType(String);
@@ -65,7 +69,7 @@ function resolveValue(value: PrimitiveKeys | object): any {
 
         return token;
     }
-    return _createConfig(value);
+    return _createConfig(value, name);
 }
 
 function fillConfig(container: Container, config: any, values: any) {
