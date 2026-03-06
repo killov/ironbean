@@ -113,7 +113,6 @@ describe("test", () => {
         const ChildComponent: FunctionComponent = () => {
             const page = useBean(Page);
             [, invalidate] = useState(1);
-            console.log(1);
             expect(page).toBe(page1);
 
             return (
@@ -132,8 +131,8 @@ describe("test", () => {
         });
 
         destroyContext();
-        page1 = getBaseApplicationContext().getBean(Page);
         invalidate(2);
+        page1 = applicationContext.getBean(Page);
 
         done();
     });
@@ -191,7 +190,6 @@ describe("test", () => {
         await act(async () => {
             renderToContainer(<App />, container);
         });
-        await wait();
         expect(currentContext).toBe(ctx1);
         expect(ref.current.ctx).toBe(ctx1);
         actCtx = ctx2;
@@ -245,7 +243,6 @@ describe("test", () => {
         await act(async () => {
             renderToContainer(<App />, container);
         });
-        await wait();
         expect(currentContext).toBe(ctx1);
         //expect(ref.current.ctx).toBe(ctx1);
         actCtx = ctx2;
@@ -293,7 +290,6 @@ describe("test", () => {
         await act(async () => {
             renderToContainer(<App />, container);
         });
-        await wait();
         expect(currentContext).toBe(ctx1);
         actCtx = ctx2;
         await act(async () => {
