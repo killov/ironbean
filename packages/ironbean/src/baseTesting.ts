@@ -1,5 +1,6 @@
 import {
     ApplicationContext,
+    AsyncDependency,
     Component,
     component,
     ComponentType,
@@ -24,7 +25,7 @@ export abstract class TestingBaseContext<TContext extends ApplicationContext> ex
         return this.testContainer.getInstanceWithMocks(dependency);
     }
 
-    public getBeanWithMocksAsync<T>(dependency: Dependency<T>): Promise<T> {
+    public getBeanWithMocksAsync<T>(dependency: AsyncDependency<T>): Promise<T> {
         return this.testContainer.getInstanceWithMocksAsync(dependency);
     }
 
@@ -36,7 +37,7 @@ export abstract class TestingBaseContext<TContext extends ApplicationContext> ex
         this.testContainer.setMockFactory(dependency, factory);
     }
 
-    public setMockAsyncFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionAsyncFactory<K>): void {
+    public setMockAsyncFactory<T, K extends T>(dependency: AsyncDependency<T>, factory: FunctionAsyncFactory<K>): void {
         this.testContainer.setMockAsyncFactory(dependency, factory);
     }
 
@@ -52,7 +53,7 @@ export abstract class TestingBaseContext<TContext extends ApplicationContext> ex
         return this.getBean(dependency);
     }
 
-    public getMockAsync<T>(dependency: Dependency<T>): Promise<T> {
+    public getMockAsync<T>(dependency: AsyncDependency<T>): Promise<T> {
         return this.getBeanAsync(dependency);
     }
 

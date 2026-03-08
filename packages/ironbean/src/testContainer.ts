@@ -1,5 +1,5 @@
 import {
-    ApplicationContextComponent, AsyncFactory,
+    ApplicationContextComponent, AsyncDependency, AsyncFactory,
     ClassComponent,
     Component,
     component,
@@ -72,8 +72,8 @@ export class TestContainer extends Container {
         this.mockFactories.set(mockedComponent, Factory.create(factory));
     }
 
-    public setMockAsyncFactory<T, K extends T>(dependency: Dependency<T>, factory: FunctionAsyncFactory<K>): void {
-        const mockedComponent = this.getComponent(Component.create(dependency));
+    public setMockAsyncFactory<T, K extends T>(dependency: AsyncDependency<T>, factory: FunctionAsyncFactory<K>): void {
+        const mockedComponent = this.getComponent(Component.create(dependency as any));
         if (!mockedComponent.isAsync()) {
             throw new Error("Component " + mockedComponent.name + " is not async.");
         }
@@ -118,9 +118,9 @@ export class TestContainer extends Container {
         return super.getBean(dependency);
     }
 
-    public getInstanceWithMocksAsync<T>(dependency: Dependency<T>): Promise<T> {
-        this.disableMock(dependency);
-        return super.getBeanAsync(dependency);
+    public getInstanceWithMocksAsync<T>(dependency: AsyncDependency<T>): Promise<T> {
+        this.disableMock(dependency as any);
+        return super.getBeanAsync(dependency as any);
     }
 
     public disableMock<T>(dependency: Dependency<T>, disable: boolean = true) {
