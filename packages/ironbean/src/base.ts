@@ -1,4 +1,5 @@
 import {
+    AsyncDependency,
     Component,
     component,
     ComponentType,
@@ -28,6 +29,10 @@ export class ApplicationContext {
 
     public getBean<T>(dependency: Dependency<T>): T {
         return this.container.getBean(dependency);
+    }
+
+    public getBeanAsync<T>(dependency: AsyncDependency<T>): Promise<T> {
+        return this.container.getBeanAsync(dependency as any);
     }
 
     public provideScope<T>(action: () => T) {

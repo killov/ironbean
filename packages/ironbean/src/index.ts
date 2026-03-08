@@ -20,7 +20,8 @@ export {
     provideScope,
     lazy,
     inject,
-    createConfig
+    createConfig,
+    Async
 } from "./internals";
 export {
     getBaseTestingContext,

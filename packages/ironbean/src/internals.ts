@@ -1,4 +1,5 @@
 import "reflect-metadata";
+export * from './async';
 export * from './instance';
 export * from "./enums";
 export * from './lazy';
@@ -11,6 +12,7 @@ export * from "./containerStorage";
 export * from "./dependencyToken";
 export * from "./component";
 export * from "./classComponent";
+export * from "./asyncClassComponent";
 export * from "./dependencyComponent";
 export * from "./lazyComponent";
 export * from "./collectionComponent";
