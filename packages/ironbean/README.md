@@ -164,6 +164,27 @@ class Car {
 }
 ```
 
+Can use ```inject``` function instead of decorator ```@autowired```.
+
+```typescript
+import {inject} from "ironbean";
+
+@component
+class Car {
+    private readonly enginge: Enginge = inject(Enginge);
+}
+```
+
+For lazy injection use ```inject.lazy``` function.
+```typescript
+import {inject} from "ironbean";
+
+@component
+class Car {
+    private readonly enginge: Enginge = inject.lazy(Enginge);
+}
+```
+
 #### Method injection
 You can achieve method injection by using decorator ```@postConstruct```, it's similar principle as the Constructor injection,
 with the only difference that method marked as @postConstruct is called after initialization of the component instance
@@ -208,4 +229,37 @@ class Car {
         this.engine = context.getBean(Engine);
     }
 }
+```
+
+### Configuration
+For configuration please use ```take``` function.
+
+#### Bind token to class implementation
+
+```typescript
+import {take} from "ironbean";
+
+take(ITodoStorage).bindTo(DbTodoStorage);
+```
+
+#### Set factory for token
+
+```typescript
+import {take} from "ironbean";
+
+take(ITodoStorage).setFactory((context: ComponentContext): ITodoStorage => {
+       // factory for create instance
+       return createTodoStorage();
+});
+```
+
+#### Set type for token
+
+Singleton - one instance for all components.
+Prototype - one instance for each component.
+
+```typescript
+import {take, ComponentType} from "ironbean";
+
+take(ITodoStorage).setType(ComponentType.Singleton);
 ```

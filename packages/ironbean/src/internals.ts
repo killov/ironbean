@@ -29,3 +29,4 @@ export * from "./types";
 export * from "./plugin";
 export * from "./storageMode";
 export * from "./inject";
+export * from "./config";

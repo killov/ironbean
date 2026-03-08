@@ -17,7 +17,8 @@ import {
     scope,
     take,
     type,
-    inject
+    inject,
+    createConfig
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
@@ -25,6 +26,13 @@ import {CollectionToken} from "../src/collection";
 import {LazyToken} from "../src/lazy";
 abstract class A {
 
+}
+
+@component
+abstract class Abstract {
+    constructor() {
+        console.log("ah")
+    }
 }
 
 describe("test", () => {
@@ -554,6 +562,10 @@ describe("test", () => {
         expect(() => {
             applicationContext.getBean(A);
         }).toThrowError("The parameter at index 0 of constructor Class A could recognize the type.");
+    });
+
+    it("abstract", () => {
+        applicationContext.getBean(Abstract);
     });
 
     it("lazy autowired", () => {
@@ -1495,5 +1507,109 @@ describe("test", () => {
             expect(applicationContext.getBean(f).x).toBe(10)
             expect(applicationContext.getBean(f).f).toBe(applicationContext.getBean(f))
         });
+    });
+
+    it("config", () => {
+        const CFG = createConfig({
+            GOOGLE: {
+                TOKEN: "string",
+                SECRET: "string",
+                TIMEOUT: "number"
+            },
+            FACEBOOK: {
+                TOKEN: "string",
+                SECRET: "string",
+                TIMEOUT: "number"
+            }
+        });
+
+        @component
+        class Test {
+            googleToken = inject(CFG.GOOGLE.TOKEN);
+            googleTimeout = inject(CFG.GOOGLE.TIMEOUT);
+        }
+
+        CFG.apply(applicationContext, {
+            FACEBOOK: {
+                TOKEN: "bum",
+                SECRET: "gun",
+                TIMEOUT: 500,
+            },
+            GOOGLE: {
+                TOKEN: "bum",
+                SECRET: "gun",
+                TIMEOUT: 500,
+            }
+        });
+        const testInstance = applicationContext.getBean(Test);
+
+        expect(testInstance.googleToken).toBe("bum");
+        expect(testInstance.googleTimeout).toBe(500);
+    })
+
+    it("config - boolean type", () => {
+        const CFG = createConfig({
+            FEATURE: {
+                ENABLED: "boolean",
+                MAX_RETRIES: "number",
+                NAME: "string",
+            }
+        });
+
+        @component
+        class Test {
+            enabled = inject(CFG.FEATURE.ENABLED);
+            maxRetries = inject(CFG.FEATURE.MAX_RETRIES);
+            name = inject(CFG.FEATURE.NAME);
+        }
+
+        CFG.apply(applicationContext, {
+            FEATURE: {
+                ENABLED: true,
+                MAX_RETRIES: 3,
+                NAME: "my-feature",
+            }
+        });
+
+        const testInstance = applicationContext.getBean(Test);
+        expect(testInstance.enabled).toBe(true);
+        expect(testInstance.maxRetries).toBe(3);
+        expect(testInstance.name).toBe("my-feature");
+    });
+
+    it("config - triple nested", () => {
+        const CFG = createConfig({
+            AWS: {
+                S3: {
+                    BUCKET: "string",
+                    REGION: "string",
+                },
+                LAMBDA: {
+                    TIMEOUT: "number",
+                }
+            }
+        });
+
+        @component
+        class Test {
+            bucket = inject(CFG.AWS.S3.BUCKET);
+            timeout = inject(CFG.AWS.LAMBDA.TIMEOUT);
+        }
+
+        CFG.apply(applicationContext, {
+            AWS: {
+                S3: {
+                    BUCKET: "my-bucket",
+                    REGION: "eu-west-1",
+                },
+                LAMBDA: {
+                    TIMEOUT: 30,
+                }
+            }
+        });
+
+        const testInstance = applicationContext.getBean(Test);
+        expect(testInstance.bucket).toBe("my-bucket");
+        expect(testInstance.timeout).toBe(30);
     });
 });

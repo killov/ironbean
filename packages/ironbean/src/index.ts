@@ -20,6 +20,7 @@ export {
     provideScope,
     lazy,
     inject,
+    createConfig,
     Async
 } from "./internals";
 export {

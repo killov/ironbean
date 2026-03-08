@@ -2,10 +2,12 @@ import {
     autowired,
     component,
     ComponentType,
+    createConfig,
     DependencyToken,
     destroyContext,
     getBaseApplicationContext,
     getBaseTestingContext,
+    inject,
     postConstruct,
     Scope,
     scope,
@@ -395,6 +397,23 @@ describe("testing", () => {
         expect(mockClassSpy).toHaveBeenCalledWith(A);
     });
 
+    it("class token set class type using mockClass", () => {
+        class A {
+            a: number;
+        }
+
+        class B {
+            a: number;
+        }
+
+        const mockClassSpy = jest.spyOn(TestProvider.prototype, "mockClass");
+
+        take(A).setFactory(() => new B());
+        take(A).setClassType(B);
+        const mock = testingContext.getMock(A);
+        expect(mockClassSpy).toHaveBeenCalledWith(B);
+    });
+
 
     it("inject by class key class return of factory", () => {
         class Cisilko extends DependencyToken.Number {}
@@ -478,4 +497,30 @@ describe("testing", () => {
         take(Cisilka).setFactory(() => set);
         expect(testingContext.getBean(Cisilka)).toEqual(new Set());
     });
+
+    it("config", () => {
+        const CFG = createConfig({
+            GOOGLE: {
+                TOKEN: "string",
+                SECRET: "string",
+                TIMEOUT: "number"
+            },
+            FACEBOOK: {
+                TOKEN: "string",
+                SECRET: "string",
+                TIMEOUT: "number"
+            }
+        });
+
+        @component
+        class Test {
+            googleToken = inject(CFG.GOOGLE.TOKEN);
+            googleTimeout = inject(CFG.GOOGLE.TIMEOUT);
+        }
+
+        const testInstance = testingContext.getBeanWithMocks(Test);
+
+        expect(testInstance.googleToken).toBe("string");
+        expect(testInstance.googleTimeout).toBe(1);
+    })
 });
