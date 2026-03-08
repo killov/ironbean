@@ -37,7 +37,7 @@ export class DependencyToken<TDependency> {
     }
 
     public static createAsync<TDependency>(name: string, settings: ISettings = {}): AsyncDependencyToken<TDependency> {
-        return this.create(name, settings) as any as AsyncDependencyToken<TDependency>;
+        return new AsyncDependencyToken<TDependency>(name, settings.componentType || ComponentType.Singleton, settings.scope || Scope.getDefault());
     }
 
     get componentType(): ComponentType {
@@ -58,8 +58,8 @@ export class DependencyToken<TDependency> {
 }
 
 export class AsyncDependencyToken<TDependency> extends DependencyToken<TDependency> {
-    // @ts-ignore
-    g: TDependency;
+    /** @internal phantom type for TypeScript inference - do not remove */
+    declare readonly _type?: TDependency;
 }
 
 // @ts-ignore

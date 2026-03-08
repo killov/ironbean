@@ -1,3 +1,4 @@
 export abstract class Async {
-    g: any;
+    /** @internal phantom type marker - do not remove */
+    declare readonly _async?: never;
 }

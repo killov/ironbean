@@ -111,7 +111,7 @@ describe("test async", () => {
         }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
     })
 
-    it("getBeanAsync asdsa", async () => {
+    it("getBeanAsync prototype scope", async () => {
         class A extends Async {
 
         }
@@ -162,11 +162,11 @@ describe("test async", () => {
 
         expect(() => {
             applicationContext.getBean(B);
-        }).toThrowError("Create instance of componentClass B failed. Constructor async dependency not supported.");
+        }).toThrowError("Create instance of component Class B failed. Constructor async dependency not supported.");
 
         expect(() => {
             applicationContext.getBean(C);
-        }).toThrowError("Create instance of componentClass C failed. PostConstuct async dependency not supported.");
+        }).toThrowError("Create instance of component Class C failed. PostConstruct async dependency not supported.");
     })
 
     it ("getBeanWithMocksAsync 2", async () => {

@@ -50,7 +50,7 @@ export class AsyncClassComponent<T> extends ClassComponent<T> {
                     this.validatePostConstructorParams(components);
                     const asyncParams = container.getDependencyListAsync(components);
                     const params = await Promise.all(asyncParams);
-                    (asyncInstance[key] as Function).apply(asyncInstance, params);
+                    await (asyncInstance[key] as Function).apply(asyncInstance, params);
                 }
             }
             return asyncInstance;

@@ -107,7 +107,7 @@ export class ClassComponent<T extends any> extends Component<T> {
                 throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
             }
             if (!this.isAsync() && component.isAsync()) {
-                throw new Error("Create instance of component" + this.name + " failed. Constructor async dependency not supported.");
+                throw new Error("Create instance of component " + this.name + " failed. Constructor async dependency not supported.");
             }
         }
     }
@@ -119,7 +119,7 @@ export class ClassComponent<T extends any> extends Component<T> {
                 throw new Error("The parameter at index " + i + " of constructor " + this.name + " could recognize the type.");
             }
             if (!this.isAsync() && component.isAsync()) {
-                throw new Error("Create instance of component" + this.name + " failed. PostConstuct async dependency not supported.");
+                throw new Error("Create instance of component " + this.name + " failed. PostConstruct async dependency not supported.");
             }
         }
     }
