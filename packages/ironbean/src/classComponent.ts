@@ -5,6 +5,7 @@ import {
     constants,
     Container,
     getAllPropertyNames,
+    installInstanceAccessors,
     Instance,
     isContext,
     Scope,
@@ -70,6 +71,7 @@ export class ClassComponent<T extends any> extends Component<T> {
         const params = container.getDependencyList(this.getConstructDependencyList());
         const Class = this._Class as TNormalClass<T>;
         const instance = new Class(...params);
+        installInstanceAccessors(instance, Class.prototype);
         // @ts-ignore
         Reflect.defineMetadata(constants.componentContainer, container, instance);
 

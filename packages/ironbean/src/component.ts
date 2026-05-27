@@ -11,6 +11,7 @@ import {
     DependencyComponent,
     DependencyToken,
     IFactory,
+    installInstanceAccessors,
     Instance,
     LazyComponent,
     LazyToken,
@@ -145,6 +146,9 @@ export class Factory<T> implements IConstructable<T> {
         const instance = this.constructInstance(container);
         if (instance instanceof Object) {
             Reflect.defineMetadata(constants.componentContainer, container, instance);
+            if (instance.constructor) {
+                installInstanceAccessors(instance, instance.constructor.prototype);
+            }
         }
 
         return new Instance(instance);
