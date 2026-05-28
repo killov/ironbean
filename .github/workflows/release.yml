@@ -9,16 +9,36 @@ on:
       - ironbean@*
       - ironbean-react@*
       - ironbean-jasmine@*
+      - ironbean-jest@*
       - ironbean-react-router@*
 
 jobs:
-  release:
+  test:
+    name: test ${{ matrix.package }} / ${{ matrix.script }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        package: [ironbean, ironbean-jasmine, ironbean-jest, ironbean-react, ironbean-react-router]
         node-version: [16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        # ironbean: per TS target a class-field emit (useDefineForClassFields),
+        # ostatní balíčky mají vlastní jednotný test:no-watch
+        include:
+          - package: ironbean
+            script: test:es5
+          - package: ironbean
+            script: test:es6
+          - package: ironbean
+            script: test:es2022
+          - package: ironbean
+            script: test:es2022-define
+          - package: ironbean-jasmine
+            script: test:no-watch
+          - package: ironbean-jest
+            script: test:no-watch
+          - package: ironbean-react
+            script: test:no-watch
+          - package: ironbean-react-router
+            script: test:no-watch
     defaults:
       run:
         working-directory: ./packages/${{ matrix.package }}
@@ -30,9 +50,26 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build
-    - run: npm run test:no-watch
-    - name: Setum npm credentiels
-      run: |
-        echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}' > .npmrc
-        cat .npmrc
+    - run: npm run ${{ matrix.script }}
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [ironbean, ironbean-jasmine, ironbean-jest, ironbean-react, ironbean-react-router]
+        node-version: [16.x]
+    defaults:
+      run:
+        working-directory: ./packages/${{ matrix.package }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run build
+    - name: Setup npm credentials
+      run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}' > .npmrc
     - run: npm run release
