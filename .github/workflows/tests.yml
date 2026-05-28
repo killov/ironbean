@@ -9,12 +9,27 @@ on:
 
 jobs:
   tests:
+    name: ${{ matrix.package }} / ${{ matrix.script }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        package: [ironbean, ironbean-jasmine, ironbean-jest]
         node-version: [16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        # ironbean: per TS target a class-field emit (useDefineForClassFields),
+        # ostatní balíčky mají vlastní jednotný test:no-watch
+        include:
+          - package: ironbean
+            script: test:es5
+          - package: ironbean
+            script: test:es6
+          - package: ironbean
+            script: test:es2022
+          - package: ironbean
+            script: test:es2022-define
+          - package: ironbean-jasmine
+            script: test:no-watch
+          - package: ironbean-jest
+            script: test:no-watch
     defaults:
       run:
         working-directory: ./packages/${{ matrix.package }}
@@ -27,4 +42,4 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build
-    - run: npm run test:no-watch
+    - run: npm run ${{ matrix.script }}
