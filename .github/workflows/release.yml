@@ -18,27 +18,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # všechny dimenze v `include` jinak GA zmerguje rows do jedné combinace
+      # ironbean: per TS target a class-field emit (useDefineForClassFields),
+      # ostatní balíčky mají vlastní jednotný test:no-watch
       matrix:
-        node-version: [16.x]
-        # ironbean: per TS target a class-field emit (useDefineForClassFields),
-        # ostatní balíčky mají vlastní jednotný test:no-watch
         include:
-          - package: ironbean
-            script: test:es5
-          - package: ironbean
-            script: test:es6
-          - package: ironbean
-            script: test:es2022
-          - package: ironbean
-            script: test:es2022-define
-          - package: ironbean-jasmine
-            script: test:no-watch
-          - package: ironbean-jest
-            script: test:no-watch
-          - package: ironbean-react
-            script: test:no-watch
-          - package: ironbean-react-router
-            script: test:no-watch
+          - {package: ironbean, script: test:es5, node-version: 16.x}
+          - {package: ironbean, script: test:es6, node-version: 16.x}
+          - {package: ironbean, script: test:es2022, node-version: 16.x}
+          - {package: ironbean, script: test:es2022-define, node-version: 16.x}
+          - {package: ironbean-jasmine, script: test:no-watch, node-version: 16.x}
+          - {package: ironbean-jest, script: test:no-watch, node-version: 16.x}
+          - {package: ironbean-react, script: test:no-watch, node-version: 16.x}
+          - {package: ironbean-react-router, script: test:no-watch, node-version: 16.x}
     defaults:
       run:
         working-directory: ./packages/${{ matrix.package }}
