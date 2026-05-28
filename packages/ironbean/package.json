@@ -9,7 +9,11 @@
         "build": "tsc",
         "debug": "tsc --watch",
         "test": "jest --c=jest.config.es5.js --watch",
-        "test:no-watch": "jest --c=jest.config.es5.js && jest --c=jest.config.es6.js",
+        "test:es5": "jest --c=jest.config.es5.js",
+        "test:es6": "jest --c=jest.config.es6.js",
+        "test:es2022": "jest --c=jest.config.es2022.js",
+        "test:es2022-define": "jest --c=jest.config.es2022-define.js",
+        "test:no-watch": "npm run test:es5 && npm run test:es6 && npm run test:es2022 && npm run test:es2022-define",
         "release": "publish-if-not-exists"
     },
     "repository": {
