@@ -1,5 +1,6 @@
 import {
     ApplicationContext,
+    checkShadowedProps,
     CollectionToken,
     Component,
     ComponentContainer,
@@ -234,6 +235,7 @@ export function createClassDecorator(settings: IClassDecoratorSettings) {
                     const componentContainer = new ComponentContainer(customContainer ?? containerStorage.currentContainer ?? containerStorage.getOrCreateBaseContainer());
                     const context = new ClassDecoratorContextImpl(Class, args, componentContainer, newTarget);
                     const instance = constructor(context);
+                    checkShadowedProps(instance);
                     Reflect.defineMetadata(constants.componentContainer, componentContainer, instance);
                     return instance;
                 }
