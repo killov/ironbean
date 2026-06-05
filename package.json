@@ -1,0 +1,7 @@
+{
+    "name": "ironbean-monorepo",
+    "private": true,
+    "scripts": {
+        "test:ci": "node scripts/run-ci-tests.js"
+    }
+}
