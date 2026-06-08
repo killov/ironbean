@@ -1,5 +1,9 @@
 import {ApplicationContext, component, destroyContext, getBaseApplicationContext} from "../src";
 import {createPropertyDecorator} from "../src/zaop";
+import {nativeFieldEmit} from "./emitMode";
+
+// property dekoratory pod native field emitem nefunguji (own property zastini accessor)
+const itAutowired = nativeFieldEmit ? it.skip : it;
 
 describe("zaop", () => {
     let applicationContext: ApplicationContext;
@@ -13,7 +17,7 @@ describe("zaop", () => {
     });
 
     describe("property", () => {
-        it("constant", () => {
+        itAutowired("constant", () => {
             const spy = jest.fn()
             const decorator = createPropertyDecorator({
                 isConstant: true,

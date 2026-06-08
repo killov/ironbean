@@ -20,7 +20,8 @@ export {
     provideScope,
     lazy,
     inject,
-    createConfig
+    createConfig,
+    ironbeanSettings
 } from "./internals";
 export {
     getBaseTestingContext,
