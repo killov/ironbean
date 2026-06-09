@@ -128,4 +128,25 @@ describe("api", () => {
         expect(applicationContext.getBean(b).a).toBe(applicationContext.getBean(b).a);
     });
 
+    it("plugin registered before base container is created stays active", () => {
+        // ironbean-react registruje plugin pri importu modulu, drive nez existuje container
+        containerStorage.dispose();
+        destroyContext();
+
+        @component
+        class Plugin implements IPlugin {
+            getContextForClassInstance(): ComponentContext | undefined {
+                return undefined;
+            }
+        }
+
+        registerPlugin(Plugin);
+
+        // vytvoreni base containeru az po registraci nesmi plugin zahodit
+        const context = getBaseApplicationContext();
+
+        expect(containerStorage.plugins.length).toBe(1);
+        expect(context.getBean(Plugin)).toBe(context.getBean(Plugin));
+    });
+
 });

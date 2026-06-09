@@ -12,17 +12,18 @@ class ContainerStorage {
         return this._plugins;
     }
 
-    reloadPlugins(): void {
-        this._plugins = this.resolvePlugins();
+    reloadPlugins(container?: Container): void {
+        this._plugins = this.resolvePlugins(container);
     }
 
-    private resolvePlugins() {
+    private resolvePlugins(container?: Container) {
         if (this.mode === StorageMode.Prototype) {
             const container = new Container();
             container.init();
             return container.getBean(CollectionToken.create(PluginToken)) as IPlugin[];
         }
-        return this.container?.getBean(CollectionToken.create(PluginToken)) as IPlugin[] ?? [];
+        // během createBaseContainer ještě this.container není přiřazený, proto bereme předaný container
+        return (container ?? this.container)?.getBean(CollectionToken.create(PluginToken)) as IPlugin[] ?? [];
     }
 
     getOrCreateBaseContainer(): Container {
@@ -46,7 +47,7 @@ class ContainerStorage {
 
     initContainer(container: Container) {
         container.init();
-        this.reloadPlugins();
+        this.reloadPlugins(container);
     }
 
     destroyContainer(): void {
