@@ -1,6 +1,6 @@
 {
     "name": "ironbean-react",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "",
     "main": "dist/index.js",
     "files": [
@@ -17,7 +17,7 @@
     "author": "Zdeněk Mazurák",
     "license": "MIT",
     "dependencies": {
-        "ironbean": "~1.0.6",
+        "ironbean": "~1.1.0",
         "react": "^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0"
     },
     "devDependencies": {
