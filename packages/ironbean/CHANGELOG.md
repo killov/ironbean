@@ -1,5 +1,12 @@
 # ironbean
 
+## 1.1.1
+- fix: plugin registered before the base container is created (e.g. ironbean-react on import) no longer gets dropped
+
+## 1.1.0
+- `@autowired` deprecated in favor of `inject.lazy` - does not work with `useDefineForClassFields: true`, container now throws instead of returning undefined
+- `ironbeanSettings.allowInjectOutsideComponent` - allow inject in non-component classes
+
 ## 1.0.23
 - `createConfig` - typed configuration schema with DependencyToken integration
 - fix config type recursion and token naming

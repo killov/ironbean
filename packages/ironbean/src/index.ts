@@ -21,7 +21,8 @@ export {
     lazy,
     inject,
     createConfig,
-    Async
+    Async,
+    ironbeanSettings
 } from "./internals";
 export {
     getBaseTestingContext,

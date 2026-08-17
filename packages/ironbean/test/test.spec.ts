@@ -18,12 +18,18 @@ import {
     take,
     type,
     inject,
-    createConfig
+    createConfig,
+    ironbeanSettings
 } from "../src";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
 import {CollectionToken} from "../src/collection";
 import {LazyToken} from "../src/lazy";
+import {nativeFieldEmit} from "./emitMode";
+
+// @autowired pod native field emitem (ES2022+ s useDefineForClassFields) hazi
+// exception -> originalni autowired testy se skipuji, inject varianty bezi vsude
+const itAutowired = nativeFieldEmit ? it.skip : it;
 abstract class A {
 
 }
@@ -52,7 +58,7 @@ describe("test", () => {
         expect(applicationContext.getBean(Container).countOfDependencies()).toBe(dependenciesCount);
     }
 
-    it("test 1", () => {
+    itAutowired("test 1", () => {
         @component
         class a {
             test = "sa";
@@ -108,7 +114,51 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
-    it("test 1 types", () => {
+    it("test 1 - inject", () => {
+        @component
+        class a {
+            test = "sa";
+        }
+
+        @component
+        class b {
+            a = inject.lazy(a);
+        }
+
+        expectDependenciesCount(2);
+        const ib1 = applicationContext.getBean(b);
+        const ib2 = applicationContext.getBean(b);
+        const ia1 = applicationContext.getBean(a);
+        const ia2 = applicationContext.getBean(a);
+
+        expect(ib1).toBe(ib2);
+        expect(ia1).toBe(ia2);
+
+        // lazy proxy neni raw instance, identitu overujeme pres sdileny stav
+        expect(ib1.a.test).toBe("sa");
+        ia1.test = "modified";
+        expect(ib1.a.test).toBe("modified");
+
+        @component
+        class c {
+            constructor(a: a) {
+                expect(a).toBe(ia1);
+            }
+
+            @postConstruct
+            postConstruct(b: b, c: c) {
+                expect(b).toBe(ib1);
+                expect(c).toBe(this);
+            }
+        }
+        jest.spyOn(c.prototype, "postConstruct");
+        const ic1 = applicationContext.getBean(c);
+
+        expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
+        expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
+    });
+
+    itAutowired("test 1 types", () => {
         @component
         class a {
             test = "sa";
@@ -165,7 +215,7 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
-    it("test 2 types", () => {
+    itAutowired("test 2 types", () => {
         @component
         class a {
             test = "sa";
@@ -281,7 +331,7 @@ describe("test", () => {
         }).toThrowError("Dependency token is not for create instance over new.");
     });
 
-    it("inject by class key class return of factory", () => {
+    itAutowired("inject by class key class return of factory", () => {
         class Cisilko extends DependencyToken.Number {}
         let i = 0;
 
@@ -324,7 +374,33 @@ describe("test", () => {
         }).toThrowError("Function inject is allowed in constructor of @component only.")
     });
 
-    it("inject by dependency token String", () => {
+    it("inject outside component allowed by settings", () => {
+        @component
+        class A {
+            test = "sa";
+        }
+
+        class B {
+            a = inject.lazy(A);
+        }
+
+        ironbeanSettings.allowInjectOutsideComponent = true;
+        try {
+            const b = new B();
+            // resolvuje se ze zakladniho containeru - stejny singleton jako getBean
+            expect(b.a.test).toBe("sa");
+            applicationContext.getBean(A).test = "zmena";
+            expect(b.a.test).toBe("zmena");
+        } finally {
+            ironbeanSettings.allowInjectOutsideComponent = false;
+        }
+
+        expect(() => {
+            new B();
+        }).toThrowError("Function inject is allowed in constructor of @component only.");
+    });
+
+    itAutowired("inject by dependency token String", () => {
         class Retizek extends DependencyToken.String {}
 
         @component
@@ -339,7 +415,21 @@ describe("test", () => {
         expect(applicationContext.getBean(A).num).toBe("retizek");
     });
 
-    it("inject by dependency token bool", () => {
+    it("inject by dependency token String - inject", () => {
+        class Retizek extends DependencyToken.String {}
+
+        @component
+        class A {
+            num = inject(Retizek);
+        }
+
+        take(Retizek).setFactory(() => "retizek");
+        expect(applicationContext.getBean(Retizek)).toBe("retizek");
+        expect(applicationContext.getBean(A).num).toBe("retizek");
+        expect(applicationContext.getBean(A).num).toBe("retizek");
+    });
+
+    itAutowired("inject by dependency token bool", () => {
         class Retizek extends DependencyToken.Boolean {}
 
         @component
@@ -354,7 +444,21 @@ describe("test", () => {
         expect(applicationContext.getBean(A).num).toBe(true);
     });
 
-    it("inject by dependency token Array", () => {
+    it("inject by dependency token bool - inject", () => {
+        class Retizek extends DependencyToken.Boolean {}
+
+        @component
+        class A {
+            num = inject(Retizek);
+        }
+
+        take(Retizek).setFactory(() => true);
+        expect(applicationContext.getBean(Retizek)).toBe(true);
+        expect(applicationContext.getBean(A).num).toBe(true);
+        expect(applicationContext.getBean(A).num).toBe(true);
+    });
+
+    itAutowired("inject by dependency token Array", () => {
         class Cisilka extends DependencyToken.Array<number> {}
 
         @component
@@ -371,7 +475,21 @@ describe("test", () => {
         expect(applicationContext.getBean(A).cisilka).toEqual([1, 2]);
     });
 
-    it("inject by dependency token Map", () => {
+    it("inject by dependency token Array - inject", () => {
+        class Cisilka extends DependencyToken.Array<number> {}
+
+        @component
+        class A {
+            cisilka = inject(Cisilka);
+        }
+
+        take(Cisilka).setFactory(() => [1, 2]);
+        expect(applicationContext.getBean(Cisilka)).toEqual([1, 2]);
+        expect(applicationContext.getBean(A).cisilka).toEqual([1, 2]);
+        expect(applicationContext.getBean(A).cisilka).toEqual([1, 2]);
+    });
+
+    itAutowired("inject by dependency token Map", () => {
         class Cisilka extends DependencyToken.Map<number, number> {}
 
         @component
@@ -390,7 +508,23 @@ describe("test", () => {
         expect(applicationContext.getBean(A).cisilka).toEqual(map);
     });
 
-    it("inject by dependency token Set", () => {
+    it("inject by dependency token Map - inject", () => {
+        class Cisilka extends DependencyToken.Map<number, number> {}
+
+        @component
+        class A {
+            cisilka = inject(Cisilka);
+        }
+
+        const map = new Map<number, number>();
+
+        take(Cisilka).setFactory(() => map);
+        expect(applicationContext.getBean(Cisilka)).toEqual(map);
+        expect(applicationContext.getBean(A).cisilka).toEqual(map);
+        expect(applicationContext.getBean(A).cisilka).toEqual(map);
+    });
+
+    itAutowired("inject by dependency token Set", () => {
         class Cisilka extends DependencyToken.Set<number> {}
 
         @component
@@ -409,7 +543,23 @@ describe("test", () => {
         expect(applicationContext.getBean(A).cisilka).toEqual(set);
     });
 
-    it("test context for class created by factory", () => {
+    it("inject by dependency token Set - inject", () => {
+        class Cisilka extends DependencyToken.Set<number> {}
+
+        @component
+        class A {
+            cisilka = inject(Cisilka);
+        }
+
+        const set = new Set<number>();
+
+        take(Cisilka).setFactory(() => set);
+        expect(applicationContext.getBean(Cisilka)).toEqual(set);
+        expect(applicationContext.getBean(A).cisilka).toEqual(set);
+        expect(applicationContext.getBean(A).cisilka).toEqual(set);
+    });
+
+    itAutowired("test context for class created by factory", () => {
         @component(ComponentType.Prototype)
         class B {
 
@@ -438,6 +588,37 @@ describe("test", () => {
         expect(applicationContext.getBean(A)).toBe(applicationContext.getBean(A));
         expect(applicationContext.getBean(A).b).toBe(applicationContext.getBean(A).b);
         expect(applicationContext.getBean(A).fa).toBe(applicationContext.getBean(A).fa2);
+    });
+
+    it("test context for class created by factory - inject", () => {
+        @component(ComponentType.Prototype)
+        class B {
+
+        }
+
+        @component(ComponentType.Prototype)
+        class Fa implements IFactory<A2> {
+            create(): A2 {
+                return new A2(this);
+            }
+        }
+
+        class A2 {
+            b = inject.lazy(B);
+            fa: Fa;
+            fa2 = inject.lazy(Fa);
+
+            constructor(fa: Fa) {
+                this.fa = fa;
+            }
+        }
+
+        take(A2).setType(ComponentType.Singleton)
+        take(A2).setFactory(Fa);
+
+        expect(applicationContext.getBean(A2)).toBe(applicationContext.getBean(A2));
+        expect(applicationContext.getBean(A2).b).toBe(applicationContext.getBean(A2).b);
+        expect(applicationContext.getBean(A2).fa2).toBe(applicationContext.getBean(A2).fa2);
     });
 
     it("inject by key prototype return  throw", () => {
@@ -472,7 +653,7 @@ describe("test", () => {
         expect(applicationContext.getBean(key)).toBe(2);
     });
 
-    it("lazy", () => {
+    itAutowired("lazy", () => {
         @component
         class A {
             a = 1;
@@ -537,6 +718,64 @@ describe("test", () => {
         expect(b.a.b).toBe(20);
     })
 
+    it("lazy - inject", () => {
+        @component
+        class A2 {
+            a = 1;
+            b = 10;
+            x = {};
+
+            @postConstruct
+            postconstruct() {
+
+            }
+
+            ahoj() {
+                this.bye();
+                expect(this instanceof A2).toBe(true);
+            }
+
+            getA() {
+                return this.a;
+            }
+
+            bye() {
+
+            }
+        }
+
+        const spy = jest.spyOn(A2.prototype, "postconstruct");
+
+        @component
+        class B {
+            lazyCollectionA: A2[] = inject.lazy(CollectionToken.create(A2)) as any;
+
+            constructor(@lazy public a: A2, @lazy public a2: A2) {
+            }
+        }
+
+        const b = applicationContext.getBean(B);
+        expect(spy).not.toHaveBeenCalled()
+        b.a.ahoj();
+        expect(spy).toHaveBeenCalled()
+        b.a.ahoj();
+        expect((b.a as any).shit).toBe(undefined);
+
+        expect(b.lazyCollectionA.length).toBe(1);
+
+        b.a2.ahoj();
+        expect((b.a2 as any).shit).toBe(undefined);
+
+        expect(b.a).toBe(b.a2);
+        expect(b.a.x).toBe(b.a2.x);
+
+        expect(b.a.getA()).toBe(1);
+        expect(b.a.b).toBe(10);
+
+        b.a.b = 20;
+        expect(b.a.b).toBe(20);
+    })
+
     it("when class has factory -> postConstruct have not been called", () => {
         class G {
             @postConstruct
@@ -568,7 +807,7 @@ describe("test", () => {
         applicationContext.getBean(Abstract);
     });
 
-    it("lazy autowired", () => {
+    itAutowired("lazy autowired", () => {
         @component
         class A {
             a = 1;
@@ -734,7 +973,7 @@ describe("test", () => {
         expectDependenciesCount(5);
     })
 
-    it("collection autowired", () => {
+    itAutowired("collection autowired", () => {
         @component
         class AA extends A {
 
@@ -761,6 +1000,36 @@ describe("test", () => {
         expectDependenciesCount(3);
         expect(b.collection.length).toBe(2);
         expectDependenciesCount(5);
+        expect(b.collection[0] instanceof AA).toBe(true);
+        expect(b.collection[1] instanceof AB).toBe(true);
+    });
+
+    it("collection autowired - inject", () => {
+        // vlastni base trida - originalni test binduje na sdilenou modulovou A
+        class ABase {
+
+        }
+
+        @component
+        class AA extends ABase {
+
+        }
+
+        @component
+        class AB extends ABase {
+
+        }
+
+        take(ABase).bindTo(AA);
+        take(ABase).bindTo(AB);
+
+        @component
+        class B {
+            public collection: ABase[] = inject(CollectionToken.create(ABase)) as any;
+        }
+
+        const b = applicationContext.getBean(B);
+        expect(b.collection.length).toBe(2);
         expect(b.collection[0] instanceof AA).toBe(true);
         expect(b.collection[1] instanceof AB).toBe(true);
     });
@@ -803,7 +1072,7 @@ describe("test", () => {
         expect(b.collection[1] instanceof AB).toBe(true);
     });
 
-    it("lazy collection autowired", () => {
+    itAutowired("lazy collection autowired", () => {
         class A {
             ahoj() {
 
@@ -845,6 +1114,39 @@ describe("test", () => {
         expectDependenciesCount(6);
         b.collection[1].ahoj();
         expectDependenciesCount(7);
+    });
+
+    it("lazy collection autowired - inject", () => {
+        class A2 {
+            ahoj() {
+
+            }
+        }
+
+        @component
+        class AA extends A2 {
+
+        }
+
+        @component
+        class AB extends A2 {
+
+        }
+
+        take(A2).bindTo(AA);
+        take(A2).bindTo(AB);
+
+        @component
+        class B {
+            public collection: A2[] = inject(CollectionToken.create(LazyToken.create(A2))) as any;
+        }
+
+        const b = applicationContext.getBean(B);
+        expect(b.collection.length).toBe(2);
+        expect(b.collection[0] instanceof Object).toBe(true);
+        expect(b.collection[1] instanceof Object).toBe(true);
+        b.collection[0].ahoj();
+        b.collection[1].ahoj();
     });
 
     it("collection constuctor inject", () => {
@@ -892,7 +1194,7 @@ describe("test", () => {
         expectDependenciesCount(7);
     });
 
-    it("autowired property in component is constant", () => {
+    itAutowired("autowired property in component is constant", () => {
         @component
         class C {
 
@@ -914,7 +1216,40 @@ describe("test", () => {
         expect(b.c).toBe(b.c);
         expect(Object.getOwnPropertyDescriptor(a, "c")?.value).toBe(a.c);
         expect(Object.getOwnPropertyDescriptor(b, "c")?.value).toBe(undefined);
-    })
+    });
+
+    it("autowired property in component is constant - inject", () => {
+        @component
+        class C {
+
+        }
+
+        @component
+        class A2 {
+            c = inject.lazy(C);
+        }
+
+        const a = applicationContext.getBean(A2);
+
+        expect(a.c).toBe(a.c);
+        expect(Object.getOwnPropertyDescriptor(a, "c")?.value).toBe(a.c);
+    });
+
+    (nativeFieldEmit ? it : it.skip)("autowired with native class fields throws", () => {
+        @component
+        class Aa {
+            test = "sa";
+        }
+
+        @component
+        class Bb {
+            @autowired a!: Aa;
+        }
+
+        expect(() => {
+            applicationContext.getBean(Bb);
+        }).toThrowError("Property a of class Bb is shadowed by class field, @autowired does not work for code compiled with useDefineForClassFields: true, use inject.lazy() instead.");
+    });
 
     it("circular dependency", () => {
         @component
@@ -1013,7 +1348,7 @@ describe("test", () => {
         }).toThrowError("Factory for key not found.");
     });
 
-    it("inject by key", () => {
+    itAutowired("inject by key", () => {
         const key = DependencyToken.create<string>("key");
         const key2 = DependencyToken.create<string>("key2");
         const key3 = DependencyToken.create<b>("key3");
@@ -1101,7 +1436,82 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
-    it("scopes", () => {
+    it("inject by key - inject", () => {
+        const key = DependencyToken.create<string>("key");
+        const key2 = DependencyToken.create<string>("key2");
+        const key3 = DependencyToken.create<b>("key3");
+
+        class Item {
+            a: string;
+            constructor(a: string) {
+                this.a = a;
+            }
+        }
+
+        take(key).setFactory(() => "datata");
+        take(key2).setFactory(() => "datata22");
+        take(key3).setFactory(() => new b());
+        take(Item).setFactory((context) => new Item(context.getBean(key) + context.getBean(key2)));
+        take(Item).setType(ComponentType.Singleton);
+
+        expect(applicationContext.getBean(Item).a).toBe("datatadatata22");
+        expect(applicationContext.getBean(Item)).toBe(applicationContext.getBean(Item));
+
+        @component
+        class a {
+            test = "sa";
+
+            constructor(@type(() => key) data: string, @type(key2) data2: string) {
+                expect(data).toBe("datata");
+                expect(data2).toBe("datata22");
+            }
+
+            @postConstruct
+            post(@type(key3) data: any, item: Item) {
+                expect(data instanceof  b).toBe(true);
+                expect(item.a).toBe("datatadatata22");
+            }
+        }
+
+        @component
+        class b {
+            a = inject.lazy(a);
+            data = inject(key);
+        }
+
+        const ib1 = applicationContext.getBean(b);
+        const ib2 = applicationContext.getBean(b);
+        const ia1 = applicationContext.getBean(a);
+
+        expect(ib1.a.test).toBe("sa");
+        ia1.test = "zmena";
+        expect(ib1.a.test).toBe("zmena");
+        expect(ib1.data).toBe("datata");
+        expect(ib1).toBe(ib2);
+
+        expect(applicationContext.getBean(key)).toBe("datata");
+        expect(applicationContext.getBean(key2)).toBe("datata22");
+
+        @component
+        class c {
+            constructor(a: a) {
+                expect(a).toBe(ia1);
+            }
+
+            @postConstruct
+            postConstruct(b: b, c: c) {
+                expect(b).toBe(ib1);
+                expect(c).toBe(this);
+            }
+        }
+        jest.spyOn(c.prototype, "postConstruct")
+        const ic1 = applicationContext.getBean(c);
+
+        expect(c.prototype.postConstruct).toHaveBeenCalledTimes(1);
+        expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
+    });
+
+    itAutowired("scopes", () => {
         @component
         class a {
             test = "sa";
@@ -1206,6 +1616,72 @@ describe("test", () => {
         expect(c.prototype.postConstruct).toHaveBeenCalledWith(ib2, ic1);
     });
 
+    it("scopes - inject", () => {
+        @component
+        class a {
+            test = "sa";
+        }
+
+        @component
+        class b {
+            a = inject.lazy(a);
+        }
+
+        const ticket = Scope.create("ticket");
+        const token = DependencyToken.create<Ticket>("token", {scope: ticket});
+
+        take(token).setFactory((ctx) => ctx.getBean(Ticket));
+
+        @component
+        @scope(ticket)
+        class Ticket {
+            idTicket: number = 10;
+
+            applicationContext = inject(ApplicationContext);
+
+            token = inject.lazy(token);
+
+            constructor(context: ApplicationContext) {
+                expect(context).not.toBe(applicationContext);
+                expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
+                // eager inject vraci primo bean, identita sedi i v konstruktoru
+                expect(context).toBe(this.applicationContext);
+            }
+
+            @postConstruct
+            post(context: ApplicationContext) {
+                expect(context).not.toBe(applicationContext);
+                expect(context.getBean(TicketData)).toBe(context.getBean(TicketData));
+                expect(context).toBe(this.applicationContext);
+                // lazy proxy neni raw instance, identitu overujeme pres sdileny stav
+                this.idTicket = 11;
+                expect(this.token.idTicket).toBe(11);
+                this.idTicket = 10;
+            }
+        }
+
+        @component
+        @scope(ticket)
+        class TicketData {
+            name: string = "name";
+        }
+
+        const ib1 = applicationContext.getBean(b);
+        const ia1 = applicationContext.getBean(a);
+        const ticket1 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
+        const ticket2 = applicationContext.createOrGetParentContext(ticket).getBean(Ticket);
+        expect(() => {
+            applicationContext.getBean(Ticket);
+        }).toThrowError("I can't create a container for (Class Ticket) for scope (DEFAULT.ticket), Please use createOrGetParentContext for manual creation.");
+
+        ia1.test = "zmena";
+        expect(ib1.a.test).toBe("zmena");
+
+        expect(ticket1.idTicket).toBe(10);
+        expect(ticket2.idTicket).toBe(10);
+        expect(ticket1).not.toBe(ticket2);
+    });
+
     it("scope isParent", () => {
         const def = Scope.getDefault();
         const a = Scope.create("a");
@@ -1224,7 +1700,7 @@ describe("test", () => {
         expect(b.isParent(def)).toBe(true);
     });
 
-    it("scopes combo", () => {
+    itAutowired("scopes combo", () => {
         const s1 = Scope.create("1");
         const s2 = s1.createScope("2");
 
@@ -1255,6 +1731,42 @@ describe("test", () => {
         const b = context2.getBean(B);
         expect(a).toBe(context1.getBean(A));
         expect(b.a).toBe(context2.getBean(A));
+    })
+
+    it("scopes combo - inject", () => {
+        const s1 = Scope.create("1");
+        const s2 = s1.createScope("2");
+
+        const token = DependencyToken.create("token");
+        take(token).setFactory(() => 1);
+        take(token).setType(ComponentType.Singleton);
+
+        @component
+        @scope(s1)
+        class A {
+            c = inject(ApplicationContext);
+        }
+
+        @component
+        @scope(s2)
+        class B {
+            a = inject.lazy(A);
+            token = inject(token);
+            constructor(a: A, context: ApplicationContext) {
+                expect(a.c).not.toBe(context);
+                // eager inject - hodnota je k dispozici uz v konstruktoru
+                expect(this.token).toBe(1);
+            }
+        }
+
+        const context1 = applicationContext.createOrGetParentContext(s1);
+        const context2 = applicationContext.createOrGetParentContext(s2);
+        const a = context1.getBean(A);
+        const b = context2.getBean(B);
+        expect(a).toBe(context1.getBean(A));
+        // lazy proxy neni raw instance, vede ale na stejny bean jako getBean v context2
+        (context2.getBean(A) as any).marker = 1;
+        expect((b.a as any).marker).toBe(1);
     })
 
     describe("need scope", () => {
@@ -1317,6 +1829,93 @@ describe("test", () => {
            expect(() => {
                const b = new B(10);
            }).toThrowError("Class B must be initialized via [provideScope] DEFAULT.scopeName.");
+        });
+
+        itAutowired("correct using", () => {
+            const scopeContext = applicationContext.createOrGetParentContext(scope1).getBean(Help).context;
+
+            const a = scopeContext.provideScope(() => new A())
+            const b = scopeContext.provideScope(() => new B(11))
+
+            expect(a.test()).toBe("text");
+            a.test = () => "shit";
+            expect(a.test()).toBe("shit");
+            expect(b.test()).toBe("text");
+            expect(b.borec).toBe(11);
+
+            expect(a instanceof A).toBe(true);
+            expect(b instanceof A).toBe(true);
+            expect(b instanceof B).toBe(true);
+
+            expect(a.context).toBe(scopeContext);
+            expect(b.context).toBe(scopeContext);
+        });
+
+        itAutowired("correct using provide decorator", () => {
+            const help = applicationContext.createOrGetParentContext(scope1).getBean(Help);
+            const scopeContext = help.context;
+            const b = help.providuj(111);
+
+            expect(b.context).toBe(scopeContext);
+            expect(b.borec).toBe(111);
+        });
+    });
+
+    describe("need scope - inject", () => {
+        const scope1 = Scope.create("scopeNameInject");
+
+        @needScope(scope1)
+        class A {
+           context = inject(ApplicationContext);
+
+           public test() {
+               return "text";
+           }
+        }
+
+        @needScope(scope1)
+        class B extends A {
+            public borec: number;
+            constructor(borec: number) {
+                super();
+                this.borec = borec;
+            }
+        }
+
+        @component
+        @scope(scope1)
+        class Help {
+           context = inject(ApplicationContext);
+
+           @provideScope
+           providuj(borec: number) {
+                expect(this.context instanceof ApplicationContext).toBe(true);
+                return new B(borec);
+           }
+        }
+
+        it("different scope provided", () => {
+            expect(() => {
+                applicationContext.provideScope(() => {
+                    new A();
+                });
+            }).toThrowError("Class A initialized with different scope provided, please provide scope DEFAULT.scopeNameInject.");
+
+            expect(() => {
+                applicationContext.provideScope(() => {
+                    new B(10);
+                });
+            }).toThrowError("Class B initialized with different scope provided, please provide scope DEFAULT.scopeNameInject.");
+        });
+
+        it("ust be initialized via provideScope", () => {
+           expect(() => {
+               new A();
+           }).toThrowError("Class A must be initialized via [provideScope] DEFAULT.scopeNameInject.");
+
+           expect(() => {
+               new B(10);
+           }).toThrowError("Class B must be initialized via [provideScope] DEFAULT.scopeNameInject.");
         });
 
         it("correct using", () => {
@@ -1396,7 +1995,7 @@ describe("test", () => {
             }
         }
 
-        it("missing type", () => {
+        itAutowired("missing type", () => {
             @component
             class A {
                 @autowired
@@ -1411,7 +2010,7 @@ describe("test", () => {
             }).toThrowError("Property item of class A failed to determine type.")
         });
 
-        it("test1", () => {
+        itAutowired("test1", () => {
             let context = getBaseApplicationContext();
             const oldB = context.getBean(AComponent).b;
             const oldC = context.getBean(AComponent).c;
@@ -1437,7 +2036,7 @@ describe("test", () => {
             expect(context.getBean(C)).not.toBe(oldC);
         });
 
-        it("new initialize autowired", () => {
+        itAutowired("new initialize autowired", () => {
             class A2 {
                 @autowired b!: B;
                 @autowired c!: C;
@@ -1485,6 +2084,75 @@ describe("test", () => {
         })
     });
 
+    describe("autowired tests - inject", () => {
+        @component
+        class B {
+
+        }
+
+        @component(ComponentType.Prototype)
+        class C {
+
+        }
+
+        @component(ComponentType.Prototype)
+        class D {
+
+        }
+
+        take(D).setFactory(component(class DFactory implements IFactory<D>{
+            create(): D {
+                return new D();
+            }
+        }))
+
+        @component
+        class A {
+            b = inject.lazy(B);
+            c = inject.lazy(C);
+            c2 = inject.lazy(C);
+            d = inject.lazy(D);
+        }
+
+        @component
+        class AComponent extends A {
+            c3: C;
+            c4!: C;
+
+            constructor(c3: C, context: ComponentContext) {
+                super();
+                this.c3 = c3;
+                expect(context.getBean(C)).toBe(c3);
+            }
+
+            @postConstruct
+            post(c4: C) {
+                this.c4 = c4;
+            }
+        }
+
+        it("test1", () => {
+            const context = getBaseApplicationContext();
+            const ac = context.getBean(AComponent);
+
+            expect(ac.b).toBe(ac.b);
+            (ac.b as any).marker = "b";
+            expect((context.getBean(B) as any).marker).toBe("b");
+
+            // c a c2 jsou ruzne proxy, ale podkladova prototype instance C je stejna
+            (ac.c as any).marker = "c";
+            expect((ac.c2 as any).marker).toBe("c");
+            // rozdil proti autowired: inject.lazy resolvuje pres vlastni component
+            // container, ctor/postConstruct parametry maji svou prototype instanci
+            expect((ac.c3 as any).marker).toBe(undefined);
+            (ac.c3 as any).marker = "c3";
+            expect((ac.c4 as any).marker).toBe("c3");
+            expect((context.getBean(C) as any).marker).toBe(undefined);
+
+            expect(ac.d).toBe(ac.d);
+        });
+    });
+
     describe("intrfaces tests", () => {
         interface F {
             x: number;
@@ -1503,9 +2171,35 @@ describe("test", () => {
 
         take(f).bindTo(A);
 
-        it("test1", () => {
+        itAutowired("test1", () => {
             expect(applicationContext.getBean(f).x).toBe(10)
             expect(applicationContext.getBean(f).f).toBe(applicationContext.getBean(f))
+        });
+    });
+
+    describe("intrfaces tests - inject", () => {
+        interface F {
+            x: number;
+            f: F;
+        }
+        const f = DependencyToken.create<F>("fInject");
+
+        @component
+        class A implements F {
+            x: number = 10;
+            h: number = 20;
+            f = inject.lazy(f);
+        }
+
+        take(f).bindTo(A);
+
+        it("test1", () => {
+            const inst = applicationContext.getBean(f);
+            expect(inst.x).toBe(10);
+            // self-reference pres lazy proxy - vede na stejny singleton
+            (inst as any).marker = 1;
+            expect((inst.f as any).marker).toBe(1);
+            expect(inst.f.x).toBe(10);
         });
     });
 

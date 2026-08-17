@@ -5,11 +5,15 @@ import {
     ComponentContext,
     ComponentType, createBaseApplicationContext,
     destroyContext,
-    getBaseApplicationContext
+    getBaseApplicationContext,
+    inject
 } from "../src";
 import {Container} from "../src/container";
+import {nativeFieldEmit} from "./emitMode";
 import {containerStorage} from "../src/containerStorage";
 import {createComponentContext, IPlugin, registerPlugin} from "../src/api";
+
+const itAutowired = nativeFieldEmit ? it.skip : it;
 
 describe("api", () => {
     let applicationContext: ApplicationContext;
@@ -29,7 +33,7 @@ describe("api", () => {
         expect(applicationContext.getBean(Container).countOfDependencies()).toBe(dependenciesCount);
     }
 
-    it("createComponentContext", () => {
+    itAutowired("createComponentContext", () => {
         @component(ComponentType.Prototype)
         class a {
             test = "sa";
@@ -46,7 +50,24 @@ describe("api", () => {
         expect(applicationContext.getBean(b)).toBe(context.getBean(b));
     });
 
-    it("plugin getContextForClassInstance", () => {
+    it("createComponentContext - inject", () => {
+        @component(ComponentType.Prototype)
+        class a {
+            test = "sa";
+        }
+
+        @component
+        class b {
+            a = inject.lazy(a);
+        }
+
+        const context = createComponentContext(applicationContext);
+
+        expect(context.getBean(a)).toBe(context.getBean(a));
+        expect(applicationContext.getBean(b)).toBe(context.getBean(b));
+    });
+
+    itAutowired("plugin getContextForClassInstance", () => {
         @component
         class Plugin implements IPlugin {
             componentContext: ComponentContext;
@@ -75,7 +96,7 @@ describe("api", () => {
         expect(applicationContext.getBean(b).a).toBe(applicationContext.getBean(b).a);
     });
 
-    it("plugins for prototype storage mode", () => {
+    itAutowired("plugins for prototype storage mode", () => {
         containerStorage.dispose();
 
         applicationContext = createBaseApplicationContext();
@@ -105,6 +126,27 @@ describe("api", () => {
         }
 
         expect(applicationContext.getBean(b).a).toBe(applicationContext.getBean(b).a);
+    });
+
+    it("plugin registered before base container is created stays active", () => {
+        // ironbean-react registruje plugin pri importu modulu, drive nez existuje container
+        containerStorage.dispose();
+        destroyContext();
+
+        @component
+        class Plugin implements IPlugin {
+            getContextForClassInstance(): ComponentContext | undefined {
+                return undefined;
+            }
+        }
+
+        registerPlugin(Plugin);
+
+        // vytvoreni base containeru az po registraci nesmi plugin zahodit
+        const context = getBaseApplicationContext();
+
+        expect(containerStorage.plugins.length).toBe(1);
+        expect(context.getBean(Plugin)).toBe(context.getBean(Plugin));
     });
 
 });

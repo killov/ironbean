@@ -2,6 +2,7 @@ import {
     Async,
     AsyncDependency,
     AsyncInstance,
+    checkShadowedProps,
     ClassComponent,
     CollectionComponent,
     CollectionToken,
@@ -154,6 +155,7 @@ export class Factory<T> implements IConstructable<T> {
     public construct(container: ComponentContainer): Instance<T> {
         const instance = this.constructInstance(container);
         if (instance instanceof Object) {
+            checkShadowedProps(instance);
             Reflect.defineMetadata(constants.componentContainer, container, instance);
         }
 

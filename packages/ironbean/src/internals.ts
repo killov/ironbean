@@ -1,5 +1,6 @@
 import "reflect-metadata";
 export * from './async';
+export * from './settings';
 export * from './instance';
 export * from "./enums";
 export * from './lazy';
