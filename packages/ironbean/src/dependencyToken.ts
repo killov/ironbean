@@ -18,7 +18,6 @@ export class DependencyToken<TDependency> {
     private _componentType: ComponentType;
     private readonly _scope: Scope;
     private readonly _name: string;
-    readonly isAsync: boolean = false;
     public static Number: typeof NumberDependencyToken;
     public static String: typeof StringDependencyToken;
     public static Boolean: typeof BooleanDependencyToken;
@@ -55,11 +54,19 @@ export class DependencyToken<TDependency> {
     get name(): string {
         return this._name;
     }
+
+    get isAsync(): boolean {
+        return false;
+    }
 }
 
 export class AsyncDependencyToken<TDependency> extends DependencyToken<TDependency> {
     /** @internal phantom type for TypeScript inference - do not remove */
     declare readonly _type?: TDependency;
+
+    get isAsync(): boolean {
+        return true;
+    }
 }
 
 // @ts-ignore

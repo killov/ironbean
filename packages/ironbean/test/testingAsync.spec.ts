@@ -1,4 +1,5 @@
 import {Async, component, destroyContext, getBaseTestingContext, take, TestingContext} from "../src";
+import {DependencyToken} from "../src/dependencyToken";
 import {Container} from "../src/container";
 
 describe("testing", () => {
@@ -28,6 +29,33 @@ describe("testing", () => {
                 return Promise.resolve(new A());
             })
         }).toThrowError("Component Class A is not async.")
+    });
+
+    it ("setMockAsyncFactory on async token without production factory", async () => {
+        class A {}
+
+        const token = DependencyToken.createAsync<A>("tokenA");
+
+        testingContext.setMockAsyncFactory(token, async () => new A());
+
+        const a = await testingContext.getMockAsync(token);
+        expect(a instanceof A).toBe(true);
+    });
+
+    it ("async token is async before its factory is registered", () => {
+        class A {}
+
+        const token = DependencyToken.createAsync<A>("tokenB");
+
+        expect(() => {
+            testingContext.getBean(token);
+        }).toThrowError("Getting bean for component tokenB failed. Bean has async dependency.");
+
+        take(token).setAsyncFactory(async () => new A());
+
+        expect(() => {
+            testingContext.getBean(token);
+        }).toThrowError("Getting bean for component tokenB failed. Bean has async dependency.");
     });
 
     it ("getBeanWithMocksAsync", async () => {

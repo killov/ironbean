@@ -300,6 +300,21 @@ describe("test async", () => {
         expect(b.items[1] instanceof AB).toBe(true);
     })
 
+    it("async token with sync factory stays async", async () => {
+        class A {}
+
+        const token = DependencyToken.createAsync<A>("tokenC");
+
+        take(token).setFactory(() => new A());
+
+        expect(() => {
+            applicationContext.getBean(token);
+        }).toThrowError("Getting bean for component tokenC failed. Bean has async dependency.");
+
+        const a = await applicationContext.getBeanAsync(token);
+        expect(a instanceof A).toBe(true);
+    })
+
     it("collection mixing sync and async components", async () => {
         class A {}
 
