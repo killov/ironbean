@@ -1,21 +1,24 @@
 import {
     ApplicationContext, autowired,
+    collection,
     component,
     ComponentContext,
     ComponentType,
     destroyContext,
     getBaseApplicationContext, postConstruct,
     take,
+    type,
     Async,
     Scope,
     scope
 } from "../src";
+import {CollectionToken} from "../src/collection";
+import {DependencyToken} from "../src/dependencyToken";
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
 import {IFactoryAsync} from "../src/types";
 import {nativeFieldEmit} from "./emitMode";
 
-// @autowired pod native field emitem hazi exception -> originaly se skipuji
 const itAutowired = nativeFieldEmit ? it.skip : it;
 
 describe("test async", () => {
@@ -222,4 +225,103 @@ describe("test async", () => {
         expect(b1.a).toBe(b2.a);
         expect(b1.a).toBe(a);
     });
+
+    it("collection of sync components", () => {
+        class A {}
+
+        @component
+        class AA extends A {}
+
+        @component
+        class AB extends A {}
+
+        take(A).bindTo(AA);
+        take(A).bindTo(AB);
+
+        const items = applicationContext.getBean(CollectionToken.create(A)) as any as A[];
+
+        expect(items.length).toBe(2);
+        expect(items[0] instanceof AA).toBe(true);
+        expect(items[1] instanceof AB).toBe(true);
+    })
+
+    it("collection of async components", async () => {
+        class A extends Async {}
+
+        @component
+        class AA extends A {}
+
+        @component
+        class AB extends A {}
+
+        take(A).bindTo(AA);
+        take(A).bindTo(AB);
+
+        expect(() => {
+            applicationContext.getBean(CollectionToken.create(A));
+        }).toThrowError("Getting bean for component Collection Class A failed. Bean has async dependency.");
+
+        const items = await applicationContext.getBeanAsync(CollectionToken.create(A) as any) as A[];
+
+        expect(items.length).toBe(2);
+        expect(items.map(item => item.constructor.name)).toEqual(["AA", "AB"]);
+        expect(items[0] instanceof AA).toBe(true);
+        expect(items[1] instanceof AB).toBe(true);
+    })
+
+    it("collection of async components injected into async component", async () => {
+        class A extends Async {}
+
+        @component
+        class AA extends A {}
+
+        @component
+        class AB extends A {}
+
+        take(A).bindTo(AA);
+        take(A).bindTo(AB);
+
+        @component
+        class B extends Async {
+            constructor(
+                @collection
+                @type(() => A)
+                public items: A[]
+            ) {
+                super();
+            }
+        }
+
+        const b = await applicationContext.getBeanAsync(B);
+
+        expect(b.items.length).toBe(2);
+        expect(b.items.map(item => item.constructor.name)).toEqual(["AA", "AB"]);
+        expect(b.items[0] instanceof AA).toBe(true);
+        expect(b.items[1] instanceof AB).toBe(true);
+    })
+
+    it("collection mixing sync and async components", async () => {
+        class A {}
+
+        @component
+        class AA extends A {}
+
+        class AB extends A {}
+
+        const asyncAB = DependencyToken.createAsync<AB>("asyncAB");
+        take(asyncAB).setAsyncFactory(async () => new AB());
+
+        take(A).bindTo(AA);
+        take(A).bindTo(asyncAB);
+
+        expect(() => {
+            applicationContext.getBean(CollectionToken.create(A) as any);
+        }).toThrowError("Getting bean for component Collection Class A failed. Bean has async dependency.");
+
+        const items = await applicationContext.getBeanAsync(CollectionToken.create(A) as any) as A[];
+
+        expect(items.map(item => item.constructor.name)).toEqual(["AA", "AB"]);
+        expect(items[0] instanceof AA).toBe(true);
+        expect(items[1] instanceof AB).toBe(true);
+    })
 });
