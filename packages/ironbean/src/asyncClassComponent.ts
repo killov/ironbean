@@ -1,5 +1,6 @@
 import {
     AsyncInstance,
+    checkShadowedProps,
     ClassComponent,
     ComponentContainer,
     constants,
@@ -27,6 +28,7 @@ export class AsyncClassComponent<T> extends ClassComponent<T> {
         const promiseFactory = async () => {
             const params = await Promise.all(asyncParams);
             const instance = containerStorage.currentComponentContainerAction(container, () => new Class(...params));
+            checkShadowedProps(instance);
             // @ts-ignore
             Reflect.defineMetadata(constants.componentContainer, container, instance);
             return instance;

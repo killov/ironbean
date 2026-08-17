@@ -11,7 +11,7 @@ export interface IFactoryAsync<T> {
 }
 
 export type Dependency<TDependency> = TClass<TDependency>|DependencyToken<TDependency>|LazyToken<TDependency>;
-export type AsyncDependency<TDependency> = TClass<Async>|AsyncDependencyToken<TDependency>;
+export type AsyncDependency<TDependency> = TClass<TDependency & Async>|AsyncDependencyToken<TDependency>;
 export type FunctionFactory<TDependency> = (componentContext: ComponentContext) => TDependency;
 export type FunctionAsyncFactory<TDependency> = (componentContext: ComponentContext) => Promise<TDependency>;
 export type ComponentFactory<TDependency> = FunctionFactory<TDependency>|TClass<IFactory<TDependency>>;

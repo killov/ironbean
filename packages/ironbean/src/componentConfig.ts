@@ -6,7 +6,7 @@ import {
     ComponentAsyncFactory,
     ComponentFactory,
     ComponentType,
-    Dependency, DependencyToken,
+    Dependency,
     Factory,
     TClass
 } from "./internals";

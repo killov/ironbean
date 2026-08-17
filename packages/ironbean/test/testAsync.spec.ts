@@ -13,6 +13,10 @@ import {
 import {Container} from "../src/container";
 import {containerStorage} from "../src/containerStorage";
 import {IFactoryAsync} from "../src/types";
+import {nativeFieldEmit} from "./emitMode";
+
+// @autowired pod native field emitem hazi exception -> originaly se skipuji
+const itAutowired = nativeFieldEmit ? it.skip : it;
 
 describe("test async", () => {
     let applicationContext: ApplicationContext;
@@ -78,7 +82,7 @@ describe("test async", () => {
         }).toThrowError("Getting bean for component Class A failed. Bean has async dependency.")
     })
 
-    it("getBean error async for class factory over autowired", async () => {
+    itAutowired("getBean error async for class factory over autowired", async () => {
         class A extends Async {
 
         }
@@ -169,7 +173,7 @@ describe("test async", () => {
         }).toThrowError("Create instance of component Class C failed. PostConstruct async dependency not supported.");
     })
 
-    it ("getBeanWithMocksAsync 2", async () => {
+    itAutowired ("getBeanWithMocksAsync 2", async () => {
         const sc = Scope.create("scope");
         @component
         @scope(sc)

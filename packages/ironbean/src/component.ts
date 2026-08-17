@@ -210,6 +210,7 @@ export class AsyncFactory<T> implements IConstructable<T> {
         const instance = this.constructInstance(container)
             .then((instance) => {
                 if (instance instanceof Object) {
+                    checkShadowedProps(instance);
                     Reflect.defineMetadata(constants.componentContainer, container, instance);
                 }
                 return instance;
