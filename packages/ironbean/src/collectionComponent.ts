@@ -1,4 +1,4 @@
-import {Component, ComponentContainer, ComponentType, Instance, ScopeImpl} from "./internals";
+import {AsyncInstance, Component, ComponentContainer, ComponentType, Instance, ScopeImpl} from "./internals";
 
 export class CollectionComponent<T> extends Component<T> {
     private readonly component: Component<T>;
@@ -12,7 +12,14 @@ export class CollectionComponent<T> extends Component<T> {
     }
 
     construct(container: ComponentContainer): Instance<T> {
-        return new Instance(container.getDependencyList(this.component.getCollectionComponents()) as any);
+        const components = this.component.getCollectionComponents();
+
+        if (CollectionComponent.isAnyAsync(components)) {
+            const items = Promise.all(container.getDependencyListAsync(components));
+            return new Instance(new AsyncInstance(items) as any);
+        }
+
+        return new Instance(container.getDependencyList(components) as any);
     }
 
     isConstructable(): boolean {
@@ -49,5 +56,13 @@ export class CollectionComponent<T> extends Component<T> {
 
     isComponent(): boolean {
         return true;
+    }
+
+    isAsync(): boolean {
+        return CollectionComponent.isAnyAsync(this.component.getCollectionComponents());
+    }
+
+    private static isAnyAsync(components: Component[]): boolean {
+        return components.some((component) => component.isAsync());
     }
 }

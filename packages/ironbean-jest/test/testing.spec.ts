@@ -229,4 +229,17 @@ describe("jasmine testing", () => {
         expect(mock.prop1).toBe("gj");
         expect(mock.prop2).toBe("gj2");
     });
+
+    it("automatic mock of unknown dependency is not thenable", async () => {
+        interface ITodoStorage {
+            save(): void;
+        }
+
+        const key = DependencyToken.create<ITodoStorage>("keyThenable");
+
+        const mock = testingContext.getMock(key);
+
+        expect((mock as any).then).toBeUndefined();
+        expect(await Promise.resolve(mock)).toBe(mock);
+    });
 });

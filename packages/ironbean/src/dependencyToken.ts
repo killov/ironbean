@@ -35,6 +35,10 @@ export class DependencyToken<TDependency> {
         return new DependencyToken<TDependency>(name, settings.componentType || ComponentType.Singleton, settings.scope || Scope.getDefault());
     }
 
+    public static createAsync<TDependency>(name: string, settings: ISettings = {}): AsyncDependencyToken<TDependency> {
+        return new AsyncDependencyToken<TDependency>(name, settings.componentType || ComponentType.Singleton, settings.scope || Scope.getDefault());
+    }
+
     get componentType(): ComponentType {
         return this._componentType;
     }
@@ -49,6 +53,19 @@ export class DependencyToken<TDependency> {
 
     get name(): string {
         return this._name;
+    }
+
+    get isAsync(): boolean {
+        return false;
+    }
+}
+
+export class AsyncDependencyToken<TDependency> extends DependencyToken<TDependency> {
+    /** @internal phantom type for TypeScript inference - do not remove */
+    declare readonly _type?: TDependency;
+
+    get isAsync(): boolean {
+        return true;
     }
 }
 

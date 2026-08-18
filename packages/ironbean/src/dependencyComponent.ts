@@ -52,4 +52,8 @@ export class DependencyComponent<T> extends Component<T> {
     isComponent(): boolean {
         return true;
     }
+
+    isAsync(): boolean {
+        return this.key.isAsync || (this.factory?.isAsync() ?? false);
+    }
 }

@@ -1,4 +1,4 @@
-import {ApplicationContext, component, ComponentContainer, ComponentType, Container, Dependency} from "./internals";
+import {ApplicationContext, AsyncDependency, component, ComponentContainer, ComponentType, Container, Dependency} from "./internals";
 
 @component(ComponentType.Prototype)
 export class ComponentContext {
@@ -10,6 +10,10 @@ export class ComponentContext {
 
     public getBean<T>(dependency: Dependency<T>): T {
         return this.container.getBean(dependency);
+    }
+
+    public getBeanAsync<T>(dependency: AsyncDependency<T>): Promise<T> {
+        return this.container.getBeanAsync(dependency as any);
     }
 
     public provideScope<T>(action: () => T) {

@@ -14,6 +14,9 @@ class JestTestProvider extends TestProvider {
     public mockUnknown<T>(_dep: DependencyToken<T>): T {
         return new Proxy<any>({}, {
             get(_target: T, p: PropertyKey) {
+                if (p === "then") {
+                    return undefined;
+                }
                 return (_target as any)[p] = (_target as any)[p] ?? jest.fn();
             },
             set(target: T, p: string | symbol, value: any): boolean {

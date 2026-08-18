@@ -21,6 +21,7 @@ export {
     lazy,
     inject,
     createConfig,
+    Async,
     ironbeanSettings
 } from "./internals";
 export {
