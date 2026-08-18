@@ -192,4 +192,17 @@ describe("jasmine testing", () => {
         take(Cisilka).setFactory(() => set);
         expect(testingContext.getBean(Cisilka)).toEqual(new Set());
     });
+
+    it("automatic mock of unknown dependency is not thenable", async () => {
+        interface ITodoStorage {
+            save(): void;
+        }
+
+        const key = DependencyToken.create<ITodoStorage>("keyThenable");
+
+        const mock = testingContext.getMock(key);
+
+        expect((mock as any).then).toBeUndefined();
+        expect(await Promise.resolve(mock)).toBe(mock);
+    });
 });

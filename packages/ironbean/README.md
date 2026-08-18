@@ -393,3 +393,9 @@ const storage = await context.getMockAsync(ITodoStorage);
 
 ```setMockAsyncFactory``` throws ```Component <name> is not async.``` for a component that is
 not async.
+
+An automatic mock of a dependency token answers any property with a spy, with one exception:
+```then``` is never synthesized, so the mock is not thenable. A thenable mock could never be
+delivered by ```getBeanAsync```, because a promise is never fulfilled with a thenable, it
+adopts it instead - and a synthesized ```then``` never calls back, so awaiting such a mock
+would hang forever.

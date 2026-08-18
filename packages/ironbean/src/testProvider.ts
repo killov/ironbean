@@ -34,6 +34,9 @@ export class TestProvider {
     public mockUnknown<T>(_dep: DependencyToken<T>): T {
         return new Proxy<any>({}, {
             get(_target: T, p: PropertyKey) {
+                if (p === "then") {
+                    return undefined;
+                }
                 return (_target as any)[p] ?? function () {};
             },
             set(target: T, p: string | symbol, value: any): boolean {

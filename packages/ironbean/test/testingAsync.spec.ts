@@ -1,4 +1,4 @@
-import {Async, component, destroyContext, getBaseTestingContext, take, TestingContext} from "../src";
+import {Async, component, destroyContext, getBaseTestingContext, take, type, TestingContext} from "../src";
 import {DependencyToken} from "../src/dependencyToken";
 import {Container} from "../src/container";
 
@@ -40,6 +40,38 @@ describe("testing", () => {
 
         const a = await testingContext.getMockAsync(token);
         expect(a instanceof A).toBe(true);
+    });
+
+    it ("getMockAsync on async token returns automatic mock", async () => {
+        interface ITodoStorage {
+            save(): void;
+        }
+
+        const token = DependencyToken.createAsync<ITodoStorage>("tokenD");
+
+        const mock = await testingContext.getMockAsync(token);
+
+        expect(mock).toBeDefined();
+        expect(() => mock.save()).not.toThrow();
+    });
+
+    it ("automatic mock of async token injected into async component", async () => {
+        interface ITodoStorage {
+            save(): void;
+        }
+
+        const token = DependencyToken.createAsync<ITodoStorage>("tokenE");
+
+        @component
+        class TodoList extends Async {
+            constructor(@type(token) public storage: ITodoStorage) {
+                super();
+            }
+        }
+
+        const list = await testingContext.getBeanWithMocksAsync(TodoList);
+
+        expect(list.storage).toBe(await testingContext.getMockAsync(token));
     });
 
     it ("async token is async before its factory is registered", () => {
